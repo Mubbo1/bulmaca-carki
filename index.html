@@ -401,7 +401,7 @@
     <button class="xclose" id="btnSetClose" aria-label="Kapat">✕</button>
     <h2>⚙️ Ayarlar</h2>
     <div class="ssec">Oyun</div>
-    <div class="set"><span>🎵 Müzik<small>Huzur veren arka plan müziği</small></span><div class="tog" id="tMusic"></div></div>
+    <div class="set hidden"><span>🎵 Müzik</span><div class="tog" id="tMusic"></div></div>
     <div class="set"><span>🔊 Ses efektleri<small>Harf sesleri, alkış, uyarılar</small></span><div class="tog" id="tSound"></div></div>
     <div class="set"><span>📳 Titreşim</span><div class="tog" id="tVib"></div></div>
     <div class="ssec">Premium</div>
@@ -1138,7 +1138,7 @@ function tick(i,soft){ if(!soundOn) return; try{ AC(); const c=actx, t=c.current
   [[1,.9],[2,.25],[3.01,.06]].forEach(([m,a])=>{ const o=c.createOscillator(), og=c.createGain(); o.type="sine"; o.frequency.value=f*m; og.gain.value=a; o.connect(og); og.connect(g); o.start(t); o.stop(t+.36); });
 }catch(e){} }
 // ---------- arka plan müziği: hafif, tatlı bulmaca oyunu havası (cihazda üretilir, dosya yok) ----------
-let musicOn=store.get("music",true), mus=null;
+let musicOn=false, mus=null; // müzik şimdilik kapalı (ileride açılacak)
 function musicStart(){ if(!musicOn||mus) return; try{ AC(); const c=actx;
   const out=c.createGain(); out.gain.value=0; out.connect(c.destination); out.gain.linearRampToValueAtTime(.1,c.currentTime+2.5);
   const lp=c.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=2800; lp.connect(out);
@@ -1325,7 +1325,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="44";
+const APP_VER="45";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
