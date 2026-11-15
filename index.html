@@ -211,6 +211,27 @@
   .drow input{flex:1;min-width:0;background:#0005;border:1.5px solid #ffffff40;border-radius:16px;color:#fff;font:inherit;font-weight:800;font-size:20px;text-align:center;letter-spacing:4px;text-transform:uppercase;outline:none}
   .dnote{font-size:13px;color:#cfd8ff;text-align:center}
   .dcodebig{font-size:48px;font-weight:800;letter-spacing:10px;color:var(--acc);margin:6px 0}
+  .dlogo{width:150px;height:160px;display:block;margin:4px auto;filter:drop-shadow(0 8px 18px #0008)}
+  .dlogo .spin{transform-origin:100px 100px;animation:dspin 2.4s linear infinite}
+  @keyframes dspin{to{transform:rotate(360deg)}}
+  .dlogo .bulb{fill:#fff8d6}.dlogo .b0{animation:blink 1s infinite}.dlogo .b1{animation:blink 1s .5s infinite}
+  .avatar{overflow:hidden;position:relative}
+  .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+  #dAvatar{cursor:pointer}
+  .camb{position:absolute;right:-2px;bottom:-2px;width:22px;height:22px;border-radius:50%;background:#7b2cbf;border:2px solid #fff;font-size:11px;display:flex;align-items:center;justify-content:center}
+  .avwrap{position:relative;flex:none}
+  .intro{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:6px}
+  .icard{flex:1;background:#ffffff14;border:1px solid #ffffff26;border-radius:18px;padding:14px 6px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;animation:slideL .5s ease-out}
+  .icard.b{animation-name:slideR}
+  .icard .avatar{width:84px;height:84px;font-size:36px;box-shadow:0 0 0 4px #ffb703,0 0 24px #ffb70388}
+  .icard.b .avatar{box-shadow:0 0 0 4px #ff6b8a,0 0 24px #ff6b8a88}
+  .icard .nm{font-weight:800;font-size:17px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .icard .st{font-size:12px;color:#cfd8ff}
+  .ivs{font-weight:900;font-size:30px;color:#ff6b8a;text-shadow:0 0 18px #ff6b8a99;animation:pulse 1s ease-in-out infinite}
+  @keyframes slideL{from{transform:translateX(-60px);opacity:0}}@keyframes slideR{from{transform:translateX(60px);opacity:0}}
+  @keyframes pulse{50%{transform:scale(1.15)}}
+  .icount{text-align:center;font-weight:800;font-size:20px;margin-top:14px}
+  .icount b{color:#ffb703;font-size:30px}
   .spinner{width:34px;height:34px;border:4px solid #ffffff33;border-top-color:var(--acc);border-radius:50%;margin:10px auto;animation:spin 1s linear infinite}
   .rk{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid #ffffff1a}
   .rk .no{width:28px;font-weight:800;text-align:center;font-size:18px}
@@ -397,7 +418,7 @@
       <div class="dtabs"><button class="on" data-tab="play">Oyna</button><button data-tab="rank">🏆 Sıralama</button></div>
       <div id="dTabPlay">
         <div class="dcard prof">
-          <div class="avatar" id="dAvatar">?</div>
+          <div class="avwrap"><div class="avatar" id="dAvatar">?</div><div class="camb">📷</div><input type="file" id="dPhoto" accept="image/*" hidden></div>
           <div style="flex:1;min-width:0">
             <input id="dName" maxlength="16" placeholder="Adını yaz">
             <div class="pstats"><span>🏆 <b id="pW">0</b> galibiyet</span><span>💔 <b id="pL">0</b> mağlubiyet</span></div>
@@ -429,10 +450,24 @@
         <div class="dcatpill hidden" id="dWaitCat"></div>
         <div class="dnote" id="dWaitNote">Oda kodunu arkadaşına gönder</div>
         <div class="dcodebig" id="dWaitCode">----</div>
-        <div class="spinner"></div>
-        <div style="font-weight:700">Rakip bekleniyor…</div>
+        <div id="dWaitLogo"></div>
+        <div style="font-weight:700" id="dWaitTitle">Rakip bekleniyor…</div>
       </div>
       <button class="dbtn ghost" id="dCancel">Vazgeç</button>
+    </div>
+
+    <!-- EŞLEŞME / OYUN BAŞLIYOR -->
+    <div id="dIntro" class="dpage hidden">
+      <div class="dcard" style="text-align:center">
+        <div style="font-weight:800;font-size:20px">⚔️ Rakip bulundu!</div>
+        <div class="intro">
+          <div class="icard"><div class="avatar" id="iaA">?</div><div class="nm" id="inA"></div><div class="vbd" id="ibA"></div><div class="st" id="isA"></div></div>
+          <div class="ivs">VS</div>
+          <div class="icard b"><div class="avatar b" id="iaB">?</div><div class="nm" id="inB"></div><div class="vbd" id="ibB"></div><div class="st" id="isB"></div></div>
+        </div>
+        <div class="icount">Birazdan oyun başlıyor… <b id="iCount">3</b></div>
+        <div id="dIntroLogo"></div>
+      </div>
     </div>
 
     <!-- OYUN -->
@@ -1071,7 +1106,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="13";
+const APP_VER="14";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1173,13 +1208,18 @@ function makeQuestions(cat){
 }
 const myName=()=> ($("dName").value.trim()||"Oyuncu").slice(0,16);
 const initials=n=>(n||"?").trim().slice(0,1).toLocaleUpperCase("tr-TR");
+const okPh=ph=>typeof ph==="string" && ph.length<20000 && /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(ph);
+function setAv(el,name,ph){ if(okPh(ph)){ el.innerHTML=""; const im=new Image(); im.src=ph; im.alt=""; el.appendChild(im); } else el.textContent=initials(name); }
+const myPh=()=>{ const p=store.get("pphoto",""); return okPh(p)?p:""; };
+function logoClone(){ const l=document.querySelector("#home .logo").cloneNode(true); l.setAttribute("class","dlogo"); return l; }
+setTimeout(()=>{ try{ $("dWaitLogo").appendChild(logoClone()); $("dIntroLogo").appendChild(logoClone()); }catch(e){} },0);
 
 // ---------- ekranlar ----------
-function dShow(id){ ["dLobby","dWait","dGame","dEnd"].forEach(x=>$(x).classList.toggle("hidden",x!==id)); }
+function dShow(id){ ["dLobby","dWait","dIntro","dGame","dEnd"].forEach(x=>$(x).classList.toggle("hidden",x!==id)); }
 async function openDuel(){
   $("duel").classList.remove("hidden"); dShow("dLobby"); renderLives();
   try{ $("dName").value=store.get("pname",""); }catch(e){}
-  $("dAvatar").textContent=initials($("dName").value);
+  setAv($("dAvatar"),$("dName").value,myPh());
   renderStats();
   if(!D.inited){ D.inited=true; initNet(); }
 }
@@ -1260,9 +1300,9 @@ function renderStats(){
   $("pW").textContent=w; $("pL").textContent=l; $("pR").textContent=`%${r}`; $("pBar").style.width=r+"%";
 }
 async function saveProfile(){
-  store.set("pname",myName()); $("dAvatar").textContent=initials(myName());
+  store.set("pname",myName()); setAv($("dAvatar"),myName(),myPh());
   if(!(D.db&&D.uid)) return;
-  try{ await D.db.doc("profiles/"+D.uid).set(Object.assign({name:myName(),bd:myBd(),wins:D.stat.w,losses:D.stat.l,draws:D.stat.d,updated:Date.now()}, ...DCATS.map(([c])=>({["w_"+c]:catStat(c).w,["l_"+c]:catStat(c).l})))); }catch(e){}
+  try{ await D.db.doc("profiles/"+D.uid).set(Object.assign({name:myName(),bd:myBd(),ph:myPh(),wins:D.stat.w,losses:D.stat.l,draws:D.stat.d,updated:Date.now()}, ...DCATS.map(([c])=>({["w_"+c]:catStat(c).w,["l_"+c]:catStat(c).l})))); }catch(e){}
 }
 async function loadRank(){
   const box=$("dRank");
@@ -1278,8 +1318,8 @@ async function loadRank(){
     box.innerHTML="";
     rows.forEach((r,i)=>{ const t=(r.wins||0)+(r.losses||0), ra=t?Math.round((r.wins||0)/t*100):0;
       const el=document.createElement("div"); el.className="rk"+(r.id===D.uid?" me":"");
-      el.innerHTML=`<div class="no">${["🥇","🥈","🥉"][i]||i+1}</div><div class="avatar sm">${initials(r.name)}</div><div class="nm"></div><div class="wl"><b>${r.wins||0}</b> G · ${r.losses||0} M<br>%${ra}</div>`;
-      el.querySelector(".nm").textContent=r.name||"Oyuncu"; if(r.bd){ const sm=document.createElement("small"); sm.textContent=String(r.bd).split(",").filter(id=>BMAP[id]).slice(0,3).map(id=>BMAP[id][1]).join(""); el.querySelector(".nm").appendChild(sm); } box.appendChild(el); });
+      el.innerHTML=`<div class="no">${["🥇","🥈","🥉"][i]||i+1}</div><div class="avatar sm"></div><div class="nm"></div><div class="wl"><b>${r.wins||0}</b> G · ${r.losses||0} M<br>%${ra}</div>`;
+      setAv(el.querySelector(".avatar"),r.name,r.ph); el.querySelector(".nm").textContent=r.name||"Oyuncu"; if(r.bd){ const sm=document.createElement("small"); sm.textContent=String(r.bd).split(",").filter(id=>BMAP[id]).slice(0,3).map(id=>BMAP[id][1]).join(""); el.querySelector(".nm").appendChild(sm); } box.appendChild(el); });
   }catch(e){ box.innerHTML='<div class="dnote">Sıralama şu an yüklenemedi.</div>'; }
 }
 
@@ -1291,25 +1331,25 @@ async function joinRoom(code,asHost){
   let r; try{ r=await D.room.join("duel-"+code.toLowerCase()); }catch(e){ toast("Odaya bağlanılamadı"); return; }
   D.r=r; D.code=code; D.mode="online"; D.host=asHost; D.me=Math.random().toString(36).slice(2,10);
   D.offs.push(r.on("duel",m=>onMsg(m.data,m)));
-  D.offs.push(r.onPeers(ch=>{ if(D.g&&D.g.status==="play"&&ch.left.length&&ch.peers.length<2) finish(D.g.players.findIndex(p=>p.id===D.me),"left"); }));
+  D.offs.push(r.onPeers(ch=>{ if(D.g&&(D.g.status==="play"||D.g.status==="intro")&&ch.left.length&&ch.peers.length<2) finish(D.g.players.findIndex(p=>p.id===D.me),"left"); }));
   if(asHost){
-    D.g={status:"wait",code,players:[{id:D.me,name:myName(),bd:myBd()}],qs:makeQuestions(),cat:D.cat,turn:0,done:[],v:1};
+    D.g={status:"wait",code,players:[{id:D.me,name:myName(),bd:myBd(),ph:myPh(),w:D.stat.w,l:D.stat.l}],qs:makeQuestions(),cat:D.cat,turn:0,done:[],v:1};
     $("dWaitCode").textContent=code; dShow("dWait"); $("dWaitCat").textContent=dcatName(D.cat);
     clearInterval(D.rebro); D.rebro=setInterval(()=>{ if(D.g&&D.g.status!=="end") send({t:"state",s:pub()}); },2500);
   }else{
     dShow("dWait"); $("dWaitCode").textContent=code; $("dWaitCat").textContent="Kategori: odaya göre";
-    send({t:"hello",id:D.me,name:myName(),bd:myBd()});
+    send({t:"hello",id:D.me,name:myName(),bd:myBd(),ph:myPh(),w:D.stat.w,l:D.stat.l});
     setTimeout(()=>{ if(D.mode==="online" && !D.host && (!D.g||D.g.status==="wait")){ leaveDuel(); dShow("dLobby"); toast("Odaya bağlanılamadı, tekrar dene"); } },12000);
-    clearInterval(D.rebro); D.rebro=setInterval(()=>{ if(!D.g||D.g.status==="wait") send({t:"hello",id:D.me,name:myName(),bd:myBd()}); },2000);
+    clearInterval(D.rebro); D.rebro=setInterval(()=>{ if(!D.g||D.g.status==="wait") send({t:"hello",id:D.me,name:myName(),bd:myBd(),ph:myPh(),w:D.stat.w,l:D.stat.l}); },2000);
   }
 }
 function send(o){ if(D.mode==="online"&&D.r){ try{ D.r.emit("duel",o); }catch(e){} } }
-function pub(){ const g=D.g; return {...g, left: g.status==="play"? Math.max(0,D.endAt-Date.now()) : 0}; }
+function pub(){ const g=D.g; return {...g, left: g.status==="play"? Math.max(0,D.endAt-Date.now()) : g.status==="intro"? Math.max(0,D.introAt-Date.now()) : 0}; }
 function onMsg(d,m){
   if(!d||typeof d!=="object") return;
   if(D.host){
     if(d.t==="hello" && D.g.status==="wait" && d.id!==D.me){
-      D.g.players[1]={id:d.id,name:String(d.name||"Rakip").slice(0,16),bd:String(d.bd||"").slice(0,60)}; stopSeek(); startTurn(0);
+      D.g.players[1]={id:d.id,name:String(d.name||"Rakip").slice(0,16),bd:String(d.bd||"").slice(0,60),ph:okPh(d.ph)?d.ph:"",w:+d.w||0,l:+d.l||0}; stopSeek(); startIntro();
     }
     if(d.t==="ans" && D.g.status==="play" && d.i===D.g.turn && D.g.players[d.i%2].id===d.id) hostAnswer(d.i,d.w);
     if(d.t==="joker" && D.g.status==="play" && d.i===D.g.turn && D.g.players[d.i%2].id===d.id) hostJoker(d.i);
@@ -1320,6 +1360,22 @@ function onMsg(d,m){
   }
 }
 // ---------- host mantığı ----------
+function startIntro(){
+  const g=D.g; g.status="intro"; g.v++; D.introAt=Date.now()+4000;
+  send({t:"state",s:pub()}); applyState(pub());
+  clearTimeout(D.timer); D.timer=setTimeout(()=>{ if(D.g===g && g.status==="intro") startTurn(0); },4000);
+}
+function renderIntro(s){
+  const g=D.g, me=myIdx(), op=1-me, A=g.players[me]||{}, B=g.players[op]||{};
+  if(!D.introShown){ D.introShown=true; D.introEnd=Date.now()+((s&&s.left)||4000); SFX.win&&beep([[523,.1],[659,.1],[784,.18]]); }
+  dShow("dIntro");
+  setAv($("iaA"),A.name,A.ph); setAv($("iaB"),B.name,B.ph);
+  $("inA").textContent=A.name||"Sen"; $("inB").textContent=B.name||"Rakip";
+  $("ibA").innerHTML=bdHTML(A.bd); $("ibB").innerHTML=bdHTML(B.bd);
+  const rec=p=> D.mode==="bot"&&p===B ? "🤖 Antrenman botu" : `🏆 ${p.w||0} G · 💔 ${p.l||0} M`;
+  $("isA").textContent=rec(A); $("isB").textContent=rec(B);
+  clearInterval(D.tick); const t=()=>{ $("iCount").textContent=Math.max(1,Math.ceil((D.introEnd-Date.now())/1000)); }; t(); D.tick=setInterval(t,200);
+}
 function startTurn(i){
   const g=D.g; g.status="play"; g.turn=i; g.v++; D.endAt=Date.now()+15000;
   clearTimeout(D.timer); D.timer=setTimeout(()=>{ if(g.status==="play"&&g.turn===i) finish(1-(i%2),"time"); },15000+300);
@@ -1357,10 +1413,11 @@ function applyState(s){
   const g=D.g, me=myIdx(), op=1-me;
   try{ $("dWaitCat").textContent=dcatName(g.cat); }catch(e){}
   if(g.status==="end"){ showEnd(); return; }
+  if(g.status==="intro"){ renderIntro(s); return; }
   if(g.status!=="play") return;
   dShow("dGame");
-  $("vnA").textContent=g.players[me].name; $("vaA").textContent=initials(g.players[me].name);
-  $("vnB").textContent=(g.players[op]||{}).name||"Rakip"; $("vbA").innerHTML=bdHTML((g.players[me]||{}).bd,1); $("vbB").innerHTML=bdHTML((g.players[op]||{}).bd,1); $("vaB").textContent=initials((g.players[op]||{}).name);
+  $("vnA").textContent=g.players[me].name; setAv($("vaA"),g.players[me].name,g.players[me].ph);
+  $("vnB").textContent=(g.players[op]||{}).name||"Rakip"; $("vbA").innerHTML=bdHTML((g.players[me]||{}).bd,1); $("vbB").innerHTML=bdHTML((g.players[op]||{}).bd,1); setAv($("vaB"),(g.players[op]||{}).name,(g.players[op]||{}).ph);
   $("dMode").textContent= D.mode==="bot"?"ANTRENMAN":"ONLINE";
   g.done=g.done||[]; const cnt=k=>g.done.filter((x,i)=>x&&i%2===k).length;
   $("vsA").textContent=`${cnt(me)}/10 doğru`; $("vsB").textContent=`${cnt(op)}/10 doğru`;
@@ -1410,7 +1467,7 @@ function showEnd(){
 function leaveDuel(){ stopSeek();
   clearTimeout(D.timer); clearInterval(D.tick); clearInterval(D.rebro);
   D.offs.forEach(f=>{try{f();}catch(e){}}); D.offs=[];
-  try{ D.r&&D.r.leave(); }catch(e){} D.r=null; D.g=null; D.lastTurn=-1; D.counted=false; D.mode=null;
+  try{ D.r&&D.r.leave(); }catch(e){} D.r=null; D.g=null; D.lastTurn=-1; D.counted=false; D.mode=null; D.introShown=false;
 }
 
 // ---------- düello çarkı ----------
@@ -1449,15 +1506,21 @@ $("hDuel").onclick=openDuel;
 $("duelBack").onclick=()=>{ if(D.g&&D.g.status==="play"){ finish(D.host?1-myIdx():myIdx()===0?1:0,"left"); } leaveDuel(); $("duel").classList.add("hidden"); showHome(); };
 document.querySelectorAll(".dtabs button").forEach(b=>b.onclick=()=>{ document.querySelectorAll(".dtabs button").forEach(x=>x.classList.toggle("on",x===b)); $("dTabPlay").classList.toggle("hidden",b.dataset.tab!=="play"); $("dTabRank").classList.toggle("hidden",b.dataset.tab!=="rank"); if(b.dataset.tab==="rank") loadRank(); });
 $("dName").addEventListener("change",saveProfile);
-$("dName").addEventListener("input",()=>{ $("dAvatar").textContent=initials($("dName").value); });
-$("dCreate").onclick=()=>{ if(!$("dName").value.trim()){ toast("Önce adını yaz"); $("dName").focus(); return; } joinRoom(rcode(),true).then(()=>{ $("dWaitNote").textContent="Oda kodunu arkadaşına gönder"; }); };
-$("dJoin").onclick=()=>{ const c=$("dCode").value.trim().toUpperCase(); if(c.length<4){ toast("4 haneli oda kodunu gir"); return; } if(!$("dName").value.trim()){ toast("Önce adını yaz"); return; } joinRoom(c,false); };
+$("dName").addEventListener("input",()=>{ setAv($("dAvatar"),$("dName").value,myPh()); });
+$("dAvatar").onclick=()=>$("dPhoto").click();
+$("dPhoto").onchange=e=>{ const f=e.target.files&&e.target.files[0]; if(!f) return; const fr=new FileReader();
+  fr.onload=()=>{ const im=new Image(); im.onload=()=>{ const S=96, c=document.createElement("canvas"); c.width=c.height=S; const m=Math.min(im.width,im.height);
+    c.getContext("2d").drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,S,S); const d=c.toDataURL("image/jpeg",.7);
+    if(!okPh(d)){ toast("Fotoğraf yüklenemedi"); return; } store.set("pphoto",d); setAv($("dAvatar"),myName(),d); saveProfile(); toast("📷 Profil fotoğrafın güncellendi"); };
+    im.src=fr.result; }; fr.readAsDataURL(f); e.target.value=""; };
+$("dCreate").onclick=()=>{ if(!$("dName").value.trim()){ toast("Önce adını yaz"); $("dName").focus(); return; } joinRoom(rcode(),true).then(()=>{ $("dWaitNote").textContent="Oda kodunu arkadaşına gönder"; $("dWaitCode").style.display=""; $("dWaitTitle").textContent="Arkadaşın bekleniyor…"; }); };
+$("dJoin").onclick=()=>{ const c=$("dCode").value.trim().toUpperCase(); if(c.length<4){ toast("4 haneli oda kodunu gir"); return; } if(!$("dName").value.trim()){ toast("Önce adını yaz"); return; } joinRoom(c,false).then(()=>{ $("dWaitCode").style.display=""; $("dWaitTitle").textContent="Odaya bağlanılıyor…"; }); };
 $("dCancel").onclick=()=>{ leaveDuel(); dShow("dLobby"); };
 $("dAgain").onclick=()=>{ leaveDuel(); dShow("dLobby"); renderLives(); };
 $("dBot").onclick=()=>{ leaveDuel(); D.mode="bot"; D.host=true; D.me="me";
   const bots=["Bilge Bot","Zeki Robot","Kelime Ustası","Çark Botu"];
-  D.g={status:"wait",players:[{id:"me",name:myName(),bd:myBd()},{id:"bot",name:bots[Math.floor(Math.random()*bots.length)],bd:BADGES.map(b=>b[0]).sort(()=>Math.random()-.5).slice(0,1+Math.floor(Math.random()*3)).join(",")}],qs:makeQuestions(),cat:D.cat,turn:0,done:[],v:1};
-  startTurn(0); };
+  D.g={status:"wait",players:[{id:"me",name:myName(),bd:myBd(),ph:myPh(),w:D.stat.w,l:D.stat.l},{id:"bot",name:bots[Math.floor(Math.random()*bots.length)],bd:BADGES.map(b=>b[0]).sort(()=>Math.random()-.5).slice(0,1+Math.floor(Math.random()*3)).join(",")}],qs:makeQuestions(),cat:D.cat,turn:0,done:[],v:1};
+  startIntro(); };
 $("dJoker").onclick=()=>{
   if(!D.g||D.g.status!=="play"||!D.myTurn) return;
   if((D.g.jk||[])[D.g.turn]) return;
@@ -1476,11 +1539,11 @@ async function quickMatch(){
   let picked=null;
   for(const p of cands.sort(()=>Math.random()-.5)){ const c=p.presence.seek.code; if(!D.room.claim || await D.room.claim(c)){ picked=c; break; } }
   if(picked){
-    await joinRoom(picked,false); $("dWaitNote").textContent="Rakibe bağlanılıyor…";
+    await joinRoom(picked,false); $("dWaitNote").textContent=""; $("dWaitCode").style.display="none"; $("dWaitTitle").textContent="Rakibe bağlanılıyor…";
   }else{
     const c=rcode(); await joinRoom(c,true);
     try{ await D.room.presence({seek:{code:c,ts:Date.now(),cat:D.cat}}); }catch(e){}
-    $("dWaitNote").textContent="Rakip aranıyor… Biri düello aradığında otomatik eşleşeceksin. Oda kodu:";
+    $("dWaitNote").textContent=""; $("dWaitCode").style.display="none"; $("dWaitTitle").textContent="🎲 Rakip aranıyor…";
   }
 }
 function stopSeek(){ try{ D.room&&D.room.presence({seek:null}); }catch(e){} }
