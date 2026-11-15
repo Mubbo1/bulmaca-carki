@@ -482,7 +482,7 @@
       <div class="dturn" id="dTurn">Senin sıran!</div>
       <div class="dtimer"><div id="dTimeBar"></div><span id="dTimeTxt">15</span></div>
       <div class="dq" id="dQ">…</div>
-      <div class="djrow"><div class="dcur"><span id="dCur"></span></div><button class="djoker" id="dJoker">🃏 Joker <small>1💎</small></button><button class="djoker solve" id="dSolve">✅ Cevabı Bil <small>5💎</small></button></div>
+      <div class="djrow"><div class="dcur"><span id="dCur"></span></div><button class="djoker" id="dJoker">🃏 Joker <small>200🪙</small></button><button class="djoker solve" id="dSolve">✅ Cevabı Bil <small>5💎</small></button></div>
       <div id="dWheel" class="dwheel"><div class="bg"></div><svg id="dLines"></svg></div>
     </div>
 
@@ -1107,7 +1107,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="17";
+const APP_VER="18";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1539,8 +1539,8 @@ $("dSolve").onclick=()=>{
 $("dJoker").onclick=()=>{
   if(!D.g||D.g.status!=="play"||!D.myTurn) return;
   if((D.g.jk||[])[D.g.turn]) return;
-  if(gems<1){ toast("Elmasın yok — mağazadan alabilirsin"); openShop(); return; }
-  setGems(gems-1); beep([[523,.08],[784,.14]]); toast("🃏 Joker kullanıldı! +5 sn");
+  if(coins<200){ toast(`Joker için 200 🪙 gerekiyor (sende ${coins} var) — bölüm çözerek kazan`); return; }
+  coins-=200; store.set("coins",coins); try{ $("coins").textContent=coins; $("hsCoins").textContent=coins; }catch(e){} beep([[523,.08],[784,.14]]); toast("🃏 Joker kullanıldı! +5 sn");
   if(D.mode==="online" && !store.get("bJoker",0)){ store.set("bJoker",1); try{ checkBadges(); }catch(e){} }
   if(D.host) hostJoker(D.g.turn); else { $("dJoker").disabled=true; send({t:"joker",i:D.g.turn,id:D.me}); }
 };
