@@ -265,7 +265,10 @@
   #qi b{color:#7b2cbf}
   .gem{background:#7b2cbf}
   .shop .row{display:flex;justify-content:space-between;align-items:center;background:#f1ecfa;border-radius:14px;padding:10px 12px;margin-top:10px}
-  .shop .row button{width:auto;margin:0;padding:8px 14px;font-size:16px}
+  .shop .row.unl{background:linear-gradient(135deg,#ffe0e8,#ffd6a5);border:2px solid #ff6b8a}
+  #dLivesPill{cursor:pointer}#dLivesPill:active{transform:scale(.94)}
+  #dLivesPill .plus{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#2ecc71;color:#fff;font-size:14px;font-weight:900;margin-left:4px}
+  .shop .row button{white-space:nowrap;flex:none;width:auto;margin:0;padding:8px 14px;font-size:16px}
   .shop .ad{background:#ffb703}
   .note{font-size:12px;color:#888;margin-top:10px}
   #adBox{background:#111;color:#fff}
@@ -354,6 +357,15 @@
     <button id="btnNext">Devam Et ▶</button>
   </div></div>
 
+  <div class="overlay hidden" id="ovLife"><div class="box shop">
+    <h2>❤️ Can</h2>
+    <div style="font-size:15px" id="lifeTxt">Online düelloda kaybedersen 1 can gider. Canın bitince oynayamazsın.</div>
+    <div class="row" id="lifeAdRow"><span>📺 Reklam izle<br><small>+1 ❤️</small></span><button class="ad" id="lifeAd">İzle</button></div>
+    <div class="row unl"><span><b>♾️ Sınırsız Can</b><br><small>Bir kere al, can derdi bitsin!</small></span><button id="lifeUnl">149,99 ₺</button></div>
+    <div class="note">Deneme sürümü: ödeme alınmaz. Mağazalara çıkınca gerçek uygulama içi satın alma bağlanacak.</div>
+    <button id="lifeClose" style="background:#dee2e6">Kapat</button>
+  </div></div>
+
   <div class="overlay hidden" id="ovShop"><div class="box shop">
     <h2>💎 Elmas</h2>
     <div style="font-size:15px">Elmasla, bilemediğin sorunun cevabı hakkında ek bilgi ve ilk harfini açarsın.</div>
@@ -378,7 +390,7 @@
     <div id="catGrid"></div>
   </div>
   <div id="duel" class="hidden">
-    <div class="mtop"><button class="ibtn" id="duelBack" aria-label="Geri">←</button><div class="mprogTxt" style="flex:1;font-size:20px">⚔️ Düello</div><div class="pill" id="dLivesPill">❤️ <span id="dLives">3</span></div></div>
+    <div class="mtop"><button class="ibtn" id="duelBack" aria-label="Geri">←</button><div class="mprogTxt" style="flex:1;font-size:20px">⚔️ Düello</div><div class="pill" id="dLivesPill">❤️ <span id="dLives">3</span><span class="plus">+</span></div></div>
 
     <!-- LOBİ -->
     <div id="dLobby" class="dpage">
@@ -1106,12 +1118,25 @@ async function fbInit(){
 const D={ room:null, db:null, user:null, uid:null, g:null, mode:null, timer:null, tick:null, rebro:null, offs:[], lastTurn:-1, endAt:0, stat:{w:0,l:0,d:0} };
 const LIFE_MAX=3;
 let lives=Math.min(store.get("lives",LIFE_MAX),LIFE_MAX);
-function setLives(n){ lives=Math.max(0,Math.min(LIFE_MAX,n)); store.set("lives",lives); renderLives(); }
+let unlimited=!!store.get("unlimLives",0);
+const hasLife=()=>unlimited||lives>0;
+function setLives(n){ if(unlimited){ renderLives(); return; } lives=Math.max(0,Math.min(LIFE_MAX,n)); store.set("lives",lives); renderLives(); }
 function renderLives(){
-  $("dLives").textContent=lives;
-  $("dHearts").innerHTML=[0,1,2].map(i=>`<span class="${i<lives?"":"off"}">❤️</span>`).join("");
-  $("dAdLife").style.display = lives<LIFE_MAX ? "" : "none";
+  $("dLives").textContent= unlimited?"∞":lives;
+  $("dHearts").innerHTML= unlimited? '<span>❤️</span> <b style="font-size:20px">♾️ Sınırsız</b>' : [0,1,2].map(i=>`<span class="${i<lives?"":"off"}">❤️</span>`).join("");
+  $("dAdLife").style.display = !unlimited&&lives<LIFE_MAX ? "" : "none";
+  $("dLivesPill").querySelector(".plus").style.display= unlimited?"none":"";
 }
+function openLife(){
+  if(unlimited){ toast("♾️ Sınırsız canın var!"); return; }
+  $("lifeAdRow").style.display= lives<LIFE_MAX?"":"none";
+  $("lifeTxt").textContent= lives<LIFE_MAX ? `Şu an ${lives} canın var. Reklam izleyerek can kazanabilir ya da sınırsız can alabilirsin.` : "Canların dolu. Sınırsız can alırsan kaybetsen de hiç can gitmez!";
+  $("ovLife").classList.remove("hidden");
+}
+$("dLivesPill").onclick=openLife;
+$("lifeClose").onclick=()=>$("ovLife").classList.add("hidden");
+$("lifeAd").onclick=()=>{ $("ovLife").classList.add("hidden"); showAd(()=>{ setLives(lives+1); toast("+1 ❤️ kazandın"); }); };
+$("lifeUnl").onclick=()=>{ unlimited=true; store.set("unlimLives",1); $("ovLife").classList.add("hidden"); renderLives(); toast("Deneme: ♾️ Sınırsız can açıldı (ödeme alınmadı)"); };
 // genel reklam penceresi (elmas ve can için ortak)
 let adReward=null;
 function showAd(onDone){
@@ -1252,7 +1277,7 @@ async function loadRank(){
 // ---------- oda ----------
 function rcode(){ const a="ABCDEFGHJKLMNPRSTUVYZ23456789"; let s=""; for(let i=0;i<4;i++) s+=a[Math.floor(Math.random()*a.length)]; return s; }
 async function joinRoom(code,asHost){
-  if(lives<=0){ toast("Canın kalmadı — reklam izleyerek can kazan"); return; }
+  if(!hasLife()){ toast("Canın kalmadı — reklam izle ya da sınırsız can al"); openLife(); return; }
   saveProfile();
   let r; try{ r=await D.room.join("duel-"+code.toLowerCase()); }catch(e){ toast("Odaya bağlanılamadı"); return; }
   D.r=r; D.code=code; D.mode="online"; D.host=asHost; D.me=Math.random().toString(36).slice(2,10);
@@ -1363,14 +1388,14 @@ function showEnd(){
   if(D.mode==="online" && !D.counted){
     D.counted=true;
     const gc=g.cat||"genel";
-    if(draw) D.stat.d++; else if(won){ D.stat.w++; catStat(gc).w++; } else { D.stat.l++; catStat(gc).l++; setLives(lives-1); }
+    if(draw) D.stat.d++; else if(won){ D.stat.w++; catStat(gc).w++; } else { D.stat.l++; catStat(gc).l++; if(!unlimited) setLives(lives-1); }
     if(won){ const st=store.get("streak",0)+1; store.set("streak",st); if(st>store.get("bestStreak",0)) store.set("bestStreak",st); if(store.get("lastLost",0)) store.set("bComeback",1); store.set("lastLost",0); }
     else if(!draw){ store.set("streak",0); store.set("lastLost",1); }
     if((g.done||[]).filter((x,i)=>x&&i%2===me).length>=10) store.set("bPerfect",1);
     renderStats(); saveProfile();
     if(won) SFX.win(); else if(!draw) SFX.bad();
   }
-  $("dEndLives").innerHTML = D.mode==="bot" ? "🤖 Antrenman — can harcanmadı" : (!draw&&!won ? `❤️ −1 · Kalan can: ${lives}` : `Canların: ${"❤️".repeat(lives)||"0"}`);
+  $("dEndLives").innerHTML = D.mode==="bot" ? "🤖 Antrenman — can harcanmadı" : unlimited ? "♾️ Sınırsız can — can gitmedi" : (!draw&&!won ? `❤️ −1 · Kalan can: ${lives}` : `Canların: ${"❤️".repeat(lives)||"0"}`);
   dShow("dEnd");
 }
 function leaveDuel(){ stopSeek();
@@ -1436,7 +1461,7 @@ $("dJoker").onclick=()=>{
 async function quickMatch(){
   if(!D.room){ toast("Online bağlantı yok"); return; }
   if(!$("dName").value.trim()){ toast("Önce adını yaz"); $("dName").focus(); return; }
-  if(lives<=0){ toast("Canın kalmadı — reklam izleyerek can kazan"); return; }
+  if(!hasLife()){ toast("Canın kalmadı — reklam izle ya da sınırsız can al"); openLife(); return; }
   const now=Date.now();
   const cands=(D.room.peers()||[]).filter(p=>!p.isMe && p.presence && p.presence.seek && p.presence.seek.code && (p.presence.seek.cat||"genel")===D.cat && now-(p.presence.seek.ts||0)<120000);
   let picked=null;
