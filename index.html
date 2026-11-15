@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Bulmaca Çarkı</title>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
@@ -40,6 +40,9 @@
   .side{display:flex;flex-direction:column;gap:12px}
   .sbtn{width:52px;height:52px;border-radius:50%;border:0;background:#ffffff2a;color:#fff;font-size:22px;cursor:pointer;position:relative}
   .sbtn small{white-space:nowrap;position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);background:var(--acc);color:#1b262c;font-size:11px;font-weight:800;border-radius:8px;padding:0 5px}
+  html,body{touch-action:pan-y;-webkit-text-size-adjust:100%;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  input,textarea{-webkit-user-select:text;user-select:text;font-size:16px}
+  button,.node,.cell,.tap,.sbtn,.ibtn{touch-action:manipulation}
   #wheel{width:min(62vw,250px);height:min(62vw,250px);position:relative;touch-action:none}
   #wheel .bg{position:absolute;inset:0;border-radius:50%;background:#ffffffd9;box-shadow:0 8px 24px #0006}
   #wheel svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
@@ -383,7 +386,7 @@
 </svg>
     <h1>Bulmaca <span>Çarkı</span></h1>
     <div class="tag">Harfleri kaydır, soruları çöz, dünyayı gez!</div>
-    <div class="hstats"><span>🪙 <b id="hsCoins">0</b></span><span id="hsGemBtn" class="tap">💎 <b id="hsGems">0</b> <i class="plus">+</i></span><span>⭐ <b id="hsStars">0</b></span></div>
+    <div class="hstats"><span id="hsCoinBtn" class="tap">🪙 <b id="hsCoins">0</b> <i class="plus">+</i></span><span id="hsGemBtn" class="tap">💎 <b id="hsGems">0</b> <i class="plus">+</i></span><span>⭐ <b id="hsStars">0</b></span></div>
     <div class="btns">
       <button class="hbtn main" id="hStart">BAŞLA</button>
       <div class="cont" id="hCont"></div>
@@ -1100,6 +1103,8 @@ try{ new ResizeObserver(()=>{ const h=$("gridWrap").clientHeight; if(L && Math.a
 function setGems(n){ gems=n; store.set("gems",gems); $("gems").textContent=gems; }
 function openShop(){ $("ovShop").classList.remove("hidden"); }
 $("hsGemBtn").onclick=openShop;
+function addCoins(n){ coins+=n; store.set("coins",coins); try{ $("coins").textContent=coins; }catch(e){} try{ $("hsCoins").textContent=coins; }catch(e){} }
+$("hsCoinBtn").onclick=()=>{ showAd(()=>{ addCoins(100); toast("+100 🪙 altın kazandın!"); try{ SFX.win(); }catch(e){} },"🪙"); };
 $("gemPill").onclick=openShop;
 $("btnShopClose").onclick=()=>$("ovShop").classList.add("hidden");
 $("btnInfo").onclick=()=>{
@@ -1286,11 +1291,18 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="40";
+const APP_VER="41";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
   chk(); document.addEventListener("visibilitychange",()=>{ if(!document.hidden) chk(); });
+})();
+// ---------- yakınlaştırmayı tamamen kapat (iPhone çift dokunma ve iki parmak) ----------
+(function(){ const stop=e=>{ e.preventDefault(); };
+  ["gesturestart","gesturechange","gestureend"].forEach(ev=>document.addEventListener(ev,stop,{passive:false}));
+  document.addEventListener("touchmove",e=>{ if(e.touches&&e.touches.length>1) e.preventDefault(); if(e.scale!==undefined&&e.scale!==1) e.preventDefault(); },{passive:false});
+  let last=0; document.addEventListener("touchend",e=>{ const now=Date.now(); if(now-last<350 && !(e.target.closest&&e.target.closest("input,textarea"))){ e.preventDefault(); e.target.click&&e.target.click(); } last=now; },{passive:false});
+  document.addEventListener("dblclick",stop,{passive:false});
 })();
 const FB_CONFIG={apiKey:"AIzaSyDCxMccH0zg7MdZ2wUlhTdxwRCqiIbSAgQ",authDomain:"bulmaca-carki.firebaseapp.com",databaseURL:"https://bulmaca-carki-default-rtdb.firebaseio.com",projectId:"bulmaca-carki",storageBucket:"bulmaca-carki.firebasestorage.app",messagingSenderId:"132070576740",appId:"1:132070576740:web:4ddae27e51d368591b8571"};
 const IN_ARTIFACT=/claudeusercontent\.com$|claude\.ai$/.test(location.hostname);
@@ -1384,7 +1396,8 @@ function showInterstitial(){ if(noAds) return; adReward=()=>{};
   $("ovAd").classList.remove("hidden"); let n=5; $("adCount").textContent=n; const b=$("btnAdDone"); b.disabled=true; b.style.opacity=.4;
   clearInterval(adTimer); adTimer=setInterval(()=>{ n--; $("adCount").textContent=Math.max(n,0); if(n<=0){ clearInterval(adTimer); b.disabled=false; b.style.opacity=1; } },1000); }
 function showAd(onDone,icon){ if(noAds){ setTimeout(()=>{ try{ onDone&&onDone(); }catch(e){} },150); return; }
-  icon=icon||"💎"; $("adNote").textContent=`Reklam bitince 1 ${icon} ${icon==="❤️"?"can ":""}kazanacaksın`; $("btnAdDone").textContent=`Kapat ve 1 ${icon} ${icon==="❤️"?"can ":""}al`;
+  icon=icon||"💎"; const amt= icon==="🪙"?100:1, w= icon==="❤️"?"can ":icon==="🪙"?"altın ":"";
+  $("adNote").textContent=`Reklam bitince ${amt} ${icon} ${w}kazanacaksın`; $("btnAdDone").textContent=`Kapat ve ${amt} ${icon} ${w}al`;
   adReward=onDone; $("ovAd").classList.remove("hidden");
   let n=5; $("adCount").textContent=n; const b=$("btnAdDone"); b.disabled=true; b.style.opacity=.4;
   clearInterval(adTimer); adTimer=setInterval(()=>{ n--; $("adCount").textContent=Math.max(n,0); if(n<=0){ clearInterval(adTimer); b.disabled=false; b.style.opacity=1; } },1000);
