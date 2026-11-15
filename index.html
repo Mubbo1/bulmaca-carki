@@ -433,10 +433,10 @@
 
   <div class="overlay hidden" id="ovLife"><div class="box shop xbox"><button class="xclose" id="lifeClose" aria-label="Kapat">✕</button>
     <h2>❤️ Can</h2>
-    <div style="font-size:15px" id="lifeTxt">Online düelloda kaybedersen 1 can gider. Canın bitince oynayamazsın.</div>
+    <div style="font-size:14px;color:#e63946;font-weight:700;min-height:18px" id="lifeTimer"></div><div style="font-size:15px" id="lifeTxt">Online düelloda kaybedersen 1 can gider. Canın bitince oynayamazsın.</div>
     <div class="row unl"><span><b>♾️ Sınırsız Can</b><br><small>Bir kere al, can derdi bitsin!</small></span><button id="lifeUnl">149,99 ₺</button></div>
     <div class="row" id="lifeAdRow"><span><b>📺 1 reklam izle = 1 ❤️ can kazan</b><br><small id="lifeAdSub">Her reklam +1 can</small></span><button class="ad" id="lifeAd">İzle</button></div>
-    <div class="note">Deneme sürümü: ödeme alınmaz. Mağazalara çıkınca gerçek uygulama içi satın alma bağlanacak.</div>
+    <div class="note">Can 3'ün altındayken her 15 dakikada 1 can kendiliğinden dolar. Deneme sürümü: ödeme alınmaz.</div>
   </div></div>
 
   <div class="overlay hidden" id="ovShop"><div class="box shop xbox"><button class="xclose" id="btnShopClose" aria-label="Kapat">✕</button>
@@ -482,7 +482,7 @@
           <div class="bdhead"><b>🎖️ Rozetlerim <span id="bdCount" style="opacity:.75;font-weight:600"></span></b><button id="bdToggle">Tümü ▾</button></div>
           <div id="bdBox" class="hidden"><div class="dnote" style="margin-top:6px">Kazandığın rozetlere dokun, profilinde en fazla <b>3 tanesi</b> görünsün. Rakiplerin de bunları görecek!</div><div class="bdstreak" id="bdStreak"></div><div class="bdgrid" id="bdGrid"></div><div class="bdinfo" id="bdInfo"></div></div>
         </div>
-        <div class="dcard lives"><div><b>Canların</b><div class="hearts" id="dHearts">❤️❤️❤️</div></div><button class="dbtn" id="dAdLife">📺 Reklam izle<br><small>+1 ❤️</small></button></div>
+        <div class="dcard lives"><div><b>Canların</b><div class="hearts" id="dHearts">❤️❤️❤️</div><small id="dLifeTimer" style="color:#ffb3c1;font-weight:700"></small></div><button class="dbtn" id="dAdLife">📺 Reklam izle<br><small>+1 ❤️</small></button></div>
         <div class="hidden"><div id="dCats"></div><div id="dCatStat"></div></div>
         <button class="dbtn gold" id="dQuick">🎲 Rastgele Rakip Bul</button>
         <button class="dbtn" id="dCreate">⚔️ Arkadaşınla Oyna (Oda Kur)</button>
@@ -1286,7 +1286,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="38";
+const APP_VER="39";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1343,7 +1343,21 @@ const LIFE_MAX=3;
 let lives=Math.min(store.get("lives",LIFE_MAX),LIFE_MAX);
 let unlimited=!!store.get("unlimLives",0);
 const hasLife=()=>unlimited||lives>0;
-function setLives(n){ if(unlimited){ renderLives(); return; } lives=Math.max(0,Math.min(LIFE_MAX,n)); store.set("lives",lives); renderLives(); }
+// can yenilenmesi: 3'ün altındayken her 15 dakikada +1 can (en fazla 3)
+const LIFE_REGEN=15*60*1000;
+function setLives(n){ if(unlimited){ renderLives(); return; } lives=Math.max(0,Math.min(LIFE_MAX,n)); store.set("lives",lives);
+  if(lives>=LIFE_MAX) store.set("lifeT",0); else if(!store.get("lifeT",0)) store.set("lifeT",Date.now());
+  renderLives(); }
+function regenLives(){ if(unlimited) return; let t=store.get("lifeT",0);
+  if(lives>=LIFE_MAX){ if(t) store.set("lifeT",0); return; }
+  if(!t){ store.set("lifeT",Date.now()); return; }
+  const n=Math.floor((Date.now()-t)/LIFE_REGEN); if(n<=0) return;
+  const before=lives; lives=Math.min(LIFE_MAX,lives+n); store.set("lives",lives);
+  store.set("lifeT", lives>=LIFE_MAX ? 0 : t+n*LIFE_REGEN);
+  if(lives>before) toast(`❤️ Canın yenilendi! (${lives}/${LIFE_MAX})`); renderLives(); }
+function lifeLeftTxt(){ const t=store.get("lifeT",0); if(unlimited||lives>=LIFE_MAX||!t) return ""; const ms=Math.max(0,t+LIFE_REGEN-Date.now()), m=Math.floor(ms/60000), sec=Math.floor(ms%60000/1000);
+  return `${m}:${String(sec).padStart(2,"0")}`; }
+setInterval(()=>{ try{ regenLives(); const x=lifeLeftTxt(); $("dLifeTimer").textContent= x?`⏳ ${x} sonra +1 ❤️`:""; if(!$("ovLife").classList.contains("hidden")) $("lifeTimer").textContent= x?`⏳ Sonraki can ${x} içinde kendiliğinden dolacak`:""; }catch(e){} },1000);
 function renderLives(){
   $("dLives").textContent= unlimited?"∞":lives;
   $("dHearts").innerHTML= unlimited? '<span>❤️</span> <b style="font-size:20px">♾️ Sınırsız</b>' : [0,1,2].map(i=>`<span class="${i<lives?"":"off"}">❤️</span>`).join("");
