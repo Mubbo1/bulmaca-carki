@@ -1106,7 +1106,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="14";
+const APP_VER="15";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1339,7 +1339,7 @@ async function joinRoom(code,asHost){
   }else{
     dShow("dWait"); $("dWaitCode").textContent=code; $("dWaitCat").textContent="Kategori: odaya göre";
     send({t:"hello",id:D.me,name:myName(),bd:myBd(),ph:myPh(),w:D.stat.w,l:D.stat.l});
-    setTimeout(()=>{ if(D.mode==="online" && !D.host && (!D.g||D.g.status==="wait")){ leaveDuel(); dShow("dLobby"); toast("Odaya bağlanılamadı, tekrar dene"); } },12000);
+    const myCode=code; setTimeout(()=>{ if(D.mode==="online" && !D.host && D.code===myCode && (!D.g||D.g.status==="wait")){ const q=D.quick; leaveDuel(); if(q && (D.retries=(D.retries||0)+1)<=3){ quickMatch(); } else { D.retries=0; dShow("dLobby"); toast("Odaya bağlanılamadı, tekrar dene"); } } },q0());
     clearInterval(D.rebro); D.rebro=setInterval(()=>{ if(!D.g||D.g.status==="wait") send({t:"hello",id:D.me,name:myName(),bd:myBd(),ph:myPh(),w:D.stat.w,l:D.stat.l}); },2000);
   }
 }
@@ -1360,7 +1360,7 @@ function onMsg(d,m){
   }
 }
 // ---------- host mantığı ----------
-function startIntro(){
+function startIntro(){ D.retries=0;
   const g=D.g; g.status="intro"; g.v++; D.introAt=Date.now()+4000;
   send({t:"state",s:pub()}); applyState(pub());
   clearTimeout(D.timer); D.timer=setTimeout(()=>{ if(D.g===g && g.status==="intro") startTurn(0); },4000);
@@ -1513,9 +1513,9 @@ $("dPhoto").onchange=e=>{ const f=e.target.files&&e.target.files[0]; if(!f) retu
     c.getContext("2d").drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,S,S); const d=c.toDataURL("image/jpeg",.7);
     if(!okPh(d)){ toast("Fotoğraf yüklenemedi"); return; } store.set("pphoto",d); setAv($("dAvatar"),myName(),d); saveProfile(); toast("📷 Profil fotoğrafın güncellendi"); };
     im.src=fr.result; }; fr.readAsDataURL(f); e.target.value=""; };
-$("dCreate").onclick=()=>{ if(!$("dName").value.trim()){ toast("Önce adını yaz"); $("dName").focus(); return; } joinRoom(rcode(),true).then(()=>{ $("dWaitNote").textContent="Oda kodunu arkadaşına gönder"; $("dWaitCode").style.display=""; $("dWaitTitle").textContent="Arkadaşın bekleniyor…"; }); };
-$("dJoin").onclick=()=>{ const c=$("dCode").value.trim().toUpperCase(); if(c.length<4){ toast("4 haneli oda kodunu gir"); return; } if(!$("dName").value.trim()){ toast("Önce adını yaz"); return; } joinRoom(c,false).then(()=>{ $("dWaitCode").style.display=""; $("dWaitTitle").textContent="Odaya bağlanılıyor…"; }); };
-$("dCancel").onclick=()=>{ leaveDuel(); dShow("dLobby"); };
+$("dCreate").onclick=()=>{ D.quick=false; D.retries=0; if(!$("dName").value.trim()){ toast("Önce adını yaz"); $("dName").focus(); return; } joinRoom(rcode(),true).then(()=>{ $("dWaitNote").textContent="Oda kodunu arkadaşına gönder"; $("dWaitCode").style.display=""; $("dWaitTitle").textContent="Arkadaşın bekleniyor…"; }); };
+$("dJoin").onclick=()=>{ D.quick=false; D.retries=0; const c=$("dCode").value.trim().toUpperCase(); if(c.length<4){ toast("4 haneli oda kodunu gir"); return; } if(!$("dName").value.trim()){ toast("Önce adını yaz"); return; } joinRoom(c,false).then(()=>{ $("dWaitCode").style.display=""; $("dWaitTitle").textContent="Odaya bağlanılıyor…"; }); };
+$("dCancel").onclick=()=>{ D.quick=false; D.retries=0; leaveDuel(); dShow("dLobby"); };
 $("dAgain").onclick=()=>{ leaveDuel(); dShow("dLobby"); renderLives(); };
 $("dBot").onclick=()=>{ leaveDuel(); D.mode="bot"; D.host=true; D.me="me";
   const bots=["Bilge Bot","Zeki Robot","Kelime Ustası","Çark Botu"];
@@ -1530,7 +1530,8 @@ $("dJoker").onclick=()=>{
   if(D.host) hostJoker(D.g.turn); else { $("dJoker").disabled=true; send({t:"joker",i:D.g.turn,id:D.me}); }
 };
 // ---------- rastgele eşleşme (lobi) ----------
-async function quickMatch(){
+const q0=()=>D.quick?7000:12000;
+async function quickMatch(){ D.quick=true;
   if(!D.room){ toast("Online bağlantı yok"); return; }
   if(!$("dName").value.trim()){ toast("Önce adını yaz"); $("dName").focus(); return; }
   if(!hasLife()){ toast("Canın kalmadı — reklam izle ya da sınırsız can al"); openLife(); return; }
