@@ -1286,7 +1286,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="37";
+const APP_VER="38";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1364,6 +1364,11 @@ $("lifeUnl").onclick=()=>{ unlimited=true; store.set("unlimLives",1); $("ovLife"
 let adReward=null;
 let noAds=!!store.get("noAds",0);
 function renderNoAds(){ const on=noAds; $("btnNoAds").textContent= on?"✅ Aktif":"199,99 ₺"; $("btnNoAds").disabled=on; $("noAdsTxt").textContent= on?"Reklamsızsın: ödüller anında geliyor":"Reklam izlemeden ödülleri anında al"; document.querySelector(".set.noads").classList.toggle("on",on); }
+// düello sonu geçiş reklamı (ödülsüz). Reklamları kaldıranlara gösterilmez.
+function showInterstitial(){ if(noAds) return; adReward=()=>{};
+  $("adNote").textContent="Reklam bitince devam edebilirsin · Reklamsız oynamak için: Ayarlar → Reklamları Kaldır"; $("btnAdDone").textContent="Kapat";
+  $("ovAd").classList.remove("hidden"); let n=5; $("adCount").textContent=n; const b=$("btnAdDone"); b.disabled=true; b.style.opacity=.4;
+  clearInterval(adTimer); adTimer=setInterval(()=>{ n--; $("adCount").textContent=Math.max(n,0); if(n<=0){ clearInterval(adTimer); b.disabled=false; b.style.opacity=1; } },1000); }
 function showAd(onDone,icon){ if(noAds){ setTimeout(()=>{ try{ onDone&&onDone(); }catch(e){} },150); return; }
   icon=icon||"💎"; $("adNote").textContent=`Reklam bitince 1 ${icon} ${icon==="❤️"?"can ":""}kazanacaksın`; $("btnAdDone").textContent=`Kapat ve 1 ${icon} ${icon==="❤️"?"can ":""}al`;
   adReward=onDone; $("ovAd").classList.remove("hidden");
@@ -1693,6 +1698,7 @@ function showEnd(){
   const opName=vis(g.players[1-me]).name||"Rakip"; const OP=g.players[1-me]||{};
   $("dReport").style.display= D.mode==="online"&&OP.uid&&!store.get("rep_"+OP.uid,0) ? "" : "none";
   $("dEndIcon").textContent= draw?"🤝":won?"🏆":"💔";
+  if(!D.endAd){ D.endAd=true; clearTimeout(D.adT); D.adT=setTimeout(()=>{ if(!$("dEnd").classList.contains("hidden")) showInterstitial(); },3500); }
   if(!D.endSfx){ D.endSfx=true; if(won||draw){ applause(); buzz([100,60,100]); } else { sadTrombone(); buzz(400); } }
   $("dEndTitle").textContent= draw?"Berabere!":won?"Kazandın!":"Kaybettin";
   const why={time:"süresinde cevap veremedi",left:"oyundan ayrıldı",draw:""}[g.reason]||"";
@@ -1714,7 +1720,7 @@ function showEnd(){
 function leaveDuel(){ stopSeek(); clearInterval(D.seekTimer);
   clearTimeout(D.timer); clearInterval(D.tick); clearInterval(D.rebro);
   D.offs.forEach(f=>{try{f();}catch(e){}}); D.offs=[];
-  try{ D.r&&D.r.leave(); }catch(e){} D.r=null; D.g=null; D.lastTurn=-1; D.counted=false; D.mode=null; D.introShown=false; D.endSfx=false;
+  try{ D.r&&D.r.leave(); }catch(e){} D.r=null; D.g=null; D.lastTurn=-1; D.counted=false; D.mode=null; D.introShown=false; D.endSfx=false; D.endAd=false; clearTimeout(D.adT);
 }
 
 // ---------- düello çarkı ----------
