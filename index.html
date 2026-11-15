@@ -271,6 +271,7 @@
   .djrow{display:flex;align-items:center;justify-content:center;gap:10px;min-height:40px}
   .djoker{font:inherit;font-weight:800;font-size:15px;border:0;border-radius:999px;padding:6px 14px;background:linear-gradient(135deg,#c77dff,#7b2cbf);color:#fff;box-shadow:0 4px 0 #4a148c;cursor:pointer}
   .djoker small{background:#fff3;border-radius:8px;padding:0 6px;margin-left:4px}
+  .djoker.solve{background:linear-gradient(135deg,#2ecc71,#138d4f);box-shadow:0 4px 0 #0b5e33;margin-left:6px}
   .djoker:disabled{opacity:.35;box-shadow:none}
   .dwheel .L.first{box-shadow:0 0 0 4px #7b2cbf;background:#e0c3fc}
   .dhint{display:block;margin-top:6px;color:#7b2cbf;font-weight:800;font-size:14px}
@@ -481,7 +482,7 @@
       <div class="dturn" id="dTurn">Senin sıran!</div>
       <div class="dtimer"><div id="dTimeBar"></div><span id="dTimeTxt">15</span></div>
       <div class="dq" id="dQ">…</div>
-      <div class="djrow"><div class="dcur"><span id="dCur"></span></div><button class="djoker" id="dJoker">🃏 Joker <small>1💎</small></button></div>
+      <div class="djrow"><div class="dcur"><span id="dCur"></span></div><button class="djoker" id="dJoker">🃏 Joker <small>1💎</small></button><button class="djoker solve" id="dSolve">✅ Cevabı Bil <small>5💎</small></button></div>
       <div id="dWheel" class="dwheel"><div class="bg"></div><svg id="dLines"></svg></div>
     </div>
 
@@ -1106,7 +1107,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="16";
+const APP_VER="17";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1442,7 +1443,7 @@ function applyState(s){
   if(!D.host && D.lastTurn===g.turn && jkNow && !D.jkSeen){ D.endAt=Date.now()+(s.left||0); }
   if(D.lastTurn!==g.turn){ D.jkSeen=false; D.lastTurn=g.turn; D.turnAt=Date.now(); if(!D.host) D.endAt=Date.now()+(s.left||15000); buildDWheel(q.l); $("dCur").textContent=""; if(mine) beep([[660,.1]]); }
   $("dWheel").classList.toggle("off",!mine); D.myTurn=mine;
-  $("dJoker").disabled = !mine || jkNow;
+  $("dJoker").disabled = !mine || jkNow; $("dSolve").disabled = !mine;
   if(jkNow){ const W=[...QW(q)]; if(!D.jkSeen){ D.jkSeen=true; const L=[...q.l]; const rest=[...W]; const keep=[]; L.forEach(c=>{ const k=rest.indexOf(c); if(k>=0){ rest.splice(k,1); keep.push(c);} }); buildDWheel(keep.join("")); const fi=dPos.findIndex(p=>p.ch===W[0]); if(fi>=0) dPos[fi].el.classList.add("first"); }
     const h=document.createElement("span"); h.className="dhint"; h.textContent=`🃏 İlk harf: ${W[0]} · Son harf: ${W[W.length-1]} · +5 sn`; $("dQ").appendChild(h); }
   clearInterval(D.tick); D.tick=setInterval(dTick,150); dTick();
@@ -1529,6 +1530,12 @@ $("dBot").onclick=()=>{ leaveDuel(); D.mode="bot"; D.host=true; D.me="me";
   const bots=["Bilge Bot","Zeki Robot","Kelime Ustası","Çark Botu"];
   D.g={status:"wait",players:[{id:"me",name:myName(),bd:myBd(),ph:myPh(),w:D.stat.w,l:D.stat.l},{id:"bot",name:bots[Math.floor(Math.random()*bots.length)],bd:BADGES.map(b=>b[0]).sort(()=>Math.random()-.5).slice(0,1+Math.floor(Math.random()*3)).join(",")}],qs:makeQuestions(),cat:D.cat,turn:0,done:[],v:1};
   startIntro(); };
+$("dSolve").onclick=()=>{
+  if(!D.g||D.g.status!=="play"||!D.myTurn) return;
+  if(gems<5){ toast("5 💎 gerekiyor — mağazadan alabilirsin"); openShop(); return; }
+  const q=D.g.qs[D.g.turn], w=QW(q); setGems(gems-5); toast(`✅ Cevap: ${w} — sıra rakibe geçti`);
+  $("dSolve").disabled=true; $("dCur").textContent=w; dSubmit(w);
+};
 $("dJoker").onclick=()=>{
   if(!D.g||D.g.status!=="play"||!D.myTurn) return;
   if((D.g.jk||[])[D.g.turn]) return;
