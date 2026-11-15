@@ -396,7 +396,7 @@
         </div>
         <div class="dcard rules"><b>Kurallar</b><br>20 soru, sırayla: 1. soru sana, 2. soru rakibine… Her soru için <b>15 saniye</b>. Süresinde bilemeyen kaybeder! Online oyunda <b>3 canın</b> var: kaybedersen <b>1 ❤️</b> gider. Canın biterse reklam izleyerek can kazanırsın.</div>
         <div class="dcard lives"><div><b>Canların</b><div class="hearts" id="dHearts">❤️❤️❤️</div></div><button class="dbtn" id="dAdLife">📺 Reklam izle<br><small>+1 ❤️</small></button></div>
-        <div class="dcard"><b>Kategori seç</b> <small style="opacity:.75">— bildiğin konuda yarış!</small><div class="dcats" id="dCats" style="margin-top:8px"></div><div class="pcat" id="dCatStat"></div></div>
+        <div class="hidden"><div id="dCats"></div><div id="dCatStat"></div></div>
         <button class="dbtn gold" id="dQuick">🎲 Rastgele Rakip Bul</button>
         <button class="dbtn" id="dCreate">⚔️ Arkadaşınla Oyna (Oda Kur)</button>
         <div class="drow"><input id="dCode" maxlength="5" placeholder="ODA KODU"><button class="dbtn" id="dJoin">Katıl</button></div>
@@ -404,7 +404,7 @@
         <div class="dnote" id="dNet">Bağlantı kontrol ediliyor…</div>
       </div>
       <div id="dTabRank" class="hidden">
-        <div class="dcats sm" id="dRankCats" style="margin-bottom:8px"></div>
+        <div class="hidden" id="dRankCats"></div>
         <div class="dcard" id="dRank"><div class="dnote">Yükleniyor…</div></div>
       </div>
     </div>
@@ -412,7 +412,7 @@
     <!-- BEKLEME -->
     <div id="dWait" class="dpage hidden">
       <div class="dcard" style="text-align:center">
-        <div class="dcatpill" id="dWaitCat"></div>
+        <div class="dcatpill hidden" id="dWaitCat"></div>
         <div class="dnote" id="dWaitNote">Oda kodunu arkadaşına gönder</div>
         <div class="dcodebig" id="dWaitCode">----</div>
         <div class="spinner"></div>
@@ -1162,7 +1162,7 @@ async function initNet(){
     renderStats();
   }
 }
-D.cat=store.get("dcat","genel");
+D.cat="genel"; // düelloda kategori yok: karışık genel kültür
 // ---------- ROZETLER ----------
 const BADGES=[
   ["ilk","🎖️","İlk Adım","İlk online düellonu oyna"],
@@ -1173,11 +1173,11 @@ const BADGES=[
   ["efsane","👑","Efsane","Toplam 50 galibiyet al"],
   ["simsek","⚡","Şimşek","Online düelloda bir soruyu 3 saniyede bil"],
   ["kusursuz","🎯","Kusursuz","Bir düelloda 10 sorunun hepsini bil"],
-  ["genel","🧠","Bilge","Genel kategoride 5 galibiyet"],
-  ["spor","⚽","Spor Ustası","Spor kategorisinde 5 galibiyet"],
-  ["sanat","🎨","Sanat Ustası","Sanat kategorisinde 5 galibiyet"],
-  ["tarih","🏛️","Tarih Ustası","Tarih kategorisinde 5 galibiyet"],
-  ["gezgin","🌍","Her Telden","Her kategoride en az 1 galibiyet"],
+  ["seri10","🌟","Yenilmez","Üst üste 10 galibiyet al"],
+  ["glad25","🛡️","Şampiyon","Toplam 25 galibiyet al"],
+  ["joker","🃏","Jokerci","Online düelloda joker kullan"],
+  ["usta","📈","Usta Taktisyen","En az 20 maçta %70 kazanma oranı"],
+  ["maraton","🏃","Maratoncu","Toplam 100 online düello oyna"],
   ["yildiz","⭐","Yıldız Avcısı","Tek oyunculu modda 100 yıldız topla"],
   ["sadik","💎","Sadık Oyuncu","Toplam 25 online düello oyna"],
   ["inat","💪","Pes Etmem","Kaybettikten sonra tekrar oynayıp kazan"]
@@ -1189,8 +1189,8 @@ function checkBadges(){
   const st=D.stat, c=k=>catStat(k).w, tot=st.w+st.l+(st.d||0);
   const totStars=["main","spor","sanat","tarih"].reduce((a,p)=>a+packStars(p),0);
   const has={ilk:tot>=1,zafer:st.w>=1,seri3:store.get("bestStreak",0)>=3,seri5:store.get("bestStreak",0)>=5,glad:st.w>=10,efsane:st.w>=50,
-    simsek:!!store.get("bFast",0),kusursuz:!!store.get("bPerfect",0),genel:c("genel")>=5,spor:c("spor")>=5,sanat:c("sanat")>=5,tarih:c("tarih")>=5,
-    gezgin:DCATS.every(([k])=>c(k)>=1),yildiz:totStars>=100,sadik:tot>=25,inat:!!store.get("bComeback",0)};
+    simsek:!!store.get("bFast",0),kusursuz:!!store.get("bPerfect",0),seri10:store.get("bestStreak",0)>=10,glad25:st.w>=25,joker:!!store.get("bJoker",0),
+    usta:(st.w+st.l)>=20&&st.w/(st.w+st.l)>=0.7,maraton:tot>=100,yildiz:totStars>=100,sadik:tot>=25,inat:!!store.get("bComeback",0)};
   const nw=BADGES.filter(b=>has[b[0]]&&!bEarned.includes(b[0]));
   if(nw.length){ bEarned=[...bEarned,...nw.map(b=>b[0])]; store.set("bdg",bEarned);
     nw.forEach(b=>{ if(bShow.length<3) bShow.push(b[0]); }); store.set("bdShow",bShow);
@@ -1256,7 +1256,7 @@ async function joinRoom(code,asHost){
   D.offs.push(r.on("duel",m=>onMsg(m.data,m)));
   D.offs.push(r.onPeers(ch=>{ if(D.g&&D.g.status==="play"&&ch.left.length&&ch.peers.length<2) finish(D.g.players.findIndex(p=>p.id===D.me),"left"); }));
   if(asHost){
-    D.g={status:"wait",code,players:[{id:D.me,name:myName(),bd:myBd()}],qs:makeQuestions(D.cat),cat:D.cat,turn:0,done:[],v:1};
+    D.g={status:"wait",code,players:[{id:D.me,name:myName(),bd:myBd()}],qs:makeQuestions(),cat:D.cat,turn:0,done:[],v:1};
     $("dWaitCode").textContent=code; dShow("dWait"); $("dWaitCat").textContent=dcatName(D.cat);
     clearInterval(D.rebro); D.rebro=setInterval(()=>{ if(D.g&&D.g.status!=="end") send({t:"state",s:pub()}); },2500);
   }else{
@@ -1324,7 +1324,7 @@ function applyState(s){
   dShow("dGame");
   $("vnA").textContent=g.players[me].name; $("vaA").textContent=initials(g.players[me].name);
   $("vnB").textContent=(g.players[op]||{}).name||"Rakip"; $("vbA").innerHTML=bdHTML((g.players[me]||{}).bd,1); $("vbB").innerHTML=bdHTML((g.players[op]||{}).bd,1); $("vaB").textContent=initials((g.players[op]||{}).name);
-  $("dMode").textContent= (D.mode==="bot"?"ANTRENMAN · ":"")+(dcatName(g.cat).split(" ")[1]||"").toLocaleUpperCase("tr-TR");
+  $("dMode").textContent= D.mode==="bot"?"ANTRENMAN":"ONLINE";
   g.done=g.done||[]; const cnt=k=>g.done.filter((x,i)=>x&&i%2===k).length;
   $("vsA").textContent=`${cnt(me)}/10 doğru`; $("vsB").textContent=`${cnt(op)}/10 doğru`;
   const mine=g.turn%2===me;
@@ -1419,13 +1419,14 @@ $("dCancel").onclick=()=>{ leaveDuel(); dShow("dLobby"); };
 $("dAgain").onclick=()=>{ leaveDuel(); dShow("dLobby"); renderLives(); };
 $("dBot").onclick=()=>{ leaveDuel(); D.mode="bot"; D.host=true; D.me="me";
   const bots=["Bilge Bot","Zeki Robot","Kelime Ustası","Çark Botu"];
-  D.g={status:"wait",players:[{id:"me",name:myName(),bd:myBd()},{id:"bot",name:bots[Math.floor(Math.random()*bots.length)],bd:BADGES.map(b=>b[0]).sort(()=>Math.random()-.5).slice(0,1+Math.floor(Math.random()*3)).join(",")}],qs:makeQuestions(D.cat),cat:D.cat,turn:0,done:[],v:1};
+  D.g={status:"wait",players:[{id:"me",name:myName(),bd:myBd()},{id:"bot",name:bots[Math.floor(Math.random()*bots.length)],bd:BADGES.map(b=>b[0]).sort(()=>Math.random()-.5).slice(0,1+Math.floor(Math.random()*3)).join(",")}],qs:makeQuestions(),cat:D.cat,turn:0,done:[],v:1};
   startTurn(0); };
 $("dJoker").onclick=()=>{
   if(!D.g||D.g.status!=="play"||!D.myTurn) return;
   if((D.g.jk||[])[D.g.turn]) return;
   if(gems<1){ toast("Elmasın yok — mağazadan alabilirsin"); openShop(); return; }
   setGems(gems-1); beep([[523,.08],[784,.14]]); toast("🃏 Joker kullanıldı! +5 sn");
+  if(D.mode==="online" && !store.get("bJoker",0)){ store.set("bJoker",1); try{ checkBadges(); }catch(e){} }
   if(D.host) hostJoker(D.g.turn); else { $("dJoker").disabled=true; send({t:"joker",i:D.g.turn,id:D.me}); }
 };
 // ---------- rastgele eşleşme (lobi) ----------
@@ -1442,7 +1443,7 @@ async function quickMatch(){
   }else{
     const c=rcode(); await joinRoom(c,true);
     try{ await D.room.presence({seek:{code:c,ts:Date.now(),cat:D.cat}}); }catch(e){}
-    $("dWaitNote").textContent="Aynı kategoride rakip aranıyor… Biri bu kategoride düello aradığında otomatik eşleşeceksin. Oda kodu:";
+    $("dWaitNote").textContent="Rakip aranıyor… Biri düello aradığında otomatik eşleşeceksin. Oda kodu:";
   }
 }
 function stopSeek(){ try{ D.room&&D.room.presence({seek:null}); }catch(e){} }
