@@ -1421,7 +1421,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="50";
+const APP_VER="51";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1839,7 +1839,8 @@ function applyState(s){
   const jkNow=!!(g.jk&&g.jk[g.turn]);
   if(!D.host && D.lastTurn===g.turn && jkNow && !D.jkSeen){ D.endAt=Date.now()+(s.left||0); }
   if(D.lastTurn!==g.turn){ D.jkSeen=false; D.lastTurn=g.turn; D.turnAt=Date.now(); if(!D.host) D.endAt=Date.now()+(s.left||15000); buildDWheel(q.l); $("dCur").textContent=""; if(mine) beep([[660,.1]]); }
-  $("dWheel").classList.toggle("off",!mine); D.myTurn=mine;
+  const answered = D.ansTurn===g.turn && D.ansGame===g.code; // cevabı gönderdim, sunucu onayı bekleniyor
+  $("dWheel").classList.toggle("off",!mine||answered); D.myTurn=mine&&!answered;
   $("dJoker").disabled = !mine || jkNow; $("dSolve").disabled = !mine;
   if(jkNow){ const W=[...QW(q)]; if(!D.jkSeen){ D.jkSeen=true; const L=[...q.l]; const rest=[...W]; const keep=[]; L.forEach(c=>{ const k=rest.indexOf(c); if(k>=0){ rest.splice(k,1); keep.push(c);} }); buildDWheel(keep.join("")); const fi=dPos.findIndex(p=>p.ch===W[0]); if(fi>=0) dPos[fi].el.classList.add("first"); }
     const h=document.createElement("span"); h.className="dhint"; h.textContent=`🃏 İlk harf: ${W[0]} · Son harf: ${W[W.length-1]} · +5 sn`; $("dQ").appendChild(h); }
@@ -1877,7 +1878,7 @@ function showEnd(){
 function leaveDuel(){ stopSeek(); clearInterval(D.seekTimer);
   clearTimeout(D.timer); clearInterval(D.tick); clearInterval(D.rebro);
   D.offs.forEach(f=>{try{f();}catch(e){}}); D.offs=[];
-  try{ D.r&&D.r.leave(); }catch(e){} D.r=null; D.g=null; D.lastTurn=-1; D.counted=false; D.mode=null; D.introShown=false; D.endSfx=false; D.endAd=false; clearTimeout(D.adT);
+  try{ D.r&&D.r.leave(); }catch(e){} D.r=null; D.g=null; D.lastTurn=-1; D.counted=false; D.mode=null; D.introShown=false; D.ansTurn=-1; D.ansGame=null; D.endSfx=false; D.endAd=false; clearTimeout(D.adT);
 }
 
 // ---------- düello çarkı ----------
@@ -1906,7 +1907,7 @@ function dSubmit(w){
   if(!D.g||D.g.status!=="play"||!D.myTurn||[...w].length<2) return;
   const i=D.g.turn;
   if(w!==QW(D.g.qs[i])){ const c=$("dCur").parentElement; $("dCur").textContent=w; c.className="dcur bad"; SFX.bad(); setTimeout(()=>{c.className="dcur";$("dCur").textContent="";},600); return; }
-  SFX.ok(); D.myTurn=false;
+  SFX.ok(); D.myTurn=false; D.ansTurn=i; D.ansGame=D.g.code; $("dWheel").classList.add("off");
   if(D.mode==="online" && D.turnAt && Date.now()-D.turnAt<=3000 && !store.get("bFast",0)){ store.set("bFast",1); try{ checkBadges(); saveProfile(); }catch(e){} }
   if(D.host) hostAnswer(i,w); else send({t:"ans",i,w,id:D.me});
 }
@@ -1945,7 +1946,7 @@ $("dCancel").onclick=()=>{ D.quick=false; D.retries=0; leaveDuel(); dShow("dLobb
 $("dAgain").onclick=()=>{ leaveDuel(); dShow("dLobby"); renderLives(); };
 $("dBot").onclick=()=>{ leaveDuel(); D.mode="bot"; D.host=true; D.me="me";
   const bots=["Bilge Bot","Zeki Robot","Kelime Ustası","Çark Botu"];
-  D.g={status:"wait",players:[{id:"me",name:myName(),bd:myBd(),ph:myPh(),w:D.stat.w,l:D.stat.l},{id:"bot",name:bots[Math.floor(Math.random()*bots.length)],bd:BADGES.map(b=>b[0]).sort(()=>Math.random()-.5).slice(0,1+Math.floor(Math.random()*3)).join(","),w:Math.floor(Math.random()*120)}],qs:makeQuestions(),cat:D.cat,turn:0,done:[],v:1};
+  D.ansTurn=-1; D.g={status:"wait",players:[{id:"me",name:myName(),bd:myBd(),ph:myPh(),w:D.stat.w,l:D.stat.l},{id:"bot",name:bots[Math.floor(Math.random()*bots.length)],bd:BADGES.map(b=>b[0]).sort(()=>Math.random()-.5).slice(0,1+Math.floor(Math.random()*3)).join(","),w:Math.floor(Math.random()*120)}],qs:makeQuestions(),cat:D.cat,turn:0,done:[],v:1};
   startIntro(); };
 $("dSolve").onclick=()=>{
   if(!D.g||D.g.status!=="play"||!D.myTurn) return;
