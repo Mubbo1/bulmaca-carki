@@ -50,6 +50,8 @@
   html,body{touch-action:pan-y;-webkit-text-size-adjust:100%;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
   input,textarea{-webkit-user-select:text;user-select:text;font-size:16px}
   button,.node,.cell,.tap,.sbtn,.ibtn{touch-action:manipulation}
+  .flyl{position:fixed;left:0;top:0;z-index:50;pointer-events:none;border-radius:22%;background:radial-gradient(circle at 35% 30%,#fff,#ffe08a 60%,#ffb703);color:#1b262c;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px #0007,0 0 18px #ffd16699;font-family:inherit}
+  .wait{color:transparent!important}
   #wheel{width:min(62vw,250px);height:min(62vw,250px);position:relative;touch-action:none}
   #wheel .bg{position:absolute;inset:0;border-radius:50%;background:#ffffffd9;box-shadow:0 8px 24px #0006}
   #wheel svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
@@ -1002,12 +1004,32 @@ wh.addEventListener("pointerdown",e=>{ e.preventDefault(); const h=hit(e.clientX
 wh.addEventListener("pointermove",e=>{ if(!drawing) return; const h=hit(e.clientX,e.clientY); pointer=h;
   if(h.bi>=0){ if(path.length>1 && path[path.length-2]===h.bi){ path.pop(); tick(path.length-1,true); } else if(!path.includes(h.bi)){ path.push(h.bi); tick(path.length-1); } }
   drawLines(); });
-const end=()=>{ if(!drawing) return; drawing=false; const w=path.map(i=>wheelPos[i].ch).join(""); pointer=null; path=[]; drawLines(); submit(w); };
+const end=()=>{ if(!drawing) return; drawing=false; const w=path.map(i=>wheelPos[i].ch).join(""); lastPath=[...path]; pointer=null; path=[]; drawLines(); submit(w); };
 wh.addEventListener("pointerup",end); wh.addEventListener("pointercancel",end);
 
 function flash(cls,txt){ const c=$("cur"); $("curTxt").textContent=txt; c.className=cls; setTimeout(()=>{ c.className=""; $("curTxt").textContent=""; },650); }
 function toast(t){ const el=$("toast"); el.textContent=t; el.classList.remove("hidden"); el.style.opacity=1; clearTimeout(el._t); el._t=setTimeout(()=>{el.style.opacity=0; setTimeout(()=>el.classList.add("hidden"),300);},1400); }
 
+let lastPath=[];
+// ---------- doğru kelime: harfler çarktan uçup kutucuklara yerleşir ----------
+function chime(){ if(!soundOn) return; try{ AC(); const c=actx, t0=c.currentTime+.01;
+  [1046.5,1318.51,1567.98,2093].forEach((f,k)=>{ const t=t0+k*.075, g=c.createGain(); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(k===3?.13:.1,t+.006); g.gain.exponentialRampToValueAtTime(.0005,t+(k===3?.9:.45)); g.connect(c.destination);
+    [[1,1],[2,.3],[4.02,.08]].forEach(([m,a])=>{ const o=c.createOscillator(), og=c.createGain(); o.type="sine"; o.frequency.value=f*m; og.gain.value=a; o.connect(og); og.connect(g); o.start(t); o.stop(t+1); }); });
+  // parıltı
+  for(let k=0;k<6;k++){ const t=t0+.3+k*.05, o=c.createOscillator(), g=c.createGain(); o.type="sine"; o.frequency.value=3000+Math.random()*2000; g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.025,t+.004); g.gain.exponentialRampToValueAtTime(.0003,t+.18); o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+.2); }
+}catch(e){} }
+function flyLetters(wi,fresh,srcIdx){ const w=L.words[wi], cells=wordCells(w); const cur=$("cur").getBoundingClientRect();
+  const used=new Set(); let landed=0, total=0;
+  cells.forEach((c,k)=>{ if(!fresh[k]) return; total++; const cell=cellMap.get(c.x+","+c.y).el; cell.classList.add("wait");
+    let sx=cur.left+cur.width/2, sy=cur.top+cur.height/2;
+    const bi = srcIdx&&srcIdx[k]!==undefined ? srcIdx[k] : wheelPos.findIndex((p,i)=>p.ch===c.ch&&!used.has(i));
+    if(bi>=0&&wheelPos[bi]){ used.add(bi); const r=wheelPos[bi].el.getBoundingClientRect(); sx=r.left+r.width/2; sy=r.top+r.height/2; }
+    const cr=cell.getBoundingClientRect(), tx=cr.left+cr.width/2, ty=cr.top+cr.height/2;
+    const f=document.createElement("div"); f.className="flyl"; f.textContent=c.ch; document.body.appendChild(f);
+    const sz=Math.max(cr.width,24); f.style.width=f.style.height=sz+"px"; f.style.fontSize=Math.round(sz*.62)+"px";
+    const delay=k*85; const a=f.animate([{transform:`translate(${sx-sz/2}px,${sy-sz/2}px) scale(1.35)`,opacity:1},{transform:`translate(${(sx+tx)/2-sz/2}px,${Math.min(sy,ty)-60-sz/2}px) scale(1.15)`,opacity:1,offset:.45},{transform:`translate(${tx-sz/2}px,${ty-sz/2}px) scale(1)`,opacity:1}],{duration:480,delay,easing:"cubic-bezier(.35,.7,.35,1)",fill:"both"});
+    a.onfinish=()=>{ f.remove(); cell.classList.remove("wait"); cell.classList.add("pop"); setTimeout(()=>cell.classList.remove("pop"),400); tick(k); landed++; if(landed===total) setTimeout(chime,60); }; });
+  if(!total) chime(); }
 function submit(w){
   if([...w].length<2){ $("curTxt").textContent=""; return; }
   const idx=L.words.findIndex(x=>x.w===w);
@@ -1015,14 +1037,14 @@ function submit(w){
   if(L.words[idx].found){ flash("dup",w); toast("Bunu zaten buldun"); return; }
   // sadece seçili sorunun cevabı kabul edilir
   if(selWord>=0 && L.words[selWord] && !L.words[selWord].found && idx!==selWord){ flash("bad",w); SFX.bad(); toast("Bu, bu sorunun cevabı değil 🙂"); return; }
+  const fresh=wordCells(L.words[idx]).map(c=>!cellShown(c.x+","+c.y)); const src=lastPath.length===[...w].length?[...lastPath]:null; lastPath=[];
   L.words[idx].found=true; const odul=TIERS[tierOf(lv)].odul; coins+=odul; store.set("coins",coins); $("coins").textContent=coins;
-  flash("good",w); SFX.ok();
-  wordCells(L.words[idx]).forEach((c,k)=>{ const el=cellMap.get(c.x+","+c.y).el; setTimeout(()=>{ el.classList.add("pop"); setTimeout(()=>el.classList.remove("pop"),400); },k*70); });
+  flash("good",w); buzz(30);
   autoFound(); saveProg();
   const next=L.words.findIndex(x=>!x.found);
-  if(next<0){ refreshGrid(); setQuestion(); setTimeout(win,800); return; }
+  if(next<0){ refreshGrid(); setQuestion(); flyLetters(idx,fresh,src); setTimeout(win,1300); return; }
   selWord = next;
-  refreshGrid(); setQuestion();
+  refreshGrid(); setQuestion(); flyLetters(idx,fresh,src);
 }
 // harfleri tamamen açılmış (ipucuyla ya da kesişen kelimelerle) kelimeler bulunmuş sayılır
 function autoFound(){ let any=false;
@@ -1370,7 +1392,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="47";
+const APP_VER="48";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
