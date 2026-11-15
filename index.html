@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Bulmaca Çarkı</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bulmaca Çarkı">
+<meta name="theme-color" content="#14082e">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
   :root{--bg1:#0f4c75;--bg2:#1b262c;--cell:#ffffffee;--cellE:#ffffff2e;--acc:#ffb703;--sel:#8ecae6;--ok:#2a9d8f;--txt:#fff}
@@ -420,6 +427,7 @@
     <h2>⚙️ Ayarlar</h2>
     <div class="ssec">Oyun</div>
     <div class="set hidden"><span>🎵 Müzik</span><div class="tog" id="tMusic"></div></div>
+    <div class="set"><span>🔔 Bildirimler<small id="nfSetTxt">Ödüller ve canlar dolunca haber al</small></span><button id="nfSetBtn" class="mini">İzin ver</button></div>
     <div class="set"><span>🔊 Ses efektleri<small>Harf sesleri, alkış, uyarılar</small></span><div class="tog" id="tSound"></div></div>
     <div class="set"><span>📳 Titreşim</span><div class="tog" id="tVib"></div></div>
     <div class="ssec">Premium</div>
@@ -461,6 +469,15 @@
     <button class="gold" id="spinBtn">🎡 Çarkı Çevir</button>
     <button id="spinAdBtn" class="hidden">📺 Reklam izle → +1 çevirme</button>
     <div class="note">Parmağınla çarkı kaydırarak da çevirebilirsin. Elmaslar daha zor çıkar!</div>
+  </div></div>
+
+  <div class="overlay hidden" id="ovNotif"><div class="box xbox" style="text-align:center"><button class="xclose" id="nfClose" aria-label="Kapat">✕</button>
+    <div style="font-size:54px;line-height:1">🔔</div>
+    <h2>Hiçbir ödülü kaçırma!</h2>
+    <div style="font-size:15px;color:#555">Günlük çark hazır olduğunda, canların dolduğunda ve rakipler seni beklediğinde haber verelim.</div>
+    <div id="nfIos" class="hidden" style="font-size:14px;background:#fff3c4;border-radius:12px;padding:10px;margin-top:10px;text-align:left">📱 iPhone'da bildirim için önce oyunu ana ekrana ekle: Safari'de <b>Paylaş</b> (□↑) → <b>Ana Ekrana Ekle</b>. Sonra oyunu ana ekrandaki simgeden açıp buradan izin ver.</div>
+    <button class="gold" id="nfYes" style="background:linear-gradient(135deg,#ffd166,#f4a261);color:#3a2500">🔔 Bildirimlere İzin Ver</button>
+    <button id="nfNo" style="background:#dee2e6">Şimdi değil</button>
   </div></div>
 
   <div class="overlay hidden" id="ovLife"><div class="box shop xbox"><button class="xclose" id="lifeClose" aria-label="Kapat">✕</button>
@@ -1238,7 +1255,7 @@ function hideHome(){ $("home").classList.add("hidden"); }
 function syncToggles(){ $("tMusic").classList.toggle("on",musicOn); $("tSound").classList.toggle("on",soundOn); $("tVib").classList.toggle("on",vibOn); }
 $("hStart").onclick=()=>{ hideHome(); beep([[523,.08],[784,.12]]); if(L) buildGrid(); };
 $("hMenu").onclick=()=>{ mapFrom=null; menuFromHome=true; $("btnMenu").click(); };
-$("hSet").onclick=()=>{ syncToggles(); renderNoAds(); $("resetAsk").classList.add("hidden"); $("ovSet").classList.remove("hidden"); };
+$("hSet").onclick=()=>{ syncToggles(); renderNoAds(); try{ renderNfSet(); }catch(e){} $("resetAsk").classList.add("hidden"); $("ovSet").classList.remove("hidden"); };
 $("tSound").onclick=()=>{ soundOn=!soundOn; store.set("sound",soundOn); syncToggles(); beep([[880,.08]]); };
 $("tMusic").onclick=()=>{ musicOn=!musicOn; store.set("music",musicOn); syncToggles(); musicOn?musicStart():musicStop(); };
 $("tVib").onclick=()=>{ vibOn=!vibOn; store.set("vib",vibOn); syncToggles(); buzz(40); };
@@ -1353,7 +1370,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="46";
+const APP_VER="47";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1994,7 +2011,7 @@ function givePrize(p){ let msg="";
 $("spinBtn").onclick=()=>doSpin(1);
 $("spinHub").onclick=()=>doSpin(1);
 $("spinAdBtn").onclick=()=>{ const st=spinState(); if(st.ad<=0) return; showAd(()=>{ store.set("spinAd",0); store.set("spinFree",1); renderSpin(); toast("🎡 +1 çevirme hakkı kazandın!"); },"🎡"); };
-$("spinClose").onclick=()=>{ if(!spinning) $("ovSpin").classList.add("hidden"); };
+$("spinClose").onclick=()=>{ if(!spinning){ $("ovSpin").classList.add("hidden"); setTimeout(maybeAskNotif,600); } };
 $("hDaily").onclick=openSpin;
 try{ document.querySelector("#home .logo").style.cursor="pointer"; document.querySelector("#home .logo").addEventListener("click",openSpin); }catch(e){}
 // parmakla çevirme
@@ -2005,10 +2022,59 @@ try{ document.querySelector("#home .logo").style.cursor="pointer"; document.quer
   w.addEventListener("pointerup",e=>{ if(!down) return; down=false; const d=((angOf(e.clientX,e.clientY)-ang0+540)%360)-180; const moved=Math.hypot(e.clientX-sx,e.clientY-sy);
     if(moved>25 && spinState().free>0){ spinRot+=d; setRot(spinRot,false); requestAnimationFrame(()=>requestAnimationFrame(()=>doSpin(d<0?-1:1))); } else setRot(spinRot,false); });
 })();
+// ================= BİLDİRİMLER =================
+// İzin verenlere gönderilecek 20 bildirim. Oyun kapalıyken gönderim, mağaza sürümünde (yerel bildirim) ya da bildirim sunucusuyla yapılacak.
+const NOTIFS=[
+ ["🎁 Günlük çark hazır!","Bugünkü bedava çevirmen seni bekliyor. 10 💎 senin olabilir!"],
+ ["❤️ Canların doldu!","3 canın hazır, düelloya dönme vakti ⚔️"],
+ ["⚔️ Rakipler seni bekliyor","Biri şu an düello arıyor. Sıralamada yükselmeye hazır mısın?"],
+ ["🔥 Serini bozma!","Bugün de girersen giriş serin devam eder, rozetin yaklaşıyor."],
+ ["🧠 Günün sorusu","Dünyanın en uzun nehri hangisi? Cevap bulmacada seni bekliyor!"],
+ ["🏆 Sıralama değişti","Biri seni geçti! Yerini geri almak için bir düello yeter."],
+ ["📍 Yeni durak açıldı","Haritada bir sonraki durak seni bekliyor."],
+ ["💎 Elmas fırsatı","Çarkı çevir, büyük elmas ödülü için şansını dene!"],
+ ["🌙 İyi geceler bulmacası","Uyumadan önce kısa bir bölüm çöz, zihnin dinlensin."],
+ ["☀️ Günaydın!","Güne beyin jimnastiğiyle başla, bir bölüm sadece 2 dakika."],
+ ["🚗 Arabalar seni çağırıyor","Motor tutkunları için 100 bölüm hazır. Kaçıncı bölümdesin?"],
+ ["⚽ Spor bilgin ne kadar iyi?","Spor kategorisinde seni zorlayacak sorular var."],
+ ["🎨 Sanat zamanı","Ressamlar, çalgılar, Yeşilçam… Hepsini biliyor musun?"],
+ ["🏛️ Tarih yolculuğu","Osmanlı'dan Cumhuriyet'e, sorular seni bekliyor."],
+ ["🏅 Seviye atlamana az kaldı","Birkaç galibiyet daha, yeni seviye kutun hazır!"],
+ ["🎖️ Yeni rozet seni bekliyor","Galibiyet serini sürdür, rozetini kap!"],
+ ["🪙 Altın mı lazım?","1 reklam izle, 100 altın kazan!"],
+ ["😴 Seni özledik!","Bulmacalar seni bekliyor, hemen bir bölüm çöz."],
+ ["🧩 Takıldın mı?","İpucu kullan, harfleri aç ve kaldığın yerden devam et!"],
+ ["🎉 Hafta sonu keyfi","Hafta sonu düello zamanı! Arkadaşına oda kodu gönder."]];
+const nfSupported=()=>("Notification" in window) && ("serviceWorker" in navigator);
+const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent);
+const isStandalone=()=>window.matchMedia("(display-mode: standalone)").matches || navigator.standalone===true;
+let swReg=null;
+if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)){ navigator.serviceWorker.register("sw.js").then(r=>{ swReg=r; }).catch(()=>{}); }
+function nfPerm(){ return nfSupported()? Notification.permission : "unsupported"; }
+function renderNfSet(){ const p=nfPerm(), b=$("nfSetBtn");
+  b.textContent= p==="granted"?"✅ Açık": p==="denied"?"Kapalı":"İzin ver"; b.disabled= p==="granted";
+  $("nfSetTxt").textContent= p==="denied"?"Telefon ayarlarından açabilirsin": p==="unsupported"&&isIOS&&!isStandalone()?"Önce ana ekrana ekle":"Ödüller ve canlar dolunca haber al"; }
+async function showNotif(title,body,tag){ try{ const r=swReg||await navigator.serviceWorker.ready; await r.showNotification(title,{body,icon:"icons/icon-192.png",badge:"icons/icon-192.png",tag:tag||"bc"}); }catch(e){ try{ new Notification(title,{body,icon:"icons/icon-192.png"}); }catch(_){} } }
+async function askNotif(){ store.set("nfAsked",1);
+  if(!nfSupported()){ $("nfIos").classList.remove("hidden"); $("ovNotif").classList.remove("hidden"); return; }
+  try{ const p=await Notification.requestPermission(); store.set("nfPerm",p);
+    if(p==="granted"){ $("ovNotif").classList.add("hidden"); toast("🔔 Bildirimler açıldı!"); showNotif("🎉 Bildirimler açık!","Ödüllerin hazır olduğunda sana haber vereceğiz.","hello"); }
+    else { $("ovNotif").classList.add("hidden"); toast("Bildirimlere izin verilmedi. İstersen Ayarlar'dan açabilirsin."); }
+  }catch(e){ $("ovNotif").classList.add("hidden"); }
+  renderNfSet(); }
+function maybeAskNotif(){ if(store.get("nfAsked",0)) return; if(nfPerm()==="granted"||nfPerm()==="denied") return;
+  $("nfIos").classList.toggle("hidden", nfSupported()); $("ovNotif").classList.remove("hidden"); }
+$("nfYes").onclick=()=>{ if(!nfSupported()){ $("nfIos").classList.remove("hidden"); store.set("nfAsked",1); return; } askNotif(); };
+$("nfNo").onclick=$("nfClose").onclick=()=>{ store.set("nfAsked",1); $("ovNotif").classList.add("hidden"); };
+$("nfSetBtn").onclick=()=>{ $("ovSet").classList.add("hidden"); $("nfIos").classList.toggle("hidden", nfSupported()); $("ovNotif").classList.remove("hidden"); };
+// oyun arka plandayken (sekme açıkken) canlar dolunca haber ver
+let nfLifeT=null;
+document.addEventListener("visibilitychange",()=>{ clearTimeout(nfLifeT); if(!document.hidden||nfPerm()!=="granted") return;
+  const t=store.get("lifeT",0); if(lives<LIFE_MAX && t){ const ms=t+LIFE_REGEN*(LIFE_MAX-lives)-Date.now(); if(ms>0&&ms<6*3600e3) nfLifeT=setTimeout(()=>showNotif(NOTIFS[1][0],NOTIFS[1][1],"life"),ms); } });
 renderSpin();
 showHome();
 // oyuna her gün ilk girişte çark kendiliğinden açılır
-setTimeout(()=>{ const st=spinState(); if(st.free>0 && !store.get("spinShown",0)){ store.set("spinShown",1); openSpin(); } },900);
+setTimeout(()=>{ const st=spinState(); if(st.free>0 && !store.get("spinShown",0)){ store.set("spinShown",1); openSpin(); } else setTimeout(maybeAskNotif,1500); },900);
 </script>
 </body>
 </html>
