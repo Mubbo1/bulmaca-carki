@@ -401,7 +401,8 @@
     <button class="xclose" id="btnSetClose" aria-label="Kapat">✕</button>
     <h2>⚙️ Ayarlar</h2>
     <div class="ssec">Oyun</div>
-    <div class="set"><span>🔊 Ses</span><div class="tog" id="tSound"></div></div>
+    <div class="set"><span>🎵 Müzik<small>Huzur veren arka plan müziği</small></span><div class="tog" id="tMusic"></div></div>
+    <div class="set"><span>🔊 Ses efektleri<small>Harf sesleri, alkış, uyarılar</small></span><div class="tog" id="tSound"></div></div>
     <div class="set"><span>📳 Titreşim</span><div class="tog" id="tVib"></div></div>
     <div class="ssec">Premium</div>
     <div class="set noads"><span>🚫 Reklamları Kaldır<small id="noAdsTxt">Reklam izlemeden ödülleri anında al</small></span><button id="btnNoAds">199,99 ₺</button></div>
@@ -952,9 +953,9 @@ function drawLines(){
   $("curTxt").textContent=path.map(i=>wheelPos[i].ch).join("");
 }
 const wh=$("wheel");
-wh.addEventListener("pointerdown",e=>{ e.preventDefault(); const h=hit(e.clientX,e.clientY); if(h.bi<0) return; try{wh.setPointerCapture(e.pointerId);}catch(_){} drawing=true; path=[h.bi]; pointer=h; $("cur").className=""; drawLines(); });
+wh.addEventListener("pointerdown",e=>{ e.preventDefault(); const h=hit(e.clientX,e.clientY); if(h.bi<0) return; try{wh.setPointerCapture(e.pointerId);}catch(_){} drawing=true; path=[h.bi]; pointer=h; $("cur").className=""; tick(0); drawLines(); });
 wh.addEventListener("pointermove",e=>{ if(!drawing) return; const h=hit(e.clientX,e.clientY); pointer=h;
-  if(h.bi>=0){ if(path.length>1 && path[path.length-2]===h.bi) path.pop(); else if(!path.includes(h.bi)) path.push(h.bi); }
+  if(h.bi>=0){ if(path.length>1 && path[path.length-2]===h.bi){ path.pop(); tick(path.length-1,true); } else if(!path.includes(h.bi)){ path.push(h.bi); tick(path.length-1); } }
   drawLines(); });
 const end=()=>{ if(!drawing) return; drawing=false; const w=path.map(i=>wheelPos[i].ch).join(""); pointer=null; path=[]; drawLines(); submit(w); };
 wh.addEventListener("pointerup",end); wh.addEventListener("pointercancel",end);
@@ -1130,6 +1131,34 @@ document.querySelectorAll("[data-gem]").forEach(b=>b.onclick=()=>{ const n=+b.da
 let soundOn=store.get("sound",true), vibOn=store.get("vib",true), menuFromHome=false, actx=null;
 // ses motoru: iPhone'da ilk dokunuşta kilidi aç, sessiz modda da çalsın, askıya alınırsa devam ettir
 try{ if(navigator.audioSession) navigator.audioSession.type="playback"; }catch(e){}
+// ---------- harf sesi: her harfte bir nota yükselen "tıng" (pentatonik) ----------
+const TICK_NOTES=[523.25,587.33,659.25,783.99,880,1046.5,1174.66,1318.51,1567.98,1760];
+function tick(i,soft){ if(!soundOn) return; try{ AC(); const c=actx, t=c.currentTime+.005, f=TICK_NOTES[Math.min(i,TICK_NOTES.length-1)], g=c.createGain(), v=soft?.06:.13;
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(v,t+.006); g.gain.exponentialRampToValueAtTime(.0005,t+.45); g.connect(c.destination);
+  [[1,"sine",1],[2,"sine",.35],[3.01,"sine",.12]].forEach(([m,type,a])=>{ const o=c.createOscillator(), og=c.createGain(); o.type=type; o.frequency.value=f*m; og.gain.value=a; o.connect(og); og.connect(g); o.start(t); o.stop(t+.5); });
+}catch(e){} }
+// ---------- huzur veren arka plan müziği (cihazda üretilir, dosya yok) ----------
+let musicOn=store.get("music",true), mus=null;
+function musicStart(){ if(!musicOn||mus) return; try{ AC(); const c=actx;
+  const out=c.createGain(); out.gain.value=0; out.connect(c.destination); out.gain.linearRampToValueAtTime(.11,c.currentTime+3);
+  const lp=c.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=1400; lp.connect(out);
+  const dl=c.createDelay(); dl.delayTime.value=.42; const fb=c.createGain(); fb.gain.value=.38; dl.connect(fb); fb.connect(dl); dl.connect(lp);
+  const CH=[[261.63,329.63,392,493.88],[220,261.63,329.63,392],[174.61,220,261.63,329.63],[196,246.94,293.66,392]];
+  const PENT=[523.25,587.33,659.25,783.99,880,1046.5];
+  let next=c.currentTime+.1, step=0;
+  const sched=()=>{ if(!mus) return; while(next<c.currentTime+1.5){ const bar=Math.floor(step/8)%CH.length;
+      if(step%8===0){ CH[bar].forEach((f,k)=>{ const o=c.createOscillator(), g=c.createGain(); o.type=k%2?"triangle":"sine"; o.frequency.value=f/2; o.detune.value=(k-1.5)*4;
+          g.gain.setValueAtTime(0,next); g.gain.linearRampToValueAtTime(.16,next+2); g.gain.setValueAtTime(.16,next+6.4); g.gain.linearRampToValueAtTime(0,next+8.6);
+          o.connect(g); g.connect(lp); o.start(next); o.stop(next+8.8); }); }
+      if(Math.random()<.55){ const pool=PENT.filter(f=>CH[bar].some(x=>Math.abs(Math.log2(f/x))%1<.01)||Math.random()<.5), f=pool[Math.floor(Math.random()*pool.length)]||PENT[0];
+        const o=c.createOscillator(), g=c.createGain(); o.type="sine"; o.frequency.value=f; g.gain.setValueAtTime(0,next); g.gain.linearRampToValueAtTime(.09,next+.03); g.gain.exponentialRampToValueAtTime(.0008,next+2.2);
+        o.connect(g); g.connect(lp); g.connect(dl); o.start(next); o.stop(next+2.3); }
+      next+=1.0; step++; } };
+  mus={out,timer:setInterval(sched,300)}; sched();
+}catch(e){ mus=null; } }
+function musicStop(){ if(!mus) return; const m=mus; mus=null; clearInterval(m.timer); try{ const t=actx.currentTime; m.out.gain.cancelScheduledValues(t); m.out.gain.setValueAtTime(m.out.gain.value,t); m.out.gain.linearRampToValueAtTime(0,t+1.2); setTimeout(()=>{ try{ m.out.disconnect(); }catch(e){} },1500); }catch(e){} }
+document.addEventListener("visibilitychange",()=>{ if(document.hidden) musicStop(); else if(musicOn) setTimeout(musicStart,300); });
+["pointerdown","touchend","click","keydown"].forEach(ev=>document.addEventListener(ev,()=>{ if(musicOn&&!mus) musicStart(); },{capture:true,passive:true}));
 function AC(){ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); if(actx.state!=="running") try{ actx.resume(); }catch(e){} return actx; }
 function unlockAudio(){ try{ const c=AC(), b=c.createBuffer(1,1,22050), src=c.createBufferSource(); src.buffer=b; src.connect(c.destination); src.start(0); }catch(e){} }
 ["pointerdown","touchend","click","keydown"].forEach(ev=>document.addEventListener(ev,unlockAudio,{capture:true,passive:true}));
@@ -1174,11 +1203,12 @@ function sadTrombone(){ if(!soundOn) return; try{ AC(); const t0=actx.currentTim
 const SFX={ ok:()=>{beep([[660,.12],[990,.18]]);buzz(30);}, bad:()=>{beep([[200,.2]]);buzz([40,40,40]);}, win:()=>{beep([[523,.15],[659,.15],[784,.15],[1047,.3]]);buzz(120);} };
 function showHome(){ try{ $("hsCoins").textContent=coins; $("hsGems").textContent=gems; $("hsStars").textContent=["main","spor","sanat","tarih","araba"].reduce((a,p)=>a+packStars(p),0); }catch(e){} $("hCont").textContent = `${PACKS[pack].emoji} ${PACKS[pack].ad} · ${TIERS[tierOf(lv)].emoji} ${TIERS[tierOf(lv)].ad}`; $("home").classList.remove("hidden"); }
 function hideHome(){ $("home").classList.add("hidden"); }
-function syncToggles(){ $("tSound").classList.toggle("on",soundOn); $("tVib").classList.toggle("on",vibOn); }
+function syncToggles(){ $("tMusic").classList.toggle("on",musicOn); $("tSound").classList.toggle("on",soundOn); $("tVib").classList.toggle("on",vibOn); }
 $("hStart").onclick=()=>{ hideHome(); beep([[523,.08],[784,.12]]); if(L) buildGrid(); };
 $("hMenu").onclick=()=>{ mapFrom=null; menuFromHome=true; $("btnMenu").click(); };
 $("hSet").onclick=()=>{ syncToggles(); renderNoAds(); $("resetAsk").classList.add("hidden"); $("ovSet").classList.remove("hidden"); };
 $("tSound").onclick=()=>{ soundOn=!soundOn; store.set("sound",soundOn); syncToggles(); beep([[880,.08]]); };
+$("tMusic").onclick=()=>{ musicOn=!musicOn; store.set("music",musicOn); syncToggles(); musicOn?musicStart():musicStop(); };
 $("tVib").onclick=()=>{ vibOn=!vibOn; store.set("vib",vibOn); syncToggles(); buzz(40); };
 $("btnSetClose").onclick=()=>$("ovSet").classList.add("hidden");
 $("btnNoAds").onclick=()=>{ if(noAds) return; noAds=true; store.set("noAds",1); renderNoAds(); toast("Deneme: 🚫 Reklamlar kaldırıldı (ödeme alınmadı)"); };
@@ -1291,7 +1321,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="41";
+const APP_VER="42";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1767,8 +1797,8 @@ function dLines(){
   dPos.forEach((p,i)=>p.el.classList.toggle("on",dPath.includes(i))); $("dCur").textContent=dPath.map(i=>dPos[i].ch).join("");
 }
 (()=>{ const wh=$("dWheel");
-  wh.addEventListener("pointerdown",e=>{ if(!D.myTurn) return; e.preventDefault(); const h=dHit(e.clientX,e.clientY); if(h.bi<0) return; try{wh.setPointerCapture(e.pointerId);}catch(_){} dDraw=true; dPath=[h.bi]; dPtr=h; $("dCur").parentElement.className="dcur"; dLines(); });
-  wh.addEventListener("pointermove",e=>{ if(!dDraw) return; const h=dHit(e.clientX,e.clientY); dPtr=h; if(h.bi>=0){ if(dPath.length>1&&dPath[dPath.length-2]===h.bi) dPath.pop(); else if(!dPath.includes(h.bi)) dPath.push(h.bi);} dLines(); });
+  wh.addEventListener("pointerdown",e=>{ if(!D.myTurn) return; e.preventDefault(); const h=dHit(e.clientX,e.clientY); if(h.bi<0) return; try{wh.setPointerCapture(e.pointerId);}catch(_){} dDraw=true; dPath=[h.bi]; dPtr=h; $("dCur").parentElement.className="dcur"; tick(0); dLines(); });
+  wh.addEventListener("pointermove",e=>{ if(!dDraw) return; const h=dHit(e.clientX,e.clientY); dPtr=h; if(h.bi>=0){ if(dPath.length>1&&dPath[dPath.length-2]===h.bi){ dPath.pop(); tick(dPath.length-1,true); } else if(!dPath.includes(h.bi)){ dPath.push(h.bi); tick(dPath.length-1); } } dLines(); });
   const end=()=>{ if(!dDraw) return; dDraw=false; const w=dPath.map(i=>dPos[i].ch).join(""); dPath=[]; dPtr=null; dLines(); dSubmit(w); };
   wh.addEventListener("pointerup",end); wh.addEventListener("pointercancel",end);
 })();
