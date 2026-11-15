@@ -963,16 +963,22 @@ function submit(w){
   const idx=L.words.findIndex(x=>x.w===w);
   if(idx<0){ flash("bad",w); SFX.bad(); return; }
   if(L.words[idx].found){ flash("dup",w); toast("Bunu zaten buldun"); return; }
+  // sadece seçili sorunun cevabı kabul edilir
+  if(selWord>=0 && L.words[selWord] && !L.words[selWord].found && idx!==selWord){ flash("bad",w); SFX.bad(); toast("Bu, bu sorunun cevabı değil 🙂"); return; }
   L.words[idx].found=true; const odul=TIERS[tierOf(lv)].odul; coins+=odul; store.set("coins",coins); $("coins").textContent=coins;
   flash("good",w); SFX.ok();
-  if(idx!==selWord) toast(`Doğru kelime! +${odul} 🪙`);
   wordCells(L.words[idx]).forEach((c,k)=>{ const el=cellMap.get(c.x+","+c.y).el; setTimeout(()=>{ el.classList.add("pop"); setTimeout(()=>el.classList.remove("pop"),400); },k*70); });
-  saveProg();
+  autoFound(); saveProg();
   const next=L.words.findIndex(x=>!x.found);
   if(next<0){ refreshGrid(); setQuestion(); setTimeout(win,800); return; }
-  selWord = (idx===selWord) ? next : selWord;
+  selWord = next;
   refreshGrid(); setQuestion();
 }
+// harfleri tamamen açılmış (ipucuyla ya da kesişen kelimelerle) kelimeler bulunmuş sayılır
+function autoFound(){ let any=false;
+  L.words.forEach(x=>{ if(!x.found && wordCells(x).every(c=>cellShown(c.x+","+c.y))){ x.found=true; any=true;
+    wordCells(x).forEach((c,k)=>{ const el=cellMap.get(c.x+","+c.y).el; setTimeout(()=>{ el.classList.add("pop"); setTimeout(()=>el.classList.remove("pop"),400); },k*70); }); } });
+  return any; }
 function win(){
   SFX.win();
   coins+=25; store.set("coins",coins); $("coins").textContent=coins;
@@ -1000,7 +1006,11 @@ $("btnHint").onclick=()=>{
   const w=L.words[wi]; const cs=wordCells(w).filter(c=>!cellShown(c.x+","+c.y));
   if(!cs.length) return;
   w.revealed.add(cs[0].k); store.set(K("hintUsed_"+lv),store.get(K("hintUsed_"+lv),0)+1); coins-=25; store.set("coins",coins); $("coins").textContent=coins;
-  selWord=wi; saveProg(); refreshGrid(); setQuestion();
+  selWord=wi;
+  if(autoFound()){ SFX.ok(); flash("good",w.w); const next=L.words.findIndex(x=>!x.found); saveProg();
+    if(next<0){ refreshGrid(); setQuestion(); setTimeout(win,800); return; }
+    selWord=next; }
+  saveProg(); refreshGrid(); setQuestion();
 };
 $("btnNext").onclick=()=>{ $("ovWin").classList.add("hidden"); const n = lv>=LEVELS.length-1 ? 0 : lv+1; if(n===0){ LEVELS.forEach((_,i)=>store.set(K("prog_"+i),null)); } startLevel(n); };
 const ZONES=[
@@ -1276,7 +1286,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="34";
+const APP_VER="35";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
