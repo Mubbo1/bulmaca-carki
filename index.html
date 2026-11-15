@@ -154,6 +154,9 @@
   @keyframes glow{50%{transform:scale(1.15);opacity:.7}}
   #home h1{text-shadow:0 4px 18px #000b,0 2px 0 #0006}
   #home .tag{color:#fff;font-weight:600;text-shadow:0 2px 8px #000}
+  #home .hstats .tap{cursor:pointer;border-color:#7ad7ff99}
+  #home .hstats .tap:active{transform:scale(.94)}
+  .hstats .plus{font-style:normal;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#2ecc71;color:#fff;font-size:14px;font-weight:900;margin-left:2px;vertical-align:middle}
   #home .hstats{position:absolute!important;top:calc(10px + env(safe-area-inset-top));right:10px;z-index:3!important;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
   .hstats span{background:#0009;backdrop-filter:blur(8px);border:1px solid #ffffff33;border-radius:999px;padding:3px 12px;font-size:14px;font-weight:700;min-width:64px;text-align:right}
   .dcats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
@@ -318,7 +321,7 @@
 </svg>
     <h1>Bulmaca <span>Çarkı</span></h1>
     <div class="tag">Harfleri kaydır, soruları çöz, dünyayı gez!</div>
-    <div class="hstats"><span>🪙 <b id="hsCoins">0</b></span><span>💎 <b id="hsGems">0</b></span><span>⭐ <b id="hsStars">0</b></span></div>
+    <div class="hstats"><span>🪙 <b id="hsCoins">0</b></span><span id="hsGemBtn" class="tap">💎 <b id="hsGems">0</b> <i class="plus">+</i></span><span>⭐ <b id="hsStars">0</b></span></div>
     <div class="btns">
       <button class="hbtn main" id="hStart">BAŞLA</button>
       <div class="cont" id="hCont"></div>
@@ -355,9 +358,9 @@
     <h2>💎 Elmas</h2>
     <div style="font-size:15px">Elmasla, bilemediğin sorunun cevabı hakkında ek bilgi ve ilk harfini açarsın.</div>
     <div class="row"><span>📺 Reklam izle<br><small>+1 💎</small></span><button class="ad" id="btnAd">İzle</button></div>
-    <div class="row"><span><b>10 💎</b></span><button data-gem="10">29,99 ₺</button></div>
-    <div class="row"><span><b>30 💎</b> <small>en çok tercih edilen</small></span><button data-gem="30">69,99 ₺</button></div>
-    <div class="row"><span><b>100 💎</b> <small>%40 avantajlı</small></span><button data-gem="100">179,99 ₺</button></div>
+    <div class="row"><span><b>10 💎</b></span><button data-gem="10">49,99 ₺</button></div>
+    <div class="row"><span><b>20 💎</b> <small>en çok tercih edilen</small></span><button data-gem="20">89,99 ₺</button></div>
+    <div class="row"><span><b>50 💎</b> <small>en avantajlı</small></span><button data-gem="50">149,99 ₺</button></div>
     <div class="note">Deneme sürümü: gerçek reklam ve ödeme yok. Mağazalara çıkınca gerçek reklam ve uygulama içi satın alma bağlanacak.</div>
     <button id="btnShopClose" style="background:#dee2e6">Kapat</button>
   </div></div>
@@ -911,6 +914,7 @@ try{ new ResizeObserver(()=>{ const h=$("gridWrap").clientHeight; if(L && Math.a
 // ---------- ELMAS / BİLGİ ----------
 function setGems(n){ gems=n; store.set("gems",gems); $("gems").textContent=gems; }
 function openShop(){ $("ovShop").classList.remove("hidden"); }
+$("hsGemBtn").onclick=openShop;
 $("gemPill").onclick=openShop;
 $("btnShopClose").onclick=()=>$("ovShop").classList.add("hidden");
 $("btnInfo").onclick=()=>{
