@@ -232,6 +232,8 @@
   @keyframes pulse{50%{transform:scale(1.15)}}
   .icount{text-align:center;font-weight:800;font-size:20px;margin-top:14px}
   .icount b{color:#ffb703;font-size:30px}
+  .repbtn{font-size:14px;opacity:.8}
+  .repmini{border:0;background:#0000;color:#ffb3c1;font:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-top:8px;text-decoration:underline}
   .spinner{width:34px;height:34px;border:4px solid #ffffff33;border-top-color:var(--acc);border-radius:50%;margin:10px auto;animation:spin 1s linear infinite}
   .rk{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid #ffffff1a}
   .rk .no{width:28px;font-weight:800;text-align:center;font-size:18px}
@@ -379,6 +381,16 @@
     <button id="btnNext">Devam Et ▶</button>
   </div></div>
 
+  <div class="overlay hidden" id="ovReport"><div class="box shop">
+    <h2>🚩 Şikayet Et</h2>
+    <div style="font-size:15px"><b id="repName"></b> adlı oyuncuyu neden şikayet ediyorsun?</div>
+    <div class="row"><span>🖼️ Uygunsuz fotoğraf</span><button data-rep="foto">Seç</button></div>
+    <div class="row"><span>🤬 Uygunsuz isim</span><button data-rep="isim">Seç</button></div>
+    <div class="row"><span>⚠️ Hile / diğer</span><button data-rep="diger">Seç</button></div>
+    <div class="note">3 farklı oyuncudan şikayet alan kişinin fotoğrafı veya ismi otomatik olarak kaldırılır.</div>
+    <button id="repClose" style="background:#dee2e6">Vazgeç</button>
+  </div></div>
+
   <div class="overlay hidden" id="ovLife"><div class="box shop">
     <h2>❤️ Can</h2>
     <div style="font-size:15px" id="lifeTxt">Online düelloda kaybedersen 1 can gider. Canın bitince oynayamazsın.</div>
@@ -466,6 +478,7 @@
           <div class="ivs">VS</div>
           <div class="icard b"><div class="avatar b" id="iaB">?</div><div class="nm" id="inB"></div><div class="vbd" id="ibB"></div><div class="st" id="isB"></div></div>
         </div>
+        <button class="repmini" id="iReport">🚩 Şikayet et</button>
         <div class="icount">Birazdan oyun başlıyor… <b id="iCount">3</b></div>
         <div id="dIntroLogo"></div>
       </div>
@@ -495,6 +508,7 @@
         <div class="wreward" style="margin-top:12px"><span id="dEndLives">❤️❤️❤️</span></div>
       </div>
       <button class="dbtn gold" id="dAgain">Lobiye Dön</button>
+      <button class="dbtn ghost repbtn" id="dReport">🚩 Rakibi şikayet et</button>
     </div>
   </div>
   <div id="map" class="hidden">
@@ -1147,7 +1161,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="25";
+const APP_VER="26";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1291,7 +1305,7 @@ async function openDuel(){
 async function initNet(){
   if(!IN_ARTIFACT){
     $("dNet").textContent="Sunucuya bağlanılıyor…";
-    try{ const f=await fbInit(); D.room=f.room; D.db=f.db; D.uid=f.uid; D.fb=true; }catch(e){ D.room=null; D.db=null; }
+    try{ const f=await fbInit(); D.room=f.room; D.db=f.db; D.uid=f.uid; D.fb=true; checkMine(); }catch(e){ D.room=null; D.db=null; }
   }else{
   try{ D.room=await window.claude?.use?.("room"); }catch(e){ D.room=null; }
   try{ D.db=await window.claude?.use?.("db"); }catch(e){ D.db=null; }
@@ -1398,14 +1412,14 @@ async function joinRoom(code,asHost){
   D.offs.push(r.on("duel",m=>onMsg(m.data,m)));
   D.offs.push(r.onPeers(ch=>{ if(D.g&&(D.g.status==="play"||D.g.status==="intro")&&ch.left.length&&ch.peers.length<2) finish(D.g.players.findIndex(p=>p.id===D.me),"left"); }));
   if(asHost){
-    D.g={status:"wait",code,players:[{id:D.me,name:myName(),bd:myBd(),ph:myPh(),w:D.stat.w,l:D.stat.l}],qs:makeQuestions(),cat:D.cat,turn:0,done:[],v:1};
+    D.g={status:"wait",code,players:[{id:D.me,uid:D.uid||"",name:myName(),bd:myBd(),ph:myPh(),w:D.stat.w,l:D.stat.l}],qs:makeQuestions(),cat:D.cat,turn:0,done:[],v:1};
     $("dWaitCode").textContent=code; dShow("dWait"); $("dWaitCat").textContent=dcatName(D.cat);
     clearInterval(D.rebro); D.rebro=setInterval(()=>{ if(D.g&&D.g.status!=="end") send({t:"state",s:pub()}); },2500);
   }else{
     dShow("dWait"); $("dWaitCode").textContent=code; $("dWaitCat").textContent="Kategori: odaya göre";
-    send({t:"hello",id:D.me,name:myName(),bd:myBd(),ph:myPh(),w:D.stat.w,l:D.stat.l});
+    send({t:"hello",id:D.me,uid:D.uid||"",name:myName(),bd:myBd(),ph:myPh(),w:D.stat.w,l:D.stat.l});
     const myCode=code; setTimeout(()=>{ if(D.mode==="online" && !D.host && D.code===myCode && (!D.g||D.g.status==="wait")){ const q=D.quick; leaveDuel(); if(q && (D.retries=(D.retries||0)+1)<=3){ quickMatch(); } else { D.retries=0; dShow("dLobby"); toast("Odaya bağlanılamadı, tekrar dene"); } } },q0());
-    clearInterval(D.rebro); D.rebro=setInterval(()=>{ if(!D.g||D.g.status==="wait") send({t:"hello",id:D.me,name:myName(),bd:myBd(),ph:myPh(),w:D.stat.w,l:D.stat.l}); },2000);
+    clearInterval(D.rebro); D.rebro=setInterval(()=>{ if(!D.g||D.g.status==="wait") send({t:"hello",id:D.me,uid:D.uid||"",name:myName(),bd:myBd(),ph:myPh(),w:D.stat.w,l:D.stat.l}); },2000);
   }
 }
 function send(o){ if(D.mode==="online"&&D.r){ try{ D.r.emit("duel",o); }catch(e){} } }
@@ -1414,7 +1428,7 @@ function onMsg(d,m){
   if(!d||typeof d!=="object") return;
   if(D.host){
     if(d.t==="hello" && D.g.status==="wait" && d.id!==D.me){
-      D.g.players[1]={id:d.id,name:cleanName(d.name||"Rakip"),bd:String(d.bd||"").slice(0,60),ph:okPh(d.ph)?d.ph:"",w:+d.w||0,l:+d.l||0}; stopSeek(); startIntro();
+      D.g.players[1]={id:d.id,name:cleanName(d.name||"Rakip"),bd:String(d.bd||"").slice(0,60),ph:okPh(d.ph)?d.ph:"",w:+d.w||0,l:+d.l||0,uid:String(d.uid||"").replace(/[^A-Za-z0-9_-]/g,"").slice(0,64)}; stopSeek(); startIntro();
     }
     if(d.t==="ans" && D.g.status==="play" && d.i===D.g.turn && D.g.players[d.i%2].id===d.id) hostAnswer(d.i,d.w);
     if(d.t==="joker" && D.g.status==="play" && d.i===D.g.turn && D.g.players[d.i%2].id===d.id) hostJoker(d.i);
@@ -1430,15 +1444,35 @@ function startIntro(){ D.retries=0;
   send({t:"state",s:pub()}); applyState(pub());
   clearTimeout(D.timer); D.timer=setTimeout(()=>{ if(D.g===g && g.status==="intro") startTurn(0); },4000);
 }
+// ---------- ŞİKAYET SİSTEMİ ----------
+const REP_LIMIT=3; D.hide={};
+async function repCount(uid){ const c={foto:0,isim:0,diger:0}; if(!D.db||!uid) return c;
+  try{ const sn=await D.db.doc("reports/"+uid).get(); const v=sn.exists?sn.data():null; Object.values(v||{}).forEach(x=>{ if(x&&c[x.r]!=null) c[x.r]++; }); }catch(e){} return c; }
+async function checkOpp(p){ if(!p||!p.uid||D.hide[p.uid]) return; D.hide[p.uid]={}; const c=await repCount(p.uid);
+  D.hide[p.uid]={foto:c.foto>=REP_LIMIT, isim:c.isim>=REP_LIMIT}; if(D.g&&D.g.status!=="end"){ try{ D.g.status==="intro"?renderIntro():applyState(D.host?pub():D.g); }catch(e){} } }
+const vis=p=>{ p=p||{}; const h=(p.uid&&D.hide[p.uid])||{}; return {name:h.isim?"Oyuncu":cleanName(p.name), ph:h.foto?"":p.ph}; };
+async function checkMine(){ if(!D.uid) return; const c=await repCount(D.uid);
+  if(c.foto>=REP_LIMIT && myPh()){ store.set("pphoto",""); setAv($("dAvatar"),myName(),""); saveProfile(); toast("🚩 Profil fotoğrafın şikayetler nedeniyle kaldırıldı"); }
+  if(c.isim>=REP_LIMIT && $("dName").value){ $("dName").value=""; store.set("pname",""); saveProfile(); toast("🚩 İsmin şikayetler nedeniyle kaldırıldı, yeni bir isim seç"); } }
+function opp(){ const g=D.g; if(!g) return null; const me=myIdx(); return g.players[1-me]; }
+function openReport(){ const p=opp(); if(D.mode!=="online"||!p||!p.uid){ toast("Bu oyuncu şikayet edilemiyor"); return; }
+  if(store.get("rep_"+p.uid,0)){ toast("Bu oyuncuyu zaten şikayet ettin"); return; }
+  $("repName").textContent=vis(p).name; $("ovReport").classList.remove("hidden"); }
+$("dReport").onclick=openReport; $("iReport").onclick=openReport;
+$("repClose").onclick=()=>$("ovReport").classList.add("hidden");
+document.querySelectorAll("[data-rep]").forEach(b=>b.onclick=async()=>{ const p=opp(); $("ovReport").classList.add("hidden"); if(!p||!p.uid||!D.db||p.uid===D.uid) return;
+  try{ await D.db.doc(`reports/${p.uid}/${D.uid}`).set({r:b.dataset.rep,t:Date.now()}); store.set("rep_"+p.uid,1); toast("✅ Şikayetin alındı, teşekkürler"); }
+  catch(e){ toast("Şikayet gönderilemedi, tekrar dene"); } });
 function renderIntro(s){
-  const g=D.g, me=myIdx(), op=1-me, A=g.players[me]||{}, B=g.players[op]||{};
+  const g=D.g, me=myIdx(), op=1-me, A=g.players[me]||{}, B0=g.players[op]||{}, B={...B0,...vis(B0)};
+  if(D.mode==="online") checkOpp(B0); $("iReport").style.display= D.mode==="online"&&B0.uid&&!store.get("rep_"+B0.uid,0) ? "" : "none";
   if(!D.introShown){ D.introShown=true; D.introEnd=Date.now()+((s&&s.left)||4000); SFX.win&&beep([[523,.1],[659,.1],[784,.18]]); }
   dShow("dIntro");
   setAv($("iaA"),A.name,A.ph); setAv($("iaB"),B.name,B.ph);
   $("inA").textContent=A.name||"Sen"; $("inB").textContent=B.name||"Rakip";
   $("ibA").innerHTML=bdHTML(A.bd); $("ibB").innerHTML=bdHTML(B.bd);
-  const rec=p=> D.mode==="bot"&&p===B ? "🤖 Antrenman botu" : `🏆 ${p.w||0} G · 💔 ${p.l||0} M`;
-  $("isA").textContent=rec(A); $("isB").textContent=rec(B);
+  const rec=p=> D.mode==="bot"&&p===B0 ? "🤖 Antrenman botu" : `🏆 ${p.w||0} G · 💔 ${p.l||0} M`;
+  $("isA").textContent=rec(A); $("isB").textContent=rec(B0);
   clearInterval(D.tick); const t=()=>{ $("iCount").textContent=Math.max(1,Math.ceil((D.introEnd-Date.now())/1000)); }; t(); D.tick=setInterval(t,200);
 }
 function startTurn(i){
@@ -1482,7 +1516,7 @@ function applyState(s){
   if(g.status!=="play") return;
   dShow("dGame");
   $("vnA").textContent=g.players[me].name; setAv($("vaA"),g.players[me].name,g.players[me].ph);
-  $("vnB").textContent=(g.players[op]||{}).name||"Rakip"; $("vbA").innerHTML=bdHTML((g.players[me]||{}).bd,1); $("vbB").innerHTML=bdHTML((g.players[op]||{}).bd,1); setAv($("vaB"),(g.players[op]||{}).name,(g.players[op]||{}).ph);
+  const OV=vis(g.players[op]); if(D.mode==="online") checkOpp(g.players[op]); $("vnB").textContent=OV.name||"Rakip"; $("vbA").innerHTML=bdHTML((g.players[me]||{}).bd,1); $("vbB").innerHTML=bdHTML((g.players[op]||{}).bd,1); setAv($("vaB"),OV.name,OV.ph);
   $("dMode").textContent= D.mode==="bot"?"ANTRENMAN":"ONLINE";
   g.done=g.done||[]; const cnt=k=>g.done.filter((x,i)=>x&&i%2===k).length;
   $("vsA").textContent=`${cnt(me)}/10 doğru`; $("vsB").textContent=`${cnt(op)}/10 doğru`;
@@ -1511,7 +1545,8 @@ function dTick(){
 function showEnd(){
   clearInterval(D.tick); clearInterval(D.rebro); const g=D.g, me=myIdx();
   const draw=g.winner===-1, won=g.winner===me;
-  const opName=(g.players[1-me]||{}).name||"Rakip";
+  const opName=vis(g.players[1-me]).name||"Rakip"; const OP=g.players[1-me]||{};
+  $("dReport").style.display= D.mode==="online"&&OP.uid&&!store.get("rep_"+OP.uid,0) ? "" : "none";
   $("dEndIcon").textContent= draw?"🤝":won?"🏆":"💔";
   if(!D.endSfx){ D.endSfx=true; if(won||draw){ applause(); buzz([100,60,100]); } else { sadTrombone(); buzz(400); } }
   $("dEndTitle").textContent= draw?"Berabere!":won?"Kazandın!":"Kaybettin";
