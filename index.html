@@ -154,8 +154,30 @@
   @keyframes glow{50%{transform:scale(1.15);opacity:.7}}
   #home h1{text-shadow:0 4px 18px #000b,0 2px 0 #0006}
   #home .tag{color:#fff;font-weight:600;text-shadow:0 2px 8px #000}
-  .hstats{display:flex;gap:8px;margin-top:14px}
-  .hstats span{background:#0007;backdrop-filter:blur(8px);border:1px solid #ffffff33;border-radius:999px;padding:4px 14px;font-size:15px;font-weight:700}
+  #home .hstats{position:absolute!important;top:calc(10px + env(safe-area-inset-top));right:10px;z-index:3!important;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+  .hstats span{background:#0009;backdrop-filter:blur(8px);border:1px solid #ffffff33;border-radius:999px;padding:3px 12px;font-size:14px;font-weight:700;min-width:64px;text-align:right}
+  .dcats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .dcats button{border:2px solid #ffffff22;background:#0006;color:#fff;font:inherit;font-weight:800;font-size:13px;padding:8px 2px;border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+  .dcats button span{font-size:22px}
+  .dcats button.on{background:#7b2cbf;border-color:#ffb703;box-shadow:0 0 14px #ffb70366}
+  .dcats.sm button{font-size:12px;padding:5px 2px}.dcats.sm button span{font-size:16px}
+  .dcatpill{display:inline-block;background:#ffb703;color:#3a2500;font-weight:800;border-radius:999px;padding:2px 12px;font-size:13px;margin-bottom:6px}
+  .pcat{font-size:12px;color:#cfd8ff;margin-top:4px}
+  .pbadges{display:flex;gap:4px;margin-top:6px;min-height:26px;align-items:center;flex-wrap:wrap}
+  .bdg{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff6,#ffb70355);border:2px solid #ffb703;font-size:15px;box-shadow:0 0 8px #ffb70366}
+  .bdg.sm{width:22px;height:22px;font-size:12px;border-width:1.5px}
+  .bdgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+  .bdgrid button{border:2px solid #ffffff1f;background:#0005;color:#fff;font:inherit;border-radius:14px;padding:8px 2px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative}
+  .bdgrid button .e{font-size:26px}
+  .bdgrid button .n{font-size:11px;font-weight:800;line-height:1.1}
+  .bdgrid button.lock{opacity:.4;filter:grayscale(1)}
+  .bdgrid button.show{border-color:#ffb703;background:#7b2cbf88;box-shadow:0 0 12px #ffb70366}
+  .bdgrid button.show::after{content:"✓";position:absolute;top:2px;right:6px;font-size:12px;color:#ffb703;font-weight:900}
+  .bdhead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .bdhead button{border:0;background:#ffffff22;color:#fff;font:inherit;font-weight:800;border-radius:999px;padding:4px 12px;cursor:pointer}
+  .bdinfo{font-size:12px;color:#ffe08a;margin-top:8px;min-height:16px;text-align:center}
+  .vbd{display:flex;gap:3px;justify-content:center;margin-top:3px;min-height:22px}
+  .rk .nm small{margin-left:4px;letter-spacing:1px}
   .hbtn.main{animation:breathe 2.4s ease-in-out infinite;box-shadow:0 6px 0 #a36f00,0 0 30px #ffb70399}
   @keyframes breathe{50%{transform:scale(1.04);box-shadow:0 6px 0 #a36f00,0 0 45px #ffb703cc}}
   .hbtn.sec{background:#ffffff1f!important;backdrop-filter:blur(10px);border:1.5px solid #ffffff40;box-shadow:0 4px 14px #0006}
@@ -365,10 +387,16 @@
             <input id="dName" maxlength="16" placeholder="Adını yaz">
             <div class="pstats"><span>🏆 <b id="pW">0</b> galibiyet</span><span>💔 <b id="pL">0</b> mağlubiyet</span></div>
             <div class="pratio"><div class="pbar"><div id="pBar"></div></div><b id="pR">%0</b></div>
+            <div class="pbadges" id="pBadges"></div>
           </div>
+        </div>
+        <div class="dcard">
+          <div class="bdhead"><b>🎖️ Rozetlerim <span id="bdCount" style="opacity:.75;font-weight:600"></span></b><button id="bdToggle">Tümü ▾</button></div>
+          <div id="bdBox" class="hidden"><div class="dnote" style="margin-top:6px">Kazandığın rozetlere dokun, profilinde en fazla <b>3 tanesi</b> görünsün. Rakiplerin de bunları görecek!</div><div class="bdgrid" id="bdGrid"></div><div class="bdinfo" id="bdInfo"></div></div>
         </div>
         <div class="dcard rules"><b>Kurallar</b><br>20 soru, sırayla: 1. soru sana, 2. soru rakibine… Her soru için <b>15 saniye</b>. Süresinde bilemeyen kaybeder! Online oyunda <b>3 canın</b> var: kaybedersen <b>1 ❤️</b> gider. Canın biterse reklam izleyerek can kazanırsın.</div>
         <div class="dcard lives"><div><b>Canların</b><div class="hearts" id="dHearts">❤️❤️❤️</div></div><button class="dbtn" id="dAdLife">📺 Reklam izle<br><small>+1 ❤️</small></button></div>
+        <div class="dcard"><b>Kategori seç</b> <small style="opacity:.75">— bildiğin konuda yarış!</small><div class="dcats" id="dCats" style="margin-top:8px"></div><div class="pcat" id="dCatStat"></div></div>
         <button class="dbtn gold" id="dQuick">🎲 Rastgele Rakip Bul</button>
         <button class="dbtn" id="dCreate">⚔️ Arkadaşınla Oyna (Oda Kur)</button>
         <div class="drow"><input id="dCode" maxlength="5" placeholder="ODA KODU"><button class="dbtn" id="dJoin">Katıl</button></div>
@@ -376,6 +404,7 @@
         <div class="dnote" id="dNet">Bağlantı kontrol ediliyor…</div>
       </div>
       <div id="dTabRank" class="hidden">
+        <div class="dcats sm" id="dRankCats" style="margin-bottom:8px"></div>
         <div class="dcard" id="dRank"><div class="dnote">Yükleniyor…</div></div>
       </div>
     </div>
@@ -383,6 +412,7 @@
     <!-- BEKLEME -->
     <div id="dWait" class="dpage hidden">
       <div class="dcard" style="text-align:center">
+        <div class="dcatpill" id="dWaitCat"></div>
         <div class="dnote" id="dWaitNote">Oda kodunu arkadaşına gönder</div>
         <div class="dcodebig" id="dWaitCode">----</div>
         <div class="spinner"></div>
@@ -394,9 +424,9 @@
     <!-- OYUN -->
     <div id="dGame" class="dpage hidden">
       <div class="vs">
-        <div class="vp" id="vpA"><div class="avatar sm" id="vaA">?</div><div class="vn" id="vnA">Sen</div><div class="vs-s" id="vsA">0</div></div>
+        <div class="vp" id="vpA"><div class="avatar sm" id="vaA">?</div><div class="vn" id="vnA">Sen</div><div class="vbd" id="vbA"></div><div class="vs-s" id="vsA">0</div></div>
         <div class="vsx">VS<small id="dMode">ONLINE</small></div>
-        <div class="vp" id="vpB"><div class="avatar sm b" id="vaB">?</div><div class="vn" id="vnB">Rakip</div><div class="vs-s" id="vsB">0</div></div>
+        <div class="vp" id="vpB"><div class="avatar sm b" id="vaB">?</div><div class="vn" id="vnB">Rakip</div><div class="vbd" id="vbB"></div><div class="vs-s" id="vsB">0</div></div>
       </div>
       <div class="dboard" id="dBoard"></div>
       <div class="dturn" id="dTurn">Senin sıran!</div>
@@ -1038,9 +1068,9 @@ async function fbInit(){
   let queue={}; rdb.ref("queue").on("value",s=>{ queue=s.val()||{}; });
   let myQueueRef=null;
   const lobby={
-    peers(){ return Object.entries(queue).map(([code,v])=>({isMe:!!(myQueueRef&&myQueueRef.key===code), presence:{seek:{code,ts:v&&v.ts}}})); },
+    peers(){ return Object.entries(queue).map(([code,v])=>({isMe:!!(myQueueRef&&myQueueRef.key===code), presence:{seek:{code,ts:v&&v.ts,cat:(v&&v.cat)||"genel"}}})); },
     async presence(p){
-      if(p&&p.seek){ myQueueRef=rdb.ref("queue/"+p.seek.code); await myQueueRef.set({uid,ts:Date.now()}); myQueueRef.onDisconnect().remove(); }
+      if(p&&p.seek){ myQueueRef=rdb.ref("queue/"+p.seek.code); await myQueueRef.set({uid,ts:Date.now(),cat:p.seek.cat||"genel"}); myQueueRef.onDisconnect().remove(); }
       else if(p&&p.seek===null&&myQueueRef){ const r=myQueueRef; myQueueRef=null; try{ await r.onDisconnect().cancel(); await r.remove(); }catch(e){} }
     },
     async claim(code){ // aynı odaya iki kişi gitmesin
@@ -1088,17 +1118,19 @@ function showAd(onDone){
 }
 
 // soru havuzu: tüm paketlerden 3-7 harfli kelimeler
+const DCATS=[["genel","🧠","Genel"],["spor","⚽","Spor"],["sanat","🎨","Sanat"],["tarih","🏛️","Tarih"]];
+const dcatName=c=>{ const x=DCATS.find(z=>z[0]===c)||DCATS[0]; return x[1]+" "+x[2]; };
 function duelPool(){
   const m=new Map();
-  const add=(lv)=>lv.words.forEach(([w,q])=>{ const n=[...w].length; if(n>=3&&n<=7&&!m.has(w)) m.set(w,q); });
-  MAIN_LEVELS.forEach(add); Object.values(CATS).forEach(c=>c.levels.forEach(add));
-  return [...m.entries()];
+  const add=c=>lv=>lv.words.forEach(([w,q])=>{ const n=[...w].length; if(n>=3&&n<=7&&!m.has(w)) m.set(w,[q,c]); });
+  MAIN_LEVELS.forEach(add("genel")); Object.entries(CATS).forEach(([c,o])=>o.levels.forEach(add(c)));
+  return [...m.entries()].map(([w,[q,c]])=>[w,q,c]);
 }
 const DECOY=[..."AEİIKLMNRSTUOYBDÜ"];
 let POOL=null; const P=()=>POOL||(POOL=duelPool());
 const QW=q=>P()[q.k][0], QT=q=>P()[q.k][1];
-function makeQuestions(){
-  const idx=P().map((_,i)=>i); for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]];}
+function makeQuestions(cat){
+  let idx=P().map((_,i)=>i).filter(i=>!cat||P()[i][2]===cat); if(idx.length<20) idx=P().map((_,i)=>i); for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]];}
   return idx.slice(0,20).map(k=>{ const w=P()[k][0]; const L=[...w]; if(L.length<7) L.push(DECOY[Math.floor(Math.random()*DECOY.length)]);
     for(let i=L.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[L[i],L[j]]=[L[j],L[i]];} return {k,l:L.join("")}; });
 }
@@ -1126,32 +1158,91 @@ async function initNet(){
   $("dNet").textContent = D.room ? "🟢 Online hazır. Oda kur ya da arkadaşının kodunu gir." : "Online bağlantı yok; bota karşı antrenman yapabilirsin.";
   $("dCreate").disabled=$("dJoin").disabled=$("dQuick").disabled=!D.room;
   if(D.db && D.uid){
-    try{ const s=await D.db.doc("profiles/"+D.uid).get(); if(s.exists){ const d=s.data(); D.stat={w:d.wins||0,l:d.losses||0,d:d.draws||0}; if(!$("dName").value && d.name){ $("dName").value=d.name; store.set("pname",d.name);} } }catch(e){}
+    try{ const s=await D.db.doc("profiles/"+D.uid).get(); if(s.exists){ const d=s.data(); D.stat={w:d.wins||0,l:d.losses||0,d:d.draws||0,c:{}}; DCATS.forEach(([c])=>{ D.stat.c[c]={w:d["w_"+c]||0,l:d["l_"+c]||0}; }); if(!$("dName").value && d.name){ $("dName").value=d.name; store.set("pname",d.name);} } }catch(e){}
     renderStats();
   }
 }
+D.cat=store.get("dcat","genel");
+// ---------- ROZETLER ----------
+const BADGES=[
+  ["ilk","🎖️","İlk Adım","İlk online düellonu oyna"],
+  ["zafer","🏆","İlk Zafer","İlk online galibiyetini al"],
+  ["seri3","🔥","Alev Alev","Üst üste 3 galibiyet al"],
+  ["seri5","☄️","Durdurulamaz","Üst üste 5 galibiyet al"],
+  ["glad","⚔️","Gladyatör","Toplam 10 galibiyet al"],
+  ["efsane","👑","Efsane","Toplam 50 galibiyet al"],
+  ["simsek","⚡","Şimşek","Online düelloda bir soruyu 3 saniyede bil"],
+  ["kusursuz","🎯","Kusursuz","Bir düelloda 10 sorunun hepsini bil"],
+  ["genel","🧠","Bilge","Genel kategoride 5 galibiyet"],
+  ["spor","⚽","Spor Ustası","Spor kategorisinde 5 galibiyet"],
+  ["sanat","🎨","Sanat Ustası","Sanat kategorisinde 5 galibiyet"],
+  ["tarih","🏛️","Tarih Ustası","Tarih kategorisinde 5 galibiyet"],
+  ["gezgin","🌍","Her Telden","Her kategoride en az 1 galibiyet"],
+  ["yildiz","⭐","Yıldız Avcısı","Tek oyunculu modda 100 yıldız topla"],
+  ["sadik","💎","Sadık Oyuncu","Toplam 25 online düello oyna"],
+  ["inat","💪","Pes Etmem","Kaybettikten sonra tekrar oynayıp kazan"]
+];
+const BMAP=Object.fromEntries(BADGES.map(b=>[b[0],b]));
+let bEarned=store.get("bdg",[]), bShow=store.get("bdShow",[]);
+const bdHTML=(ids,sm)=>(Array.isArray(ids)?ids:String(ids||"").split(",")).filter(id=>BMAP[id]).slice(0,3).map(id=>`<span class="bdg${sm?" sm":""}" title="${BMAP[id][2]}">${BMAP[id][1]}</span>`).join("");
+function checkBadges(){
+  const st=D.stat, c=k=>catStat(k).w, tot=st.w+st.l+(st.d||0);
+  const totStars=["main","spor","sanat","tarih"].reduce((a,p)=>a+packStars(p),0);
+  const has={ilk:tot>=1,zafer:st.w>=1,seri3:store.get("bestStreak",0)>=3,seri5:store.get("bestStreak",0)>=5,glad:st.w>=10,efsane:st.w>=50,
+    simsek:!!store.get("bFast",0),kusursuz:!!store.get("bPerfect",0),genel:c("genel")>=5,spor:c("spor")>=5,sanat:c("sanat")>=5,tarih:c("tarih")>=5,
+    gezgin:DCATS.every(([k])=>c(k)>=1),yildiz:totStars>=100,sadik:tot>=25,inat:!!store.get("bComeback",0)};
+  const nw=BADGES.filter(b=>has[b[0]]&&!bEarned.includes(b[0]));
+  if(nw.length){ bEarned=[...bEarned,...nw.map(b=>b[0])]; store.set("bdg",bEarned);
+    nw.forEach(b=>{ if(bShow.length<3) bShow.push(b[0]); }); store.set("bdShow",bShow);
+    setTimeout(()=>{ toast(`🎉 Yeni rozet: ${nw.map(b=>b[1]+" "+b[2]).join(", ")}`); try{SFX.win();}catch(e){} },900); }
+  renderBadges(); return nw.length>0;
+}
+function renderBadges(){
+  $("pBadges").innerHTML=bdHTML(bShow)||'<span class="dnote" style="font-size:12px">Henüz rozet seçilmedi</span>';
+  $("bdCount").textContent=`${bEarned.length}/${BADGES.length}`;
+  const g=$("bdGrid"); g.innerHTML="";
+  BADGES.forEach(([id,e,n,d])=>{ const b=document.createElement("button"); const got=bEarned.includes(id);
+    b.className=got?(bShow.includes(id)?"show":""):"lock"; b.innerHTML=`<span class="e">${e}</span><span class="n">${n}</span>`;
+    b.onclick=()=>{ $("bdInfo").textContent=`${e} ${n} — ${d}${got?"":" 🔒"}`; if(!got) return;
+      if(bShow.includes(id)) bShow=bShow.filter(x=>x!==id); else if(bShow.length<3) bShow.push(id); else { toast("En fazla 3 rozet gösterebilirsin"); return; }
+      store.set("bdShow",bShow); renderBadges(); $("bdInfo").textContent=`${e} ${n} — ${d}`; saveProfile(); };
+    g.appendChild(b); });
+}
+$("bdToggle").onclick=()=>{ const h=$("bdBox").classList.toggle("hidden"); $("bdToggle").textContent=h?"Tümü ▾":"Kapat ▴"; };
+const myBd=()=>bShow.filter(id=>BMAP[id]).slice(0,3).join(",");
+function catStat(c){ return (D.stat.c||(D.stat.c={}))[c]||(D.stat.c[c]={w:0,l:0}); }
+function renderCats(){
+  const mk=(box,sel,fn)=>{ box.innerHTML=""; DCATS.forEach(([k,e,n])=>{ const b=document.createElement("button"); b.className=k===sel?"on":""; b.innerHTML=`<span>${e}</span>${n}`; b.onclick=()=>fn(k); box.appendChild(b); }); };
+  mk($("dCats"),D.cat,k=>{ D.cat=k; store.set("dcat",k); renderCats(); });
+  mk($("dRankCats"),D.rcat||"all",k=>{ D.rcat=D.rcat===k?"all":k; renderCats(); loadRank(); });
+  const cs=catStat(D.cat), t=cs.w+cs.l; $("dCatStat").textContent=`${dcatName(D.cat)}: ${cs.w} galibiyet · ${cs.l} mağlubiyet${t?` · %${Math.round(cs.w/t*100)}`:""}`;
+}
 function renderStats(){
+  try{ renderCats(); }catch(e){} try{ checkBadges(); }catch(e){}
   const {w,l}=D.stat, t=w+l, r=t?Math.round(w/t*100):0;
   $("pW").textContent=w; $("pL").textContent=l; $("pR").textContent=`%${r}`; $("pBar").style.width=r+"%";
 }
 async function saveProfile(){
   store.set("pname",myName()); $("dAvatar").textContent=initials(myName());
   if(!(D.db&&D.uid)) return;
-  try{ await D.db.doc("profiles/"+D.uid).set({name:myName(),wins:D.stat.w,losses:D.stat.l,draws:D.stat.d,updated:Date.now()}); }catch(e){}
+  try{ await D.db.doc("profiles/"+D.uid).set(Object.assign({name:myName(),bd:myBd(),wins:D.stat.w,losses:D.stat.l,draws:D.stat.d,updated:Date.now()}, ...DCATS.map(([c])=>({["w_"+c]:catStat(c).w,["l_"+c]:catStat(c).l})))); }catch(e){}
 }
 async function loadRank(){
   const box=$("dRank");
   if(!D.db){ box.innerHTML='<div class="dnote">Sıralama tablosu için online bağlantı gerekiyor.</div>'; return; }
   box.innerHTML='<div class="dnote">Yükleniyor…</div>';
   try{
-    const snap=await D.db.collection("profiles").orderBy("wins","desc").limit(50).get();
-    const rows=snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>(r.wins||0)+(r.losses||0)+(r.draws||0)>0);
-    if(!rows.length){ box.innerHTML='<div class="dnote">Henüz kimse online düello oynamadı. İlk sen ol! 🏆</div>'; return; }
+    const rc=D.rcat&&D.rcat!=="all"?D.rcat:null, wf=rc?"w_"+rc:"wins";
+    const snap=await D.db.collection("profiles").orderBy(wf,"desc").limit(50).get();
+    let rows=snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(rc) rows=rows.map(r=>({...r,wins:r["w_"+rc]||0,losses:r["l_"+rc]||0,draws:0}));
+    rows=rows.filter(r=>(r.wins||0)+(r.losses||0)+(r.draws||0)>0).sort((a,b)=>(b.wins||0)-(a.wins||0));
+    if(!rows.length){ box.innerHTML='<div class="dnote">${rc?dcatName(rc)+" kategorisinde henüz":"Henüz"} kimse online düello oynamadı. İlk sen ol! 🏆</div>'; return; }
     box.innerHTML="";
     rows.forEach((r,i)=>{ const t=(r.wins||0)+(r.losses||0), ra=t?Math.round((r.wins||0)/t*100):0;
       const el=document.createElement("div"); el.className="rk"+(r.id===D.uid?" me":"");
       el.innerHTML=`<div class="no">${["🥇","🥈","🥉"][i]||i+1}</div><div class="avatar sm">${initials(r.name)}</div><div class="nm"></div><div class="wl"><b>${r.wins||0}</b> G · ${r.losses||0} M<br>%${ra}</div>`;
-      el.querySelector(".nm").textContent=r.name||"Oyuncu"; box.appendChild(el); });
+      el.querySelector(".nm").textContent=r.name||"Oyuncu"; if(r.bd){ const sm=document.createElement("small"); sm.textContent=String(r.bd).split(",").filter(id=>BMAP[id]).slice(0,3).map(id=>BMAP[id][1]).join(""); el.querySelector(".nm").appendChild(sm); } box.appendChild(el); });
   }catch(e){ box.innerHTML='<div class="dnote">Sıralama şu an yüklenemedi.</div>'; }
 }
 
@@ -1165,14 +1256,14 @@ async function joinRoom(code,asHost){
   D.offs.push(r.on("duel",m=>onMsg(m.data,m)));
   D.offs.push(r.onPeers(ch=>{ if(D.g&&D.g.status==="play"&&ch.left.length&&ch.peers.length<2) finish(D.g.players.findIndex(p=>p.id===D.me),"left"); }));
   if(asHost){
-    D.g={status:"wait",code,players:[{id:D.me,name:myName()}],qs:makeQuestions(),turn:0,done:[],v:1};
-    $("dWaitCode").textContent=code; dShow("dWait");
+    D.g={status:"wait",code,players:[{id:D.me,name:myName(),bd:myBd()}],qs:makeQuestions(D.cat),cat:D.cat,turn:0,done:[],v:1};
+    $("dWaitCode").textContent=code; dShow("dWait"); $("dWaitCat").textContent=dcatName(D.cat);
     clearInterval(D.rebro); D.rebro=setInterval(()=>{ if(D.g&&D.g.status!=="end") send({t:"state",s:pub()}); },2500);
   }else{
-    dShow("dWait"); $("dWaitCode").textContent=code;
-    send({t:"hello",id:D.me,name:myName()});
+    dShow("dWait"); $("dWaitCode").textContent=code; $("dWaitCat").textContent="Kategori: odaya göre";
+    send({t:"hello",id:D.me,name:myName(),bd:myBd()});
     setTimeout(()=>{ if(D.mode==="online" && !D.host && (!D.g||D.g.status==="wait")){ leaveDuel(); dShow("dLobby"); toast("Odaya bağlanılamadı, tekrar dene"); } },12000);
-    clearInterval(D.rebro); D.rebro=setInterval(()=>{ if(!D.g||D.g.status==="wait") send({t:"hello",id:D.me,name:myName()}); },2000);
+    clearInterval(D.rebro); D.rebro=setInterval(()=>{ if(!D.g||D.g.status==="wait") send({t:"hello",id:D.me,name:myName(),bd:myBd()}); },2000);
   }
 }
 function send(o){ if(D.mode==="online"&&D.r){ try{ D.r.emit("duel",o); }catch(e){} } }
@@ -1181,7 +1272,7 @@ function onMsg(d,m){
   if(!d||typeof d!=="object") return;
   if(D.host){
     if(d.t==="hello" && D.g.status==="wait" && d.id!==D.me){
-      D.g.players[1]={id:d.id,name:String(d.name||"Rakip").slice(0,16)}; stopSeek(); startTurn(0);
+      D.g.players[1]={id:d.id,name:String(d.name||"Rakip").slice(0,16),bd:String(d.bd||"").slice(0,60)}; stopSeek(); startTurn(0);
     }
     if(d.t==="ans" && D.g.status==="play" && d.i===D.g.turn && D.g.players[d.i%2].id===d.id) hostAnswer(d.i,d.w);
     if(d.t==="joker" && D.g.status==="play" && d.i===D.g.turn && D.g.players[d.i%2].id===d.id) hostJoker(d.i);
@@ -1227,12 +1318,13 @@ function myIdx(){ return D.g.players.findIndex(p=>p.id===D.me); }
 function applyState(s){
   if(!D.host) D.g=s;
   const g=D.g, me=myIdx(), op=1-me;
+  try{ $("dWaitCat").textContent=dcatName(g.cat); }catch(e){}
   if(g.status==="end"){ showEnd(); return; }
   if(g.status!=="play") return;
   dShow("dGame");
   $("vnA").textContent=g.players[me].name; $("vaA").textContent=initials(g.players[me].name);
-  $("vnB").textContent=(g.players[op]||{}).name||"Rakip"; $("vaB").textContent=initials((g.players[op]||{}).name);
-  $("dMode").textContent= D.mode==="bot"?"ANTRENMAN":"ONLINE";
+  $("vnB").textContent=(g.players[op]||{}).name||"Rakip"; $("vbA").innerHTML=bdHTML((g.players[me]||{}).bd,1); $("vbB").innerHTML=bdHTML((g.players[op]||{}).bd,1); $("vaB").textContent=initials((g.players[op]||{}).name);
+  $("dMode").textContent= (D.mode==="bot"?"ANTRENMAN · ":"")+(dcatName(g.cat).split(" ")[1]||"").toLocaleUpperCase("tr-TR");
   g.done=g.done||[]; const cnt=k=>g.done.filter((x,i)=>x&&i%2===k).length;
   $("vsA").textContent=`${cnt(me)}/10 doğru`; $("vsB").textContent=`${cnt(op)}/10 doğru`;
   const mine=g.turn%2===me;
@@ -1246,7 +1338,7 @@ function applyState(s){
   $("dQ").innerHTML=`<small>Soru ${g.turn+1} / 20 · ${[...QW(q)].length} harf</small>`; $("dQ").appendChild(document.createTextNode(QT(q)));
   const jkNow=!!(g.jk&&g.jk[g.turn]);
   if(!D.host && D.lastTurn===g.turn && jkNow && !D.jkSeen){ D.endAt=Date.now()+(s.left||0); }
-  if(D.lastTurn!==g.turn){ D.jkSeen=false; D.lastTurn=g.turn; if(!D.host) D.endAt=Date.now()+(s.left||15000); buildDWheel(q.l); $("dCur").textContent=""; if(mine) beep([[660,.1]]); }
+  if(D.lastTurn!==g.turn){ D.jkSeen=false; D.lastTurn=g.turn; D.turnAt=Date.now(); if(!D.host) D.endAt=Date.now()+(s.left||15000); buildDWheel(q.l); $("dCur").textContent=""; if(mine) beep([[660,.1]]); }
   $("dWheel").classList.toggle("off",!mine); D.myTurn=mine;
   $("dJoker").disabled = !mine || jkNow;
   if(jkNow){ const W=[...QW(q)]; if(!D.jkSeen){ D.jkSeen=true; const L=[...q.l]; const rest=[...W]; const keep=[]; L.forEach(c=>{ const k=rest.indexOf(c); if(k>=0){ rest.splice(k,1); keep.push(c);} }); buildDWheel(keep.join("")); const fi=dPos.findIndex(p=>p.ch===W[0]); if(fi>=0) dPos[fi].el.classList.add("first"); }
@@ -1267,7 +1359,11 @@ function showEnd(){
   $("dEndTxt").textContent= draw ? "İkiniz de 10 sorunun hepsini bildiniz!" : won ? `${opName} ${why}.` : (g.reason==="time"?"15 saniyede cevap veremedin.":"Bağlantı koptu.");
   if(D.mode==="online" && !D.counted){
     D.counted=true;
-    if(draw) D.stat.d++; else if(won) D.stat.w++; else { D.stat.l++; setLives(lives-1); }
+    const gc=g.cat||"genel";
+    if(draw) D.stat.d++; else if(won){ D.stat.w++; catStat(gc).w++; } else { D.stat.l++; catStat(gc).l++; setLives(lives-1); }
+    if(won){ const st=store.get("streak",0)+1; store.set("streak",st); if(st>store.get("bestStreak",0)) store.set("bestStreak",st); if(store.get("lastLost",0)) store.set("bComeback",1); store.set("lastLost",0); }
+    else if(!draw){ store.set("streak",0); store.set("lastLost",1); }
+    if((g.done||[]).filter((x,i)=>x&&i%2===me).length>=10) store.set("bPerfect",1);
     renderStats(); saveProfile();
     if(won) SFX.win(); else if(!draw) SFX.bad();
   }
@@ -1307,6 +1403,7 @@ function dSubmit(w){
   const i=D.g.turn;
   if(w!==QW(D.g.qs[i])){ const c=$("dCur").parentElement; $("dCur").textContent=w; c.className="dcur bad"; SFX.bad(); setTimeout(()=>{c.className="dcur";$("dCur").textContent="";},600); return; }
   SFX.ok(); D.myTurn=false;
+  if(D.mode==="online" && D.turnAt && Date.now()-D.turnAt<=3000 && !store.get("bFast",0)){ store.set("bFast",1); try{ checkBadges(); saveProfile(); }catch(e){} }
   if(D.host) hostAnswer(i,w); else send({t:"ans",i,w,id:D.me});
 }
 
@@ -1322,7 +1419,7 @@ $("dCancel").onclick=()=>{ leaveDuel(); dShow("dLobby"); };
 $("dAgain").onclick=()=>{ leaveDuel(); dShow("dLobby"); renderLives(); };
 $("dBot").onclick=()=>{ leaveDuel(); D.mode="bot"; D.host=true; D.me="me";
   const bots=["Bilge Bot","Zeki Robot","Kelime Ustası","Çark Botu"];
-  D.g={status:"wait",players:[{id:"me",name:myName()},{id:"bot",name:bots[Math.floor(Math.random()*bots.length)]}],qs:makeQuestions(),turn:0,done:[],v:1};
+  D.g={status:"wait",players:[{id:"me",name:myName(),bd:myBd()},{id:"bot",name:bots[Math.floor(Math.random()*bots.length)],bd:BADGES.map(b=>b[0]).sort(()=>Math.random()-.5).slice(0,1+Math.floor(Math.random()*3)).join(",")}],qs:makeQuestions(D.cat),cat:D.cat,turn:0,done:[],v:1};
   startTurn(0); };
 $("dJoker").onclick=()=>{
   if(!D.g||D.g.status!=="play"||!D.myTurn) return;
@@ -1337,15 +1434,15 @@ async function quickMatch(){
   if(!$("dName").value.trim()){ toast("Önce adını yaz"); $("dName").focus(); return; }
   if(lives<=0){ toast("Canın kalmadı — reklam izleyerek can kazan"); return; }
   const now=Date.now();
-  const cands=(D.room.peers()||[]).filter(p=>!p.isMe && p.presence && p.presence.seek && p.presence.seek.code && now-(p.presence.seek.ts||0)<120000);
+  const cands=(D.room.peers()||[]).filter(p=>!p.isMe && p.presence && p.presence.seek && p.presence.seek.code && (p.presence.seek.cat||"genel")===D.cat && now-(p.presence.seek.ts||0)<120000);
   let picked=null;
   for(const p of cands.sort(()=>Math.random()-.5)){ const c=p.presence.seek.code; if(!D.room.claim || await D.room.claim(c)){ picked=c; break; } }
   if(picked){
     await joinRoom(picked,false); $("dWaitNote").textContent="Rakibe bağlanılıyor…";
   }else{
     const c=rcode(); await joinRoom(c,true);
-    try{ await D.room.presence({seek:{code:c,ts:Date.now()}}); }catch(e){}
-    $("dWaitNote").textContent="Rakip aranıyor… Biri düello aradığında otomatik eşleşeceksin. Oda kodu:";
+    try{ await D.room.presence({seek:{code:c,ts:Date.now(),cat:D.cat}}); }catch(e){}
+    $("dWaitNote").textContent="Aynı kategoride rakip aranıyor… Biri bu kategoride düello aradığında otomatik eşleşeceksin. Oda kodu:";
   }
 }
 function stopSeek(){ try{ D.room&&D.room.presence({seek:null}); }catch(e){} }
