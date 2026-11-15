@@ -1106,7 +1106,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="15";
+const APP_VER="16";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1194,16 +1194,24 @@ const DCATS=[["genel","🧠","Genel"],["spor","⚽","Spor"],["sanat","🎨","San
 const dcatName=c=>{ const x=DCATS.find(z=>z[0]===c)||DCATS[0]; return x[1]+" "+x[2]; };
 function duelPool(){
   const m=new Map();
-  const add=c=>lv=>lv.words.forEach(([w,q])=>{ const n=[...w].length; if(n>=3&&n<=7&&!m.has(w)) m.set(w,[q,c]); });
-  MAIN_LEVELS.forEach(add("genel")); Object.entries(CATS).forEach(([c,o])=>o.levels.forEach(add(c)));
-  return [...m.entries()].map(([w,[q,c]])=>[w,q,c]);
+  // zorluk: bölümün oyundaki sırası (erken = kolay) + kelime uzunluğu
+  const add=(c,N)=>(lv,li)=>lv.words.forEach(([w,q])=>{ const n=[...w].length; if(n>=3&&n<=7&&!m.has(w)) m.set(w,[q,c,0.7*li/Math.max(1,N-1)+0.3*(n-3)/4]); });
+  MAIN_LEVELS.forEach(add("genel",MAIN_LEVELS.length)); Object.entries(CATS).forEach(([c,o])=>o.levels.forEach(add(c,o.levels.length)));
+  return [...m.entries()].map(([w,[q,c,d]])=>[w,q,c,d]);
 }
 const DECOY=[..."AEİIKLMNRSTUOYBDÜ"];
 let POOL=null; const P=()=>POOL||(POOL=duelPool());
 const QW=q=>P()[q.k][0], QT=q=>P()[q.k][1];
+// 10 tur × 2 soru (biri sana, biri rakibe, aynı zorlukta). İlk 5 tur kolay, sonra yavaşça zorlaşır.
+const DIFF_BANDS=[[0,.3],[0,.3],[0,.3],[0,.3],[0,.3],[.3,.45],[.4,.55],[.5,.7],[.65,.85],[.8,1]];
+const diffLabel=t=>t<5?"🟢 Kolay":t<8?"🟡 Orta":"🔴 Zor";
 function makeQuestions(cat){
-  let idx=P().map((_,i)=>i).filter(i=>!cat||P()[i][2]===cat); if(idx.length<20) idx=P().map((_,i)=>i); for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]];}
-  return idx.slice(0,20).map(k=>{ const w=P()[k][0]; const L=[...w]; if(L.length<7) L.push(DECOY[Math.floor(Math.random()*DECOY.length)]);
+  let all=P().map((_,i)=>i).filter(i=>!cat||P()[i][2]===cat); if(all.length<40) all=P().map((_,i)=>i);
+  const sorted=all.slice().sort((a,b)=>P()[a][3]-P()[b][3]), used=new Set(), idx=[];
+  DIFF_BANDS.forEach(([a,b])=>{ let band=sorted.slice(Math.floor(a*sorted.length),Math.ceil(b*sorted.length)).filter(k=>!used.has(k));
+    if(band.length<2) band=sorted.filter(k=>!used.has(k));
+    for(let n=0;n<2;n++){ const k=band.splice(Math.floor(Math.random()*band.length),1)[0]; used.add(k); idx.push(k); } });
+  return idx.map(k=>{ const w=P()[k][0]; const L=[...w]; if(L.length<7) L.push(DECOY[Math.floor(Math.random()*DECOY.length)]);
     for(let i=L.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[L[i],L[j]]=[L[j],L[i]];} return {k,l:L.join("")}; });
 }
 const myName=()=> ($("dName").value.trim()||"Oyuncu").slice(0,16);
@@ -1429,7 +1437,7 @@ function applyState(s){
   for(let i=0;i<20;i++){ const t=document.createElement("div"); const own=i%2===me?"a":"b";
     t.className=`dt ${own}${g.done[i]?" ok":""}${i===g.turn?" cur":""}`; t.textContent=g.done[i]?"✓":i+1; b.appendChild(t); }
   const q=g.qs[g.turn];
-  $("dQ").innerHTML=`<small>Soru ${g.turn+1} / 20 · ${[...QW(q)].length} harf</small>`; $("dQ").appendChild(document.createTextNode(QT(q)));
+  $("dQ").innerHTML=`<small>Soru ${g.turn+1} / 20 · ${[...QW(q)].length} harf · ${diffLabel(Math.floor(g.turn/2))}</small>`; $("dQ").appendChild(document.createTextNode(QT(q)));
   const jkNow=!!(g.jk&&g.jk[g.turn]);
   if(!D.host && D.lastTurn===g.turn && jkNow && !D.jkSeen){ D.endAt=Date.now()+(s.left||0); }
   if(D.lastTurn!==g.turn){ D.jkSeen=false; D.lastTurn=g.turn; D.turnAt=Date.now(); if(!D.host) D.endAt=Date.now()+(s.left||15000); buildDWheel(q.l); $("dCur").textContent=""; if(mine) beep([[660,.1]]); }
