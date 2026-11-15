@@ -1131,30 +1131,34 @@ document.querySelectorAll("[data-gem]").forEach(b=>b.onclick=()=>{ const n=+b.da
 let soundOn=store.get("sound",true), vibOn=store.get("vib",true), menuFromHome=false, actx=null;
 // ses motoru: iPhone'da ilk dokunuşta kilidi aç, sessiz modda da çalsın, askıya alınırsa devam ettir
 try{ if(navigator.audioSession) navigator.audioSession.type="playback"; }catch(e){}
-// ---------- harf sesi: her harfte bir nota yükselen "tıng" (pentatonik) ----------
-const TICK_NOTES=[523.25,587.33,659.25,783.99,880,1046.5,1174.66,1318.51,1567.98,1760];
-function tick(i,soft){ if(!soundOn) return; try{ AC(); const c=actx, t=c.currentTime+.005, f=TICK_NOTES[Math.min(i,TICK_NOTES.length-1)], g=c.createGain(), v=soft?.06:.13;
-  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(v,t+.006); g.gain.exponentialRampToValueAtTime(.0005,t+.45); g.connect(c.destination);
-  [[1,"sine",1],[2,"sine",.35],[3.01,"sine",.12]].forEach(([m,type,a])=>{ const o=c.createOscillator(), og=c.createGain(); o.type=type; o.frequency.value=f*m; og.gain.value=a; o.connect(og); og.connect(g); o.start(t); o.stop(t+.5); });
+// ---------- harf sesi: her harfte bir nota yükselen ince "tıng" (pentatonik, bir oktav yukarıda) ----------
+const TICK_NOTES=[1046.5,1174.66,1318.51,1567.98,1760,2093,2349.32,2637.02,3135.96,3520];
+function tick(i,soft){ if(!soundOn) return; try{ AC(); const c=actx, t=c.currentTime+.005, f=TICK_NOTES[Math.min(i,TICK_NOTES.length-1)], g=c.createGain(), v=soft?.05:.11;
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(v,t+.004); g.gain.exponentialRampToValueAtTime(.0005,t+.32); g.connect(c.destination);
+  [[1,.9],[2,.25],[3.01,.06]].forEach(([m,a])=>{ const o=c.createOscillator(), og=c.createGain(); o.type="sine"; o.frequency.value=f*m; og.gain.value=a; o.connect(og); og.connect(g); o.start(t); o.stop(t+.36); });
 }catch(e){} }
-// ---------- huzur veren arka plan müziği (cihazda üretilir, dosya yok) ----------
+// ---------- arka plan müziği: hafif, tatlı bulmaca oyunu havası (cihazda üretilir, dosya yok) ----------
 let musicOn=store.get("music",true), mus=null;
 function musicStart(){ if(!musicOn||mus) return; try{ AC(); const c=actx;
-  const out=c.createGain(); out.gain.value=0; out.connect(c.destination); out.gain.linearRampToValueAtTime(.11,c.currentTime+3);
-  const lp=c.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=1400; lp.connect(out);
-  const dl=c.createDelay(); dl.delayTime.value=.42; const fb=c.createGain(); fb.gain.value=.38; dl.connect(fb); fb.connect(dl); dl.connect(lp);
-  const CH=[[261.63,329.63,392,493.88],[220,261.63,329.63,392],[174.61,220,261.63,329.63],[196,246.94,293.66,392]];
-  const PENT=[523.25,587.33,659.25,783.99,880,1046.5];
-  let next=c.currentTime+.1, step=0;
-  const sched=()=>{ if(!mus) return; while(next<c.currentTime+1.5){ const bar=Math.floor(step/8)%CH.length;
-      if(step%8===0){ CH[bar].forEach((f,k)=>{ const o=c.createOscillator(), g=c.createGain(); o.type=k%2?"triangle":"sine"; o.frequency.value=f/2; o.detune.value=(k-1.5)*4;
-          g.gain.setValueAtTime(0,next); g.gain.linearRampToValueAtTime(.16,next+2); g.gain.setValueAtTime(.16,next+6.4); g.gain.linearRampToValueAtTime(0,next+8.6);
-          o.connect(g); g.connect(lp); o.start(next); o.stop(next+8.8); }); }
-      if(Math.random()<.55){ const pool=PENT.filter(f=>CH[bar].some(x=>Math.abs(Math.log2(f/x))%1<.01)||Math.random()<.5), f=pool[Math.floor(Math.random()*pool.length)]||PENT[0];
-        const o=c.createOscillator(), g=c.createGain(); o.type="sine"; o.frequency.value=f; g.gain.setValueAtTime(0,next); g.gain.linearRampToValueAtTime(.09,next+.03); g.gain.exponentialRampToValueAtTime(.0008,next+2.2);
-        o.connect(g); g.connect(lp); g.connect(dl); o.start(next); o.stop(next+2.3); }
-      next+=1.0; step++; } };
-  mus={out,timer:setInterval(sched,300)}; sched();
+  const out=c.createGain(); out.gain.value=0; out.connect(c.destination); out.gain.linearRampToValueAtTime(.1,c.currentTime+2.5);
+  const lp=c.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=2800; lp.connect(out);
+  const dl=c.createDelay(); dl.delayTime.value=.45; const fb=c.createGain(); fb.gain.value=.25; const dw=c.createGain(); dw.gain.value=.35; dl.connect(fb); fb.connect(dl); dl.connect(dw); dw.connect(lp);
+  const nb=c.createBuffer(1,Math.floor(c.sampleRate*.05),c.sampleRate), nd=nb.getChannelData(0); for(let k=0;k<nd.length;k++) nd[k]=(Math.random()*2-1)*Math.pow(1-k/nd.length,2);
+  // C - Am - F - G (her akor 2 ölçü), tempo ~104 bpm (sekizlik 0.29 sn)
+  const CH=[[261.63,329.63,392,523.25],[220,261.63,329.63,440],[174.61,220,261.63,349.23],[196,246.94,293.66,392]];
+  const ARP=[0,1,2,3,2,1,2,3, 0,2,1,3,2,3,1,2];
+  const ST=.29; let next=c.currentTime+.15, step=0;
+  const pluck=(f,t,vol,dec,type)=>{ const o=c.createOscillator(), g=c.createGain(); o.type=type||"triangle"; o.frequency.value=f;
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+.008); g.gain.exponentialRampToValueAtTime(.0006,t+dec); o.connect(g); g.connect(lp); o.start(t); o.stop(t+dec+.05); return g; };
+  const sched=()=>{ if(!mus) return; while(next<c.currentTime+1.2){ const ch=CH[Math.floor(step/16)%CH.length], s16=step%16;
+      if(s16===0){ ch.slice(0,3).forEach(f=>{ const o=c.createOscillator(), g=c.createGain(); o.type="sine"; o.frequency.value=f; g.gain.setValueAtTime(0,next); g.gain.linearRampToValueAtTime(.05,next+.6); g.gain.setValueAtTime(.05,next+ST*14); g.gain.linearRampToValueAtTime(0,next+ST*16.5); o.connect(g); g.connect(lp); o.start(next); o.stop(next+ST*17); }); }
+      if(s16%8===0||s16===11) pluck(ch[0]/2,next,.22,.5,"sine");
+      if(!(s16===7&&Math.random()<.5)){ const f=ch[ARP[s16]]*2, g=pluck(f,next,.07,.4); g.connect(dl); }
+      if(s16%4===2){ const src=c.createBufferSource(), hp=c.createBiquadFilter(), g=c.createGain(); src.buffer=nb; hp.type="highpass"; hp.frequency.value=7000; g.gain.value=.12; src.connect(hp); hp.connect(g); g.connect(lp); src.start(next); }
+      // her 4 ölçüde bir küçük melodi süsü
+      if(step%64===56){ [ch[3]*2,ch[2]*2*1.0,ch[3]*2*1.122].forEach((f,k)=>{ const g=pluck(f,next+k*ST,.06,.6,"sine"); g.connect(dl); }); }
+      next+=ST; step++; } };
+  mus={out,timer:setInterval(sched,250)}; sched();
 }catch(e){ mus=null; } }
 function musicStop(){ if(!mus) return; const m=mus; mus=null; clearInterval(m.timer); try{ const t=actx.currentTime; m.out.gain.cancelScheduledValues(t); m.out.gain.setValueAtTime(m.out.gain.value,t); m.out.gain.linearRampToValueAtTime(0,t+1.2); setTimeout(()=>{ try{ m.out.disconnect(); }catch(e){} },1500); }catch(e){} }
 document.addEventListener("visibilitychange",()=>{ if(document.hidden) musicStop(); else if(musicOn) setTimeout(musicStart,300); });
@@ -1321,7 +1325,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="42";
+const APP_VER="44";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
