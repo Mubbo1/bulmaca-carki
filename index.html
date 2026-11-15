@@ -316,7 +316,7 @@
   <div class="bottom">
     <div class="side">
       <button class="sbtn" id="btnShuffle" aria-label="Karıştır">🔀</button>
-      <button class="sbtn" id="btnInfo" aria-label="Bilgi" style="background:#7b2cbf;font-weight:800;font-family:Georgia,serif;font-size:26px">i<small style="background:#e0c3fc">1💎</small></button>
+      <button class="sbtn" id="btnInfo" aria-label="Bilgi ipucu" style="background:#7b2cbf;font-size:24px">🔍<small style="background:#e0c3fc">1💎</small></button>
     </div>
     <div id="wheel"><div class="bg"></div><svg id="lines"></svg></div>
     <div class="side">
@@ -1126,7 +1126,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="19";
+const APP_VER="20";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
