@@ -72,7 +72,8 @@
   .hbtn.main{background:var(--acc);color:#1b262c;font-size:28px;padding:18px}
   .hbtn.sec{background:#ffffff26;color:#fff}
   #home .cont{text-align:center;color:#cfe3ff;font-size:14px;margin-top:-4px}
-  .setbox{max-height:88vh;overflow-y:auto}
+  .setbox{max-height:88vh;overflow-y:auto;position:relative}
+  .box button.xclose{position:absolute;top:12px;right:12px;width:38px;height:38px;padding:0;margin:0;border-radius:50%;background:#eef0f4;color:#555;font-size:20px;line-height:38px;font-weight:900}
   .ssec{text-align:left;font-size:12px;font-weight:800;color:#7b2cbf;text-transform:uppercase;letter-spacing:1px;margin:14px 4px 2px}
   .set span small{display:block;font-size:12px;color:#888;font-weight:500}
   .set button{width:auto;margin:0;padding:8px 14px;font-size:16px;white-space:nowrap;flex:none}
@@ -393,6 +394,7 @@
   </div>
 
   <div class="overlay hidden" id="ovSet"><div class="box setbox">
+    <button class="xclose" id="btnSetClose" aria-label="Kapat">✕</button>
     <h2>⚙️ Ayarlar</h2>
     <div class="ssec">Oyun</div>
     <div class="set"><span>🔊 Ses</span><div class="tog" id="tSound"></div></div>
@@ -402,11 +404,10 @@
     <div class="set"><span>💎 Elmas Mağazası</span><button id="btnSetShop" class="mini">Aç</button></div>
     <div class="ssec">Diğer</div>
     <div class="set"><span>ℹ️ Sürüm</span><span style="color:#888;font-size:15px">1.0</span></div>
-    <button class="danger" id="btnReset">İlerlemeyi Sıfırla</button>
+    <div class="hidden"><button id="btnReset"></button></div>
     <div id="resetAsk" class="hidden" style="margin-top:8px;font-size:15px">Tüm bölümler, altın ve elmaslar sıfırlanacak. Emin misin?
       <div style="display:flex;gap:8px"><button class="danger" id="btnResetYes">Evet, sıfırla</button><button id="btnResetNo" style="background:#dee2e6">Vazgeç</button></div></div>
     <div class="snote">Deneme sürümü: ödeme alınmaz. Mağazalara çıkınca gerçek satın alma bağlanacak.<br>Fotoğraflar: Unsplash — Meriç Dağlı, Anthony Delanoix, Tomáš Malík, Alex Azabache, Tim Umphreys, Chloé Lefleur, Johny Goerend, Mirjam Schuinder, Jon. Alkış sesi: qubodup (CC0).</div>
-    <button id="btnSetClose" style="background:#dee2e6">Kapat</button>
   </div></div>
 
   <div class="overlay hidden" id="ovWin"><div class="box winbox">
@@ -1276,7 +1277,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="31";
+const APP_VER="32";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
