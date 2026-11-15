@@ -1038,7 +1038,7 @@ async function fbInit(){
   let queue={}; rdb.ref("queue").on("value",s=>{ queue=s.val()||{}; });
   let myQueueRef=null;
   const lobby={
-    peers(){ return Object.entries(queue).map(([code,v])=>({isMe:v&&v.uid===uid, presence:{seek:{code,ts:v&&v.ts}}})); },
+    peers(){ return Object.entries(queue).map(([code,v])=>({isMe:!!(myQueueRef&&myQueueRef.key===code), presence:{seek:{code,ts:v&&v.ts}}})); },
     async presence(p){
       if(p&&p.seek){ myQueueRef=rdb.ref("queue/"+p.seek.code); await myQueueRef.set({uid,ts:Date.now()}); myQueueRef.onDisconnect().remove(); }
       else if(p&&p.seek===null&&myQueueRef){ const r=myQueueRef; myQueueRef=null; try{ await r.onDisconnect().cancel(); await r.remove(); }catch(e){} }
