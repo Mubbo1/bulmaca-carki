@@ -989,6 +989,25 @@ let soundOn=store.get("sound",true), vibOn=store.get("vib",true), menuFromHome=f
 function beep(notes){ if(!soundOn) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); let t=actx.currentTime;
   notes.forEach(([f,d])=>{ const o=actx.createOscillator(), g=actx.createGain(); o.type="triangle"; o.frequency.value=f; g.gain.setValueAtTime(.15,t); g.gain.exponentialRampToValueAtTime(.001,t+d); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+d); t+=d*.8; }); }catch(e){} }
 function buzz(ms){ if(vibOn && navigator.vibrate) try{ navigator.vibrate(ms); }catch(e){} }
+// alkış (gürültü patlamaları) + zafer fanfarı
+function applause(){ if(!soundOn) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); const t0=actx.currentTime, sr=actx.sampleRate;
+  const nb=actx.createBuffer(1,Math.floor(sr*.06),sr), d=nb.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,3);
+  const out=actx.createGain(); out.gain.value=.5; out.connect(actx.destination);
+  for(let k=0;k<70;k++){ const t=t0+Math.random()*2.6, src=actx.createBufferSource(); src.buffer=nb; src.playbackRate.value=.8+Math.random()*.6;
+    const bp=actx.createBiquadFilter(); bp.type="bandpass"; bp.frequency.value=900+Math.random()*1800; bp.Q.value=.8;
+    const g=actx.createGain(); const fade=t>t0+1.8?Math.max(0,1-(t-t0-1.8)/.8):1; g.gain.value=(.5+Math.random()*.6)*fade;
+    src.connect(bp); bp.connect(g); g.connect(out); src.start(t); }
+  [[523,0],[659,.12],[784,.24],[1047,.4]].forEach(([f,dt],i)=>{ const o=actx.createOscillator(), g=actx.createGain(); o.type="triangle"; o.frequency.value=f;
+    const t=t0+dt, len=i===3?.6:.14; g.gain.setValueAtTime(.12,t); g.gain.exponentialRampToValueAtTime(.001,t+len); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+len); });
+}catch(e){} }
+// kaybetme: inen "vah vah vaaah" trombon sesi
+function sadTrombone(){ if(!soundOn) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); const t0=actx.currentTime;
+  const lp=actx.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=900; lp.connect(actx.destination);
+  [[311,0,.38],[294,.42,.38],[277,.84,.38],[262,1.26,1.1]].forEach(([f,dt,len],i)=>{ const o=actx.createOscillator(), g=actx.createGain(), t=t0+dt; o.type="sawtooth";
+    o.frequency.setValueAtTime(f,t); if(i===3){ const l=actx.createOscillator(), lg=actx.createGain(); l.frequency.value=6; lg.gain.value=7; l.connect(lg); lg.connect(o.frequency); l.start(t+.2); l.stop(t+len); o.frequency.linearRampToValueAtTime(f*.94,t+len); }
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.14,t+.04); g.gain.setValueAtTime(.14,t+len-.12); g.gain.linearRampToValueAtTime(0,t+len);
+    o.connect(g); g.connect(lp); o.start(t); o.stop(t+len+.02); });
+}catch(e){} }
 const SFX={ ok:()=>{beep([[660,.12],[990,.18]]);buzz(30);}, bad:()=>{beep([[200,.2]]);buzz([40,40,40]);}, win:()=>{beep([[523,.15],[659,.15],[784,.15],[1047,.3]]);buzz(120);} };
 function showHome(){ try{ $("hsCoins").textContent=coins; $("hsGems").textContent=gems; $("hsStars").textContent=["main","spor","sanat","tarih"].reduce((a,p)=>a+packStars(p),0); }catch(e){} $("hCont").textContent = `${PACKS[pack].emoji} ${PACKS[pack].ad} · ${TIERS[tierOf(lv)].emoji} ${TIERS[tierOf(lv)].ad}`; $("home").classList.remove("hidden"); }
 function hideHome(){ $("home").classList.add("hidden"); }
@@ -1107,7 +1126,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="18";
+const APP_VER="19";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1457,6 +1476,7 @@ function showEnd(){
   const draw=g.winner===-1, won=g.winner===me;
   const opName=(g.players[1-me]||{}).name||"Rakip";
   $("dEndIcon").textContent= draw?"🤝":won?"🏆":"💔";
+  if(!D.endSfx){ D.endSfx=true; if(won||draw){ applause(); buzz([100,60,100]); } else { sadTrombone(); buzz(400); } }
   $("dEndTitle").textContent= draw?"Berabere!":won?"Kazandın!":"Kaybettin";
   const why={time:"süresinde cevap veremedi",left:"oyundan ayrıldı",draw:""}[g.reason]||"";
   $("dEndTxt").textContent= draw ? "İkiniz de 10 sorunun hepsini bildiniz!" : won ? `${opName} ${why}.` : (g.reason==="time"?"15 saniyede cevap veremedin.":"Bağlantı koptu.");
@@ -1468,7 +1488,6 @@ function showEnd(){
     else if(!draw){ store.set("streak",0); store.set("lastLost",1); }
     if((g.done||[]).filter((x,i)=>x&&i%2===me).length>=10) store.set("bPerfect",1);
     renderStats(); saveProfile();
-    if(won) SFX.win(); else if(!draw) SFX.bad();
   }
   $("dEndLives").innerHTML = D.mode==="bot" ? "🤖 Antrenman — can harcanmadı" : unlimited ? "♾️ Sınırsız can — can gitmedi" : (!draw&&!won ? `❤️ −1 · Kalan can: ${lives}` : `Canların: ${"❤️".repeat(lives)||"0"}`);
   dShow("dEnd");
@@ -1476,7 +1495,7 @@ function showEnd(){
 function leaveDuel(){ stopSeek();
   clearTimeout(D.timer); clearInterval(D.tick); clearInterval(D.rebro);
   D.offs.forEach(f=>{try{f();}catch(e){}}); D.offs=[];
-  try{ D.r&&D.r.leave(); }catch(e){} D.r=null; D.g=null; D.lastTurn=-1; D.counted=false; D.mode=null; D.introShown=false;
+  try{ D.r&&D.r.leave(); }catch(e){} D.r=null; D.g=null; D.lastTurn=-1; D.counted=false; D.mode=null; D.introShown=false; D.endSfx=false;
 }
 
 // ---------- düello çarkı ----------
