@@ -360,8 +360,8 @@
   <div class="overlay hidden" id="ovLife"><div class="box shop">
     <h2>❤️ Can</h2>
     <div style="font-size:15px" id="lifeTxt">Online düelloda kaybedersen 1 can gider. Canın bitince oynayamazsın.</div>
-    <div class="row" id="lifeAdRow"><span>📺 Reklam izle<br><small>+1 ❤️</small></span><button class="ad" id="lifeAd">İzle</button></div>
     <div class="row unl"><span><b>♾️ Sınırsız Can</b><br><small>Bir kere al, can derdi bitsin!</small></span><button id="lifeUnl">149,99 ₺</button></div>
+    <div class="row" id="lifeAdRow"><span><b>📺 1 reklam izle = 1 ❤️ can kazan</b><br><small id="lifeAdSub">Her reklam +1 can</small></span><button class="ad" id="lifeAd">İzle</button></div>
     <div class="note">Deneme sürümü: ödeme alınmaz. Mağazalara çıkınca gerçek uygulama içi satın alma bağlanacak.</div>
     <button id="lifeClose" style="background:#dee2e6">Kapat</button>
   </div></div>
@@ -1129,7 +1129,7 @@ function renderLives(){
 }
 function openLife(){
   if(unlimited){ toast("♾️ Sınırsız canın var!"); return; }
-  $("lifeAdRow").style.display= lives<LIFE_MAX?"":"none";
+  const full=lives>=LIFE_MAX; $("lifeAd").disabled=full; $("lifeAd").style.opacity=full?.45:1; $("lifeAd").textContent=full?"Dolu":"İzle"; $("lifeAdSub").textContent=full?"Canların dolu (en fazla 3)":`Her reklam +1 can · şu an ${lives}/3`;
   $("lifeTxt").textContent= lives<LIFE_MAX ? `Şu an ${lives} canın var. Reklam izleyerek can kazanabilir ya da sınırsız can alabilirsin.` : "Canların dolu. Sınırsız can alırsan kaybetsen de hiç can gitmez!";
   $("ovLife").classList.remove("hidden");
 }
