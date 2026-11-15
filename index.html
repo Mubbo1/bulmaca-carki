@@ -1186,6 +1186,8 @@ function onMsg(d,m){
     if(d.t==="ans" && D.g.status==="play" && d.i===D.g.turn && D.g.players[d.i%2].id===d.id) hostAnswer(d.i,d.w);
     if(d.t==="joker" && D.g.status==="play" && d.i===D.g.turn && D.g.players[d.i%2].id===d.id) hostJoker(d.i);
   }else if(d.t==="state" && d.s && d.s.players && d.s.players[1] && d.s.players[1].id===D.me){
+    const arr=o=>Array.isArray(o)?o:Object.keys(o||{}).reduce((r,k)=>{ r[+k]=o[k]; return r; },[]);
+    d.s.done=arr(d.s.done); d.s.jk=arr(d.s.jk); d.s.qs=arr(d.s.qs); d.s.players=arr(d.s.players);
     applyState(d.s);
   }
 }
@@ -1231,7 +1233,7 @@ function applyState(s){
   $("vnA").textContent=g.players[me].name; $("vaA").textContent=initials(g.players[me].name);
   $("vnB").textContent=(g.players[op]||{}).name||"Rakip"; $("vaB").textContent=initials((g.players[op]||{}).name);
   $("dMode").textContent= D.mode==="bot"?"ANTRENMAN":"ONLINE";
-  const cnt=k=>g.done.filter((x,i)=>x&&i%2===k).length;
+  g.done=g.done||[]; const cnt=k=>g.done.filter((x,i)=>x&&i%2===k).length;
   $("vsA").textContent=`${cnt(me)}/10 doğru`; $("vsB").textContent=`${cnt(op)}/10 doğru`;
   const mine=g.turn%2===me;
   $("vpA").classList.toggle("act",mine); $("vpB").classList.toggle("act",!mine);
