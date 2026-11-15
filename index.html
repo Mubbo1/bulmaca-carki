@@ -1147,7 +1147,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="23";
+const APP_VER="25";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1255,7 +1255,23 @@ function makeQuestions(cat){
   return idx.map(k=>{ const w=P()[k][0]; const L=[...w]; if(L.length<7) L.push(DECOY[Math.floor(Math.random()*DECOY.length)]);
     for(let i=L.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[L[i],L[j]]=[L[j],L[i]];} return {k,l:L.join("")}; });
 }
-const myName=()=> ($("dName").value.trim()||"Oyuncu").slice(0,16);
+// ---------- isim filtresi: argo/küfür içeren isimler yasak ----------
+const BAD_SUB=["orospu","orosbu","oruspu","orspu","orosp","yarrak","yarak","dalyarak","amcik","amcuk","aminakoy","aminako","siktir","sikerim","sikeyim","sikik","sikis","sikim","sokuk","pezevenk","kahpe","kaltak","gavat","serefsiz","yavsak","ibne","puust","tasak","anani","ananin","ananiz","gotveren","gotunu","gotlek","kerhane","fahise","surtuk","pust","kevase","yosma","godos","amk","fuck","fck","shit","bitch","porn","pussy","dick","cock","nigger","nigga","penis","vajina","vagina","seks","sex","xxx","hitler","nazi"];
+const BAD_WORD=["sik","sg","oc","pic","got","bok","am","mk","salak","aptal","gerizekali","mal","ezik","pic","pkk","isid","daes"];
+function normName(n){ return String(n||"").toLocaleLowerCase("tr-TR").replace(/[ıİ]/g,"i").replace(/ş/g,"s").replace(/ğ/g,"g").replace(/ü/g,"u").replace(/ö/g,"o").replace(/ç/g,"c")
+  .replace(/0/g,"o").replace(/1|!|\|/g,"i").replace(/3/g,"e").replace(/4|@/g,"a").replace(/5|\$/g,"s").replace(/7/g,"t").replace(/q/g,"k").replace(/w/g,"v").replace(/x(?!xx)/g,"ks"); }
+function badName(n){ const t=normName(n); if(!t.trim()) return false;
+  const raw=String(n).toLocaleLowerCase("tr-TR"); if(/(^|[^a-zçğıöşü])a+\s*q+($|[^a-zçğıöşü])/.test(raw)) return true; if(/am[ıi1]+n[ıa]\s*(koy|koi|kod|kor|q)|amına|amınıza|amını|amınako/.test(raw.replace(/[^a-zçğıöşü1\s]/g,""))) return true;
+  const words=t.split(/[^a-z]+/).filter(Boolean).map(w=>w.replace(/(.)\1+/g,"$1"));
+  const flat=t.replace(/[^a-z]/g,""), flat1=flat.replace(/(.)\1+/g,"$1");
+  const sub=BAD_SUB.map(x=>x.replace(/q/g,"k").replace(/w/g,"v"));
+  if(sub.some(b=>flat.includes(b)||flat1.includes(b.replace(/(.)\1+/g,"$1")))) return true;
+  if(words.some(w=>BAD_WORD.includes(w))) return true;
+  if(words.length>1 && words.every(w=>w.length<=2) && BAD_WORD.includes(flat1)) return true;
+  return false; }
+const cleanName=n=>{ n=String(n||"").slice(0,16); return badName(n)?"Oyuncu":(n||"Oyuncu"); };
+function nameOk(){ const n=$("dName").value.trim(); if(n && badName(n)){ toast("🚫 Bu isim uygun değil. Argo veya küfür içeren isimler yasak."); $("dName").value=""; $("dName").focus(); setAv($("dAvatar"),"",myPh()); return false; } return true; }
+const myName=()=>{ const n=($("dName").value.trim()||"Oyuncu").slice(0,16); return badName(n)?"Oyuncu":n; };
 const initials=n=>(n||"?").trim().slice(0,1).toLocaleUpperCase("tr-TR");
 const okPh=ph=>typeof ph==="string" && ph.length<20000 && /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(ph);
 function setAv(el,name,ph){ if(okPh(ph)){ el.innerHTML=""; const im=new Image(); im.src=ph; im.alt=""; el.appendChild(im); } else el.textContent=initials(name); }
@@ -1368,7 +1384,7 @@ async function loadRank(){
     rows.forEach((r,i)=>{ const t=(r.wins||0)+(r.losses||0), ra=t?Math.round((r.wins||0)/t*100):0;
       const el=document.createElement("div"); el.className="rk"+(r.id===D.uid?" me":"");
       el.innerHTML=`<div class="no">${["🥇","🥈","🥉"][i]||i+1}</div><div class="avatar sm"></div><div class="nm"></div><div class="wl"><b>${r.wins||0}</b> G · ${r.losses||0} M<br>%${ra}</div>`;
-      setAv(el.querySelector(".avatar"),r.name,r.ph); el.querySelector(".nm").textContent=r.name||"Oyuncu"; if(r.bd){ const sm=document.createElement("small"); sm.textContent=String(r.bd).split(",").filter(id=>BMAP[id]).slice(0,3).map(id=>BMAP[id][1]).join(""); el.querySelector(".nm").appendChild(sm); } box.appendChild(el); });
+      setAv(el.querySelector(".avatar"),r.name,r.ph); el.querySelector(".nm").textContent=cleanName(r.name); if(r.bd){ const sm=document.createElement("small"); sm.textContent=String(r.bd).split(",").filter(id=>BMAP[id]).slice(0,3).map(id=>BMAP[id][1]).join(""); el.querySelector(".nm").appendChild(sm); } box.appendChild(el); });
   }catch(e){ box.innerHTML='<div class="dnote">Sıralama şu an yüklenemedi.</div>'; }
 }
 
@@ -1398,13 +1414,13 @@ function onMsg(d,m){
   if(!d||typeof d!=="object") return;
   if(D.host){
     if(d.t==="hello" && D.g.status==="wait" && d.id!==D.me){
-      D.g.players[1]={id:d.id,name:String(d.name||"Rakip").slice(0,16),bd:String(d.bd||"").slice(0,60),ph:okPh(d.ph)?d.ph:"",w:+d.w||0,l:+d.l||0}; stopSeek(); startIntro();
+      D.g.players[1]={id:d.id,name:cleanName(d.name||"Rakip"),bd:String(d.bd||"").slice(0,60),ph:okPh(d.ph)?d.ph:"",w:+d.w||0,l:+d.l||0}; stopSeek(); startIntro();
     }
     if(d.t==="ans" && D.g.status==="play" && d.i===D.g.turn && D.g.players[d.i%2].id===d.id) hostAnswer(d.i,d.w);
     if(d.t==="joker" && D.g.status==="play" && d.i===D.g.turn && D.g.players[d.i%2].id===d.id) hostJoker(d.i);
   }else if(d.t==="state" && d.s && d.s.players && d.s.players[1] && d.s.players[1].id===D.me){
     const arr=o=>Array.isArray(o)?o:Object.keys(o||{}).reduce((r,k)=>{ r[+k]=o[k]; return r; },[]);
-    d.s.done=arr(d.s.done); d.s.jk=arr(d.s.jk); d.s.qs=arr(d.s.qs); d.s.players=arr(d.s.players);
+    d.s.done=arr(d.s.done); d.s.jk=arr(d.s.jk); d.s.qs=arr(d.s.qs); d.s.players=arr(d.s.players); d.s.players.forEach(p=>{ if(p) p.name=cleanName(p.name); });
     applyState(d.s);
   }
 }
@@ -1555,15 +1571,31 @@ $("hDuel").onclick=openDuel;
 $("duelBack").onclick=()=>{ if(D.g&&D.g.status==="play"){ finish(D.host?1-myIdx():myIdx()===0?1:0,"left"); } leaveDuel(); $("duel").classList.add("hidden"); showHome(); };
 document.querySelectorAll(".dtabs button").forEach(b=>b.onclick=()=>{ document.querySelectorAll(".dtabs button").forEach(x=>x.classList.toggle("on",x===b)); $("dTabPlay").classList.toggle("hidden",b.dataset.tab!=="play"); $("dTabRank").classList.toggle("hidden",b.dataset.tab!=="rank"); if(b.dataset.tab==="rank") loadRank(); });
 $("dName").addEventListener("change",saveProfile);
+$("dName").addEventListener("change",()=>{ if(nameOk()) saveProfile(); });
 $("dName").addEventListener("input",()=>{ setAv($("dAvatar"),$("dName").value,myPh()); });
 $("dAvatar").onclick=()=>$("dPhoto").click();
+// ---------- +18 fotoğraf kontrolü (NSFWJS, cihazda çalışır; fotoğraf hiçbir yere gönderilmez) ----------
+let nsfwModel=null;
+async function nsfwLoad(){ if(nsfwModel) return nsfwModel; const B="https://cdn.jsdelivr.net/npm/nsfwjs@4.4.0/dist/";
+  if(typeof nsfwjs==="undefined") await loadScript(B+"browser/nsfwjs.min.js");
+  if(!window.__nsfwM){ await loadScript(B+"models/mobilenet_v2/model.min.js"); await loadScript(B+"models/mobilenet_v2/group1-shard1of1.min.js"); window.__nsfwM=1; }
+  nsfwModel=await nsfwjs.load("MobileNetV2"); return nsfwModel; }
+async function photoSafe(img){ const m=await nsfwLoad(); const c=document.createElement("canvas"); c.width=c.height=224;
+  const k=Math.min(img.width,img.height); c.getContext("2d").drawImage(img,(img.width-k)/2,(img.height-k)/2,k,k,0,0,224,224);
+  const full=document.createElement("canvas"); const sc=224/Math.max(img.width,img.height); full.width=Math.round(img.width*sc); full.height=Math.round(img.height*sc); full.getContext("2d").drawImage(img,0,0,full.width,full.height);
+  const score=r=>{ const P=n=>(r.find(x=>x.className===n)||{}).probability||0; return {sex:P("Porn")+P("Hentai"), sexy:P("Sexy")}; };
+  const a=score(await m.classify(c)), b=score(await m.classify(full));
+  return !(a.sex>0.3||b.sex>0.3||a.sexy>0.55||b.sexy>0.55); }
 $("dPhoto").onchange=e=>{ const f=e.target.files&&e.target.files[0]; if(!f) return; const fr=new FileReader();
-  fr.onload=()=>{ const im=new Image(); im.onload=()=>{ const S=96, c=document.createElement("canvas"); c.width=c.height=S; const m=Math.min(im.width,im.height);
+  fr.onload=()=>{ const im=new Image(); im.onload=async()=>{ toast("📷 Fotoğraf kontrol ediliyor…");
+    let ok=false; try{ ok=await photoSafe(im); }catch(err){ toast("Fotoğraf kontrol edilemedi. İnternetini kontrol edip tekrar dene."); return; }
+    if(!ok){ toast("🚫 Bu fotoğraf uygun değil. +18 içerik yasak."); return; }
+    const S=96, c=document.createElement("canvas"); c.width=c.height=S; const m=Math.min(im.width,im.height);
     c.getContext("2d").drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,S,S); const d=c.toDataURL("image/jpeg",.7);
     if(!okPh(d)){ toast("Fotoğraf yüklenemedi"); return; } store.set("pphoto",d); setAv($("dAvatar"),myName(),d); saveProfile(); toast("📷 Profil fotoğrafın güncellendi"); };
     im.src=fr.result; }; fr.readAsDataURL(f); e.target.value=""; };
-$("dCreate").onclick=()=>{ D.quick=false; D.retries=0; if(!$("dName").value.trim()){ toast("Önce adını yaz"); $("dName").focus(); return; } joinRoom(rcode(),true).then(()=>{ $("dWaitNote").textContent="Oda kodunu arkadaşına gönder"; $("dWaitCode").style.display=""; $("dWaitTitle").textContent="Arkadaşın bekleniyor…"; }); };
-$("dJoin").onclick=()=>{ D.quick=false; D.retries=0; const c=$("dCode").value.trim().toUpperCase(); if(c.length<4){ toast("4 haneli oda kodunu gir"); return; } if(!$("dName").value.trim()){ toast("Önce adını yaz"); return; } joinRoom(c,false).then(()=>{ $("dWaitCode").style.display=""; $("dWaitTitle").textContent="Odaya bağlanılıyor…"; }); };
+$("dCreate").onclick=()=>{ D.quick=false; D.retries=0; if(!nameOk()) return; if(!$("dName").value.trim()){ toast("Önce adını yaz"); $("dName").focus(); return; } joinRoom(rcode(),true).then(()=>{ $("dWaitNote").textContent="Oda kodunu arkadaşına gönder"; $("dWaitCode").style.display=""; $("dWaitTitle").textContent="Arkadaşın bekleniyor…"; }); };
+$("dJoin").onclick=()=>{ D.quick=false; D.retries=0; if(!nameOk()) return; const c=$("dCode").value.trim().toUpperCase(); if(c.length<4){ toast("4 haneli oda kodunu gir"); return; } if(!$("dName").value.trim()){ toast("Önce adını yaz"); return; } joinRoom(c,false).then(()=>{ $("dWaitCode").style.display=""; $("dWaitTitle").textContent="Odaya bağlanılıyor…"; }); };
 $("dCancel").onclick=()=>{ D.quick=false; D.retries=0; leaveDuel(); dShow("dLobby"); };
 $("dAgain").onclick=()=>{ leaveDuel(); dShow("dLobby"); renderLives(); };
 $("dBot").onclick=()=>{ leaveDuel(); D.mode="bot"; D.host=true; D.me="me";
@@ -1586,7 +1618,7 @@ $("dJoker").onclick=()=>{
 };
 // ---------- rastgele eşleşme (lobi) ----------
 const q0=()=>D.quick?7000:12000;
-async function quickMatch(){ D.quick=true;
+async function quickMatch(){ D.quick=true; if(!nameOk()) return;
   if(!D.room){ toast("Online bağlantı yok"); return; }
   if(!$("dName").value.trim()){ toast("Önce adını yaz"); $("dName").focus(); return; }
   if(!hasLife()){ toast("Canın kalmadı — reklam izle ya da sınırsız can al"); openLife(); return; }
