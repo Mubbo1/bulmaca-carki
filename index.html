@@ -1023,6 +1023,52 @@ function applyScene(i){
   $("place").textContent=`📍 ${placeName(i)}`;
 }
 
+// ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
+const FB_CONFIG={apiKey:"AIzaSyDCxMccH0zg7MdZ2wUlhTdxwRCqiIbSAgQ",authDomain:"bulmaca-carki.firebaseapp.com",databaseURL:"https://bulmaca-carki-default-rtdb.firebaseio.com",projectId:"bulmaca-carki",storageBucket:"bulmaca-carki.firebasestorage.app",messagingSenderId:"132070576740",appId:"1:132070576740:web:4ddae27e51d368591b8571"};
+const IN_ARTIFACT=/claudeusercontent\.com$|claude\.ai$/.test(location.hostname);
+function loadScript(src){ return new Promise((ok,no)=>{ const s=document.createElement("script"); s.src=src; s.onload=ok; s.onerror=no; document.head.appendChild(s); }); }
+async function fbInit(){
+  const V="10.12.2", B=`https://www.gstatic.com/firebasejs/${V}/`;
+  await loadScript(B+"firebase-app-compat.js");
+  await Promise.all([loadScript(B+"firebase-auth-compat.js"),loadScript(B+"firebase-database-compat.js")]);
+  firebase.initializeApp(FB_CONFIG);
+  const cred=await firebase.auth().signInAnonymously();
+  const uid=cred.user.uid, rdb=firebase.database();
+  // lobi: rastgele eşleşme kuyruğu
+  let queue={}; rdb.ref("queue").on("value",s=>{ queue=s.val()||{}; });
+  let myQueueRef=null;
+  const lobby={
+    peers(){ return Object.entries(queue).map(([code,v])=>({isMe:v&&v.uid===uid, presence:{seek:{code,ts:v&&v.ts}}})); },
+    async presence(p){
+      if(p&&p.seek){ myQueueRef=rdb.ref("queue/"+p.seek.code); await myQueueRef.set({uid,ts:Date.now()}); myQueueRef.onDisconnect().remove(); }
+      else if(p&&p.seek===null&&myQueueRef){ const r=myQueueRef; myQueueRef=null; try{ await r.onDisconnect().cancel(); await r.remove(); }catch(e){} }
+    },
+    async claim(code){ // aynı odaya iki kişi gitmesin
+      let got=false; await rdb.ref("queue/"+code).transaction(v=>{ if(v){ got=true; return null; } return; }); return got;
+    },
+    async join(name){
+      const base=rdb.ref("rooms/"+name), me=Math.random().toString(36).slice(2,10), t0=Date.now();
+      const pref=base.child("peers/"+me); await pref.set({uid,ts:t0}); pref.onDisconnect().remove();
+      const evRef=base.child("ev"); evRef.onDisconnect().remove();
+      const offs=[];
+      return {
+        name,
+        emit(topic,data){ return evRef.push({topic,d:data,t:Date.now()}); },
+        on(topic,fn){ const q=evRef.orderByChild("t").startAt(t0-3000); const h=q.on("child_added",s=>{ const v=s.val(); if(v&&v.topic===topic) fn({topic,data:v.d}); }); offs.push(()=>q.off("child_added",h)); return ()=>q.off("child_added",h); },
+        onPeers(fn){ let prev=[]; const r=base.child("peers"); const h=r.on("value",s=>{ const cur=Object.keys(s.val()||{}); const left=prev.filter(x=>!cur.includes(x)); prev=cur; fn({peers:cur,left,joined:[]}); }); offs.push(()=>r.off("value",h)); return ()=>r.off("value",h); },
+        presence(){ return Promise.resolve(); },
+        async leave(){ offs.forEach(f=>{try{f();}catch(e){}}); try{ await pref.remove(); }catch(e){} },
+      };
+    }
+  };
+  const db={
+    doc(path){ const ref=rdb.ref(path); return { async get(){ const s=await ref.get(); return {exists:s.exists(), data:()=>s.val()}; }, set(v){ return ref.set(v); } }; },
+    collection(path){ const q={o:null,n:50}; const api={ orderBy(f){ q.o=f; return api; }, limit(n){ q.n=n; return api; },
+      async get(){ const s=await rdb.ref(path).orderByChild(q.o||"wins").limitToLast(q.n).get(); const docs=[]; s.forEach(c=>{ docs.push({id:c.key,data:()=>c.val()}); }); docs.reverse(); return {docs}; } }; return api; }
+  };
+  return {room:lobby, db, uid};
+}
+
 // ================= DÜELLO =================
 const D={ room:null, db:null, user:null, uid:null, g:null, mode:null, timer:null, tick:null, rebro:null, offs:[], lastTurn:-1, endAt:0, stat:{w:0,l:0,d:0} };
 const LIFE_MAX=3;
@@ -1069,9 +1115,14 @@ async function openDuel(){
   if(!D.inited){ D.inited=true; initNet(); }
 }
 async function initNet(){
+  if(!IN_ARTIFACT){
+    $("dNet").textContent="Sunucuya bağlanılıyor…";
+    try{ const f=await fbInit(); D.room=f.room; D.db=f.db; D.uid=f.uid; D.fb=true; }catch(e){ D.room=null; D.db=null; }
+  }else{
   try{ D.room=await window.claude?.use?.("room"); }catch(e){ D.room=null; }
   try{ D.db=await window.claude?.use?.("db"); }catch(e){ D.db=null; }
   try{ D.user=await window.claude?.use?.("user"); D.uid=D.user? await D.user.id():null; }catch(e){ D.user=null; }
+  }
   $("dNet").textContent = D.room ? "🟢 Online hazır. Oda kur ya da arkadaşının kodunu gir." : "Online bağlantı yok; bota karşı antrenman yapabilirsin.";
   $("dCreate").disabled=$("dJoin").disabled=$("dQuick").disabled=!D.room;
   if(D.db && D.uid){
@@ -1120,6 +1171,7 @@ async function joinRoom(code,asHost){
   }else{
     dShow("dWait"); $("dWaitCode").textContent=code;
     send({t:"hello",id:D.me,name:myName()});
+    setTimeout(()=>{ if(D.mode==="online" && !D.host && (!D.g||D.g.status==="wait")){ leaveDuel(); dShow("dLobby"); toast("Odaya bağlanılamadı, tekrar dene"); } },12000);
     clearInterval(D.rebro); D.rebro=setInterval(()=>{ if(!D.g||D.g.status==="wait") send({t:"hello",id:D.me,name:myName()}); },2000);
   }
 }
@@ -1284,9 +1336,10 @@ async function quickMatch(){
   if(lives<=0){ toast("Canın kalmadı — reklam izleyerek can kazan"); return; }
   const now=Date.now();
   const cands=(D.room.peers()||[]).filter(p=>!p.isMe && p.presence && p.presence.seek && p.presence.seek.code && now-(p.presence.seek.ts||0)<120000);
-  if(cands.length){
-    const c=cands[Math.floor(Math.random()*cands.length)].presence.seek.code;
-    await joinRoom(c,false); $("dWaitNote").textContent="Rakibe bağlanılıyor…";
+  let picked=null;
+  for(const p of cands.sort(()=>Math.random()-.5)){ const c=p.presence.seek.code; if(!D.room.claim || await D.room.claim(c)){ picked=c; break; } }
+  if(picked){
+    await joinRoom(picked,false); $("dWaitNote").textContent="Rakibe bağlanılıyor…";
   }else{
     const c=rcode(); await joinRoom(c,true);
     try{ await D.room.presence({seek:{code:c,ts:Date.now()}}); }catch(e){}
