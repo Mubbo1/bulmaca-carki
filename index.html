@@ -73,6 +73,7 @@
   .hbtn.sec{background:#ffffff26;color:#fff}
   #home .cont{text-align:center;color:#cfe3ff;font-size:14px;margin-top:-4px}
   .setbox{max-height:88vh;overflow-y:auto;position:relative}
+  .xbox{position:relative}
   .box button.xclose{position:absolute;top:12px;right:12px;width:38px;height:38px;padding:0;margin:0;border-radius:50%;background:#eef0f4;color:#555;font-size:20px;line-height:38px;font-weight:900}
   .ssec{text-align:left;font-size:12px;font-weight:800;color:#7b2cbf;text-transform:uppercase;letter-spacing:1px;margin:14px 4px 2px}
   .set span small{display:block;font-size:12px;color:#888;font-weight:500}
@@ -430,16 +431,15 @@
     <button id="repClose" style="background:#dee2e6">Vazgeç</button>
   </div></div>
 
-  <div class="overlay hidden" id="ovLife"><div class="box shop">
+  <div class="overlay hidden" id="ovLife"><div class="box shop xbox"><button class="xclose" id="lifeClose" aria-label="Kapat">✕</button>
     <h2>❤️ Can</h2>
     <div style="font-size:15px" id="lifeTxt">Online düelloda kaybedersen 1 can gider. Canın bitince oynayamazsın.</div>
     <div class="row unl"><span><b>♾️ Sınırsız Can</b><br><small>Bir kere al, can derdi bitsin!</small></span><button id="lifeUnl">149,99 ₺</button></div>
     <div class="row" id="lifeAdRow"><span><b>📺 1 reklam izle = 1 ❤️ can kazan</b><br><small id="lifeAdSub">Her reklam +1 can</small></span><button class="ad" id="lifeAd">İzle</button></div>
     <div class="note">Deneme sürümü: ödeme alınmaz. Mağazalara çıkınca gerçek uygulama içi satın alma bağlanacak.</div>
-    <button id="lifeClose" style="background:#dee2e6">Kapat</button>
   </div></div>
 
-  <div class="overlay hidden" id="ovShop"><div class="box shop">
+  <div class="overlay hidden" id="ovShop"><div class="box shop xbox"><button class="xclose" id="btnShopClose" aria-label="Kapat">✕</button>
     <h2>💎 Elmas</h2>
     <div style="font-size:15px">Elmasla, bilemediğin sorunun cevabı hakkında ek bilgi ve ilk harfini açarsın.</div>
     <div class="row"><span>📺 Reklam izle<br><small>+1 💎</small></span><button class="ad" id="btnAd">İzle</button></div>
@@ -447,7 +447,6 @@
     <div class="row"><span><b>20 💎</b> <small>en çok tercih edilen</small></span><button data-gem="20">89,99 ₺</button></div>
     <div class="row"><span><b>50 💎</b> <small>en avantajlı</small></span><button data-gem="50">149,99 ₺</button></div>
     <div class="note">Deneme sürümü: gerçek reklam ve ödeme yok. Mağazalara çıkınca gerçek reklam ve uygulama içi satın alma bağlanacak.</div>
-    <button id="btnShopClose" style="background:#dee2e6">Kapat</button>
   </div></div>
 
   <div class="overlay hidden" id="ovAd"><div class="box" id="adBox">
@@ -1277,7 +1276,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="32";
+const APP_VER="33";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
