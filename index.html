@@ -103,6 +103,14 @@
   .dailybtn.has span{display:flex}
   @keyframes dpulse{50%{transform:scale(1.08)}}
   .xbox{position:relative}
+  .helpbox{text-align:left}.helpbox h2{text-align:center;padding:0 40px;font-size:24px}
+  .faq{border-bottom:1px solid #eee;padding:2px 0}
+  .faq summary{cursor:pointer;font-weight:800;font-size:16px;padding:10px 4px;list-style:none;position:relative;padding-right:24px}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"＋";position:absolute;right:4px;top:10px;color:#7b2cbf;font-weight:900}
+  .faq[open] summary::after{content:"－"}
+  .faq div{font-size:14.5px;color:#444;line-height:1.45;padding:0 4px 10px}
+  .hcontact{font-size:14.5px;color:#444;margin:4px 4px 6px}
   .box button.xclose{position:absolute;top:12px;right:12px;width:38px;height:38px;padding:0;margin:0;border-radius:50%;background:#eef0f4;color:#555;font-size:20px;line-height:38px;font-weight:900}
   .ssec{text-align:left;font-size:12px;font-weight:800;color:#7b2cbf;text-transform:uppercase;letter-spacing:1px;margin:14px 4px 2px}
   .set span small{display:block;font-size:12px;color:#888;font-weight:500}
@@ -436,6 +444,7 @@
     <div class="set noads"><span>🚫 Reklamları Kaldır<small id="noAdsTxt">Reklam izlemeden ödülleri anında al</small></span><button id="btnNoAds">199,99 ₺</button></div>
     <div class="set"><span>💎 Elmas Mağazası</span><button id="btnSetShop" class="mini">Aç</button></div>
     <div class="ssec">Diğer</div>
+    <div class="set"><span>❓ Yardım & Destek<small>Sık sorulan sorular, bize yaz</small></span><button id="btnHelp" class="mini">Aç</button></div>
     <div class="set"><span>ℹ️ Sürüm</span><span style="color:#888;font-size:15px">1.0</span></div>
     <div class="hidden"><button id="btnReset"></button></div>
     <div id="resetAsk" class="hidden" style="margin-top:8px;font-size:15px">Tüm bölümler, altın ve elmaslar sıfırlanacak. Emin misin?
@@ -480,6 +489,17 @@
     <div id="nfIos" class="hidden" style="font-size:14px;background:#fff3c4;border-radius:12px;padding:10px;margin-top:10px;text-align:left">📱 iPhone'da bildirim için önce oyunu ana ekrana ekle: Safari'de <b>Paylaş</b> (□↑) → <b>Ana Ekrana Ekle</b>. Sonra oyunu ana ekrandaki simgeden açıp buradan izin ver.</div>
     <button class="gold" id="nfYes" style="background:linear-gradient(135deg,#ffd166,#f4a261);color:#3a2500">🔔 Bildirimlere İzin Ver</button>
     <button id="nfNo" style="background:#dee2e6">Şimdi değil</button>
+  </div></div>
+
+  <div class="overlay hidden" id="ovHelp"><div class="box setbox xbox helpbox"><button class="xclose" id="helpClose" aria-label="Kapat">✕</button>
+    <h2>❓ Yardım & Destek</h2>
+    <div class="ssec">Sık sorulan sorular</div>
+    <details class="faq"><summary>🎮 Nasıl oynanır?</summary><div>Bulmacadaki bir kutucuğa dokun, sorusu ekranda çıkar. Aşağıdaki çarkta harflerin üzerinden parmağını kaydırarak cevabı yaz ve parmağını kaldır. Doğruysa harfler kutucuklara yerleşir. Sadece ekrandaki sorunun cevabı kabul edilir.</div></details><details class="faq"><summary>💡 Takıldım, ne yapabilirim?</summary><div>💡 ampul 25 🪙 karşılığında bir harf açar. 🔍 büyüteç 1 💎 karşılığında soruyla ilgili ipucu verir. 🔀 harfleri karıştırır. Bütün harfleri açarsan kelime kendiliğinden tamamlanır.</div></details><details class="faq"><summary>🪙 Altın nasıl kazanılır?</summary><div>Her doğru kelimede ve bölüm sonunda altın kazanırsın. Giriş ekranındaki altının yanındaki + ile 1 reklam izleyip 100 🪙 alabilirsin. Günlük çarktan da altın çıkar.</div></details><details class="faq"><summary>💎 Elmas nasıl kazanılır?</summary><div>Elmas mağazasından satın alabilir, reklam izleyerek 1 💎 kazanabilir ya da günlük şans çarkından kazanabilirsin.</div></details><details class="faq"><summary>🎁 Günlük şans çarkı nedir?</summary><div>Her gün 1 bedava çevirme hakkın var. Kullandıktan sonra reklam izleyerek 1 kez daha çevirebilirsin. Altın, elmas ve bonus can çıkabilir.</div></details><details class="faq"><summary>⚔️ Düello nasıl oynanır?</summary><div>20 soru sırayla sorulur: bir soru sana, bir soru rakibine. Her soru için 15 saniyen var; süresinde bilemeyen kaybeder. Rastgele rakip bulabilir ya da oda kurup arkadaşınla oynayabilirsin.</div></details><details class="faq"><summary>❤️ Canlar nasıl çalışır?</summary><div>Online düelloda kaybedersen 1 can gider. En fazla 3 canın olur ve 3'ün altındayken her 15 dakikada 1 can kendiliğinden dolar. Reklam izleyerek can kazanabilir ya da sınırsız can alabilirsin.</div></details><details class="faq"><summary>🏅 Seviye ve rozetler</summary><div>Online galibiyetlerle seviye atlarsın; her seviye bir öncekinden daha fazla galibiyet ister. Galibiyet serileri ve günlük giriş serileriyle rozet kazanır, en fazla 3'ünü profilinde gösterebilirsin.</div></details><details class="faq"><summary>🚫 Reklamları nasıl kaldırırım?</summary><div>Ayarlar → Premium → Reklamları Kaldır ile reklamsız oynayabilirsin. Reklam izleyerek kazanılan ödüller o zaman anında gelir.</div></details><details class="faq"><summary>🚩 Uygunsuz bir oyuncu gördüm</summary><div>Maç ekranındaki 🚩 Şikayet et butonunu kullan. 3 farklı oyuncudan şikayet alan kişinin fotoğrafı veya ismi otomatik kaldırılır.</div></details><details class="faq"><summary>📱 Uygulama gibi nasıl kullanırım?</summary><div>iPhone'da Safari → Paylaş → Ana Ekrana Ekle. Android'de Chrome menüsü → Ana ekrana ekle. Oyun tam ekran açılır.</div></details><details class="faq"><summary>💾 İlerlemem kaybolur mu?</summary><div>İlerlemen bu cihazda saklanır. Tarayıcı verilerini silersen ya da başka cihaza geçersen bölüm ilerlemen sıfırlanabilir; düello galibiyetlerin ve seviyen ise sunucuda tutulur.</div></details>
+    <div class="ssec">Bize ulaş</div>
+    <div class="hcontact">Sorun mu yaşıyorsun, bir sorunun cevabı mı yanlış, yoksa bir önerin mi var? Bize yaz, en kısa sürede dönelim.</div>
+    <button class="gold" id="helpMail" style="background:linear-gradient(135deg,#ffd166,#f4a261);color:#3a2500">✉️ Bize Yaz</button>
+    <button id="helpBug" style="background:#7b2cbf;color:#fff">🐞 Hata Bildir</button>
+    <div class="snote" id="helpInfo"></div>
   </div></div>
 
   <div class="overlay hidden" id="ovLife"><div class="box shop xbox"><button class="xclose" id="lifeClose" aria-label="Kapat">✕</button>
@@ -1283,6 +1303,15 @@ $("tMusic").onclick=()=>{ musicOn=!musicOn; store.set("music",musicOn); syncTogg
 $("tVib").onclick=()=>{ vibOn=!vibOn; store.set("vib",vibOn); syncToggles(); buzz(40); };
 $("btnSetClose").onclick=()=>$("ovSet").classList.add("hidden");
 $("btnNoAds").onclick=()=>{ if(noAds) return; noAds=true; store.set("noAds",1); renderNoAds(); toast("Deneme: 🚫 Reklamlar kaldırıldı (ödeme alınmadı)"); };
+// ---------- Yardım & Destek ----------
+const SUPPORT_EMAIL=""; // destek e-posta adresi buraya yazılacak
+function helpMail(subject,extra){ const info=`\n\n---\nSürüm: ${APP_VER}\nCihaz: ${navigator.userAgent}\nKategori: ${typeof pack!=="undefined"?pack:""} · Bölüm: ${typeof lv!=="undefined"?lv+1:""}`;
+  if(!SUPPORT_EMAIL){ toast("Destek e-postası yakında eklenecek 🙏"); return; }
+  location.href=`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent((extra||"")+info)}`; }
+$("btnHelp").onclick=()=>{ $("ovSet").classList.add("hidden"); $("helpInfo").textContent=`Bulmaca Çarkı · Sürüm ${APP_VER}`; $("ovHelp").classList.remove("hidden"); };
+$("helpClose").onclick=()=>$("ovHelp").classList.add("hidden");
+$("helpMail").onclick=()=>helpMail("Bulmaca Çarkı – Destek","Merhaba,\n\n");
+$("helpBug").onclick=()=>helpMail("Bulmaca Çarkı – Hata bildirimi","Ne oldu?\n\nNe olmasını bekliyordun?\n\n");
 $("btnSetShop").onclick=()=>{ $("ovSet").classList.add("hidden"); openShop(); };
 $("btnReset").onclick=()=>$("resetAsk").classList.remove("hidden");
 $("btnResetNo").onclick=()=>$("resetAsk").classList.add("hidden");
@@ -1392,7 +1421,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="48";
+const APP_VER="49";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
