@@ -5,3 +5,6 @@ Genel kültür kelime bulmaca oyunu. Harfleri kaydır, soruları çöz, dünyay�
 Oyna: https://mubbo1.github.io/bulmaca-carki/
 
 Fotoğraflar: Unsplash (Unsplash Lisansı).
+
+## Ses
+- `snd/alkis.mp3`: "Well Done" — qubodup, OpenGameArt.org (CC0)

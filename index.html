@@ -995,8 +995,16 @@ document.addEventListener("visibilitychange",()=>{ if(!document.hidden && actx) 
 function beep(notes){ if(!soundOn) return; try{ AC(); let t=actx.currentTime;
   notes.forEach(([f,d])=>{ const o=actx.createOscillator(), g=actx.createGain(); o.type="triangle"; o.frequency.value=f; g.gain.setValueAtTime(.15,t); g.gain.exponentialRampToValueAtTime(.001,t+d); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+d); t+=d*.8; }); }catch(e){} }
 function buzz(ms){ if(vibOn && navigator.vibrate) try{ navigator.vibrate(ms); }catch(e){} }
-// gerçekçi alkış: ~22 kişilik kalabalık, her biri kendi ritminde el çırpar + salon yankısı
-function applause(){ if(!soundOn) return; try{ AC(); const c=actx, sr=c.sampleRate, t0=c.currentTime+.05, DUR=3.4;
+// gerçek alkış kaydı (CC0, "Well Done" — qubodup, OpenGameArt). Yüklenemezse sentez alkışa düşer.
+let clapRaw=null, clapBuf=null;
+try{ fetch("snd/alkis.mp3").then(r=>r.ok?r.arrayBuffer():null).then(b=>{ clapRaw=b; }).catch(()=>{}); }catch(e){}
+function playClapRec(){ if(!clapRaw&&!clapBuf) return false;
+  const go=b=>{ const src=actx.createBufferSource(), g=actx.createGain(); g.gain.value=1; src.buffer=b; src.connect(g); g.connect(actx.destination); src.start(actx.currentTime+.05); };
+  AC(); if(clapBuf){ go(clapBuf); return true; }
+  try{ actx.decodeAudioData(clapRaw.slice(0),b=>{ clapBuf=b; go(b); },()=>applauseSynth()); return true; }catch(e){ return false; } }
+function applause(){ if(!soundOn) return; if(!playClapRec()) applauseSynth(); }
+// yedek: sentez alkış (~22 kişilik kalabalık), her biri kendi ritminde el çırpar + salon yankısı
+function applauseSynth(){ if(!soundOn) return; try{ AC(); const c=actx, sr=c.sampleRate, t0=c.currentTime+.05, DUR=3.4;
   // farklı el çırpma sesleri (keskin başlangıç, hızlı sönüm)
   const claps=[]; for(let v=0;v<10;v++){ const L=Math.floor(sr*.09), b=c.createBuffer(1,L,sr), d=b.getChannelData(0), tau=sr*(.004+Math.random()*.005);
     let lp=0; for(let i=0;i<L;i++){ const n=Math.random()*2-1; lp=lp*.35+n*.65; const env=i<sr*.0008? i/(sr*.0008) : Math.exp(-(i-sr*.0008)/tau)+.15*Math.exp(-i/(sr*.025)); d[i]=lp*env; } claps.push(b); }
@@ -1139,7 +1147,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="22";
+const APP_VER="23";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
