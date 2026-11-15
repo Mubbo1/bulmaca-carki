@@ -387,7 +387,7 @@
     <div class="row"><span>🖼️ Uygunsuz fotoğraf</span><button data-rep="foto">Seç</button></div>
     <div class="row"><span>🤬 Uygunsuz isim</span><button data-rep="isim">Seç</button></div>
     <div class="row"><span>⚠️ Hile / diğer</span><button data-rep="diger">Seç</button></div>
-    <div class="note">3 farklı oyuncudan şikayet alan kişinin fotoğrafı veya ismi otomatik olarak kaldırılır.</div>
+    <div class="note">3 farklı oyuncudan şikayet alan kişinin fotoğrafı veya ismi otomatik kaldırılır. 15 hile şikayeti alan sıralama tablosundan çıkarılır.</div>
     <button id="repClose" style="background:#dee2e6">Vazgeç</button>
   </div></div>
 
@@ -1161,7 +1161,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="26";
+const APP_VER="27";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1392,6 +1392,7 @@ async function loadRank(){
     const snap=await D.db.collection("profiles").orderBy(wf,"desc").limit(50).get();
     let rows=snap.docs.map(d=>({id:d.id,...d.data()}));
     if(rc) rows=rows.map(r=>({...r,wins:r["w_"+rc]||0,losses:r["l_"+rc]||0,draws:0}));
+    const ban=await cheaters(); rows=rows.filter(r=>!ban.has(r.id));
     rows=rows.filter(r=>(r.wins||0)+(r.losses||0)+(r.draws||0)>0).sort((a,b)=>(b.wins||0)-(a.wins||0));
     if(!rows.length){ box.innerHTML='<div class="dnote">${rc?dcatName(rc)+" kategorisinde henüz":"Henüz"} kimse online düello oynamadı. İlk sen ol! 🏆</div>'; return; }
     box.innerHTML="";
@@ -1445,7 +1446,9 @@ function startIntro(){ D.retries=0;
   clearTimeout(D.timer); D.timer=setTimeout(()=>{ if(D.g===g && g.status==="intro") startTurn(0); },4000);
 }
 // ---------- ŞİKAYET SİSTEMİ ----------
-const REP_LIMIT=3; D.hide={};
+const REP_LIMIT=3, CHEAT_LIMIT=15; D.hide={};
+async function cheaters(){ const out=new Set(); if(!D.db) return out; try{ const sn=await D.db.doc("reports").get(); const v=sn.exists?sn.data():{};
+  Object.entries(v||{}).forEach(([uid,o])=>{ const n=Object.values(o||{}).filter(x=>x&&x.r==="diger").length; if(n>=CHEAT_LIMIT) out.add(uid); }); }catch(e){} return out; }
 async function repCount(uid){ const c={foto:0,isim:0,diger:0}; if(!D.db||!uid) return c;
   try{ const sn=await D.db.doc("reports/"+uid).get(); const v=sn.exists?sn.data():null; Object.values(v||{}).forEach(x=>{ if(x&&c[x.r]!=null) c[x.r]++; }); }catch(e){} return c; }
 async function checkOpp(p){ if(!p||!p.uid||D.hide[p.uid]) return; D.hide[p.uid]={}; const c=await repCount(p.uid);
@@ -1453,6 +1456,7 @@ async function checkOpp(p){ if(!p||!p.uid||D.hide[p.uid]) return; D.hide[p.uid]=
 const vis=p=>{ p=p||{}; const h=(p.uid&&D.hide[p.uid])||{}; return {name:h.isim?"Oyuncu":cleanName(p.name), ph:h.foto?"":p.ph}; };
 async function checkMine(){ if(!D.uid) return; const c=await repCount(D.uid);
   if(c.foto>=REP_LIMIT && myPh()){ store.set("pphoto",""); setAv($("dAvatar"),myName(),""); saveProfile(); toast("🚩 Profil fotoğrafın şikayetler nedeniyle kaldırıldı"); }
+  if(c.diger>=CHEAT_LIMIT) toast("🚩 Hile şikayetleri nedeniyle sıralama tablosundan çıkarıldın");
   if(c.isim>=REP_LIMIT && $("dName").value){ $("dName").value=""; store.set("pname",""); saveProfile(); toast("🚩 İsmin şikayetler nedeniyle kaldırıldı, yeni bir isim seç"); } }
 function opp(){ const g=D.g; if(!g) return null; const me=myIdx(); return g.players[1-me]; }
 function openReport(){ const p=opp(); if(D.mode!=="online"||!p||!p.uid){ toast("Bu oyuncu şikayet edilemiyor"); return; }
