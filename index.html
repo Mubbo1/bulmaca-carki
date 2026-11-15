@@ -380,7 +380,7 @@
   <div class="overlay hidden" id="ovAd"><div class="box" id="adBox">
     <div>Reklam</div>
     <div class="big" id="adCount">5</div>
-    <div style="font-size:14px;color:#aaa">Reklam bitince 1 💎 kazanacaksın</div>
+    <div style="font-size:14px;color:#aaa" id="adNote">Reklam bitince 1 💎 kazanacaksın</div>
     <button id="btnAdDone" disabled style="opacity:.4">Kapat ve 1 💎 al</button>
   </div></div>
 
@@ -940,6 +940,7 @@ $("btnInfo").onclick=()=>{
 };
 let adTimer=null;
 $("btnAd").onclick=()=>{ adReward=null;
+  $("adNote").textContent="Reklam bitince 1 💎 kazanacaksın"; $("btnAdDone").textContent="Kapat ve 1 💎 al";
   $("ovShop").classList.add("hidden"); $("ovAd").classList.remove("hidden");
   let n=5; $("adCount").textContent=n; const b=$("btnAdDone"); b.disabled=true; b.style.opacity=.4;
   clearInterval(adTimer); adTimer=setInterval(()=>{ n--; $("adCount").textContent=Math.max(n,0); if(n<=0){ clearInterval(adTimer); b.disabled=false; b.style.opacity=1; } },1000);
@@ -1135,11 +1136,12 @@ function openLife(){
 }
 $("dLivesPill").onclick=openLife;
 $("lifeClose").onclick=()=>$("ovLife").classList.add("hidden");
-$("lifeAd").onclick=()=>{ $("ovLife").classList.add("hidden"); showAd(()=>{ setLives(lives+1); toast("+1 ❤️ kazandın"); }); };
+$("lifeAd").onclick=()=>{ $("ovLife").classList.add("hidden"); showAd(()=>{ setLives(lives+1); toast("+1 ❤️ kazandın"); },"❤️"); };
 $("lifeUnl").onclick=()=>{ unlimited=true; store.set("unlimLives",1); $("ovLife").classList.add("hidden"); renderLives(); toast("Deneme: ♾️ Sınırsız can açıldı (ödeme alınmadı)"); };
 // genel reklam penceresi (elmas ve can için ortak)
 let adReward=null;
-function showAd(onDone){
+function showAd(onDone,icon){
+  icon=icon||"💎"; $("adNote").textContent=`Reklam bitince 1 ${icon} ${icon==="❤️"?"can ":""}kazanacaksın`; $("btnAdDone").textContent=`Kapat ve 1 ${icon} ${icon==="❤️"?"can ":""}al`;
   adReward=onDone; $("ovAd").classList.remove("hidden");
   let n=5; $("adCount").textContent=n; const b=$("btnAdDone"); b.disabled=true; b.style.opacity=.4;
   clearInterval(adTimer); adTimer=setInterval(()=>{ n--; $("adCount").textContent=Math.max(n,0); if(n<=0){ clearInterval(adTimer); b.disabled=false; b.style.opacity=1; } },1000);
@@ -1476,7 +1478,7 @@ async function quickMatch(){
 }
 function stopSeek(){ try{ D.room&&D.room.presence({seek:null}); }catch(e){} }
 $("dQuick").onclick=quickMatch;
-$("dAdLife").onclick=()=>showAd(()=>{ setLives(lives+1); toast("+1 ❤️ kazandın"); });
+$("dAdLife").onclick=()=>showAd(()=>{ setLives(lives+1); toast("+1 ❤️ kazandın"); },"❤️");
 
 // ---------- İZLEME MODU (Claude'un oynaması için) ----------
 let demoBusy=false;
