@@ -234,6 +234,30 @@
   .icount b{color:#ffb703;font-size:30px}
   .repbtn{font-size:14px;opacity:.8}
   .repmini{border:0;background:#0000;color:#ffb3c1;font:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-top:8px;text-decoration:underline}
+  .lvbox{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-width:34px;height:40px;padding:0 5px;border-radius:10px;border:2px solid;color:#fff;line-height:1;vertical-align:middle;text-shadow:0 1px 2px #0009;position:relative;flex:none}
+  .lvbox b{font-size:15px;font-weight:900}.lvbox .ic{font-size:10px}.lvbox .st{font-size:6px;letter-spacing:-.5px;color:#fff6c8}
+  .lvbox.sm{min-width:28px;height:32px;border-radius:8px}.lvbox.sm b{font-size:12px}.lvbox.sm .ic{font-size:8px}.lvbox.sm .st{font-size:5px}
+  .lvbox.lg{min-width:54px;height:62px;border-radius:14px;border-width:3px}.lvbox.lg b{font-size:24px}.lvbox.lg .ic{font-size:15px}.lvbox.lg .st{font-size:9px}
+  .lvbox.t0{background:linear-gradient(160deg,#8d9db6,#4b5a70);border-color:#c5d0e0}
+  .lvbox.t1{background:linear-gradient(160deg,#c98a4b,#7a4a1f);border-color:#e8b27a}
+  .lvbox.t2{background:linear-gradient(160deg,#d9dde3,#7d8794);border-color:#fff;color:#1b262c;text-shadow:none}
+  .lvbox.t3{background:linear-gradient(160deg,#ffd75e,#c98a00);border-color:#fff1a8;box-shadow:0 0 10px #ffd75e88}
+  .lvbox.t4{background:linear-gradient(160deg,#34d399,#047857);border-color:#a7f3d0;box-shadow:0 0 10px #34d39988}
+  .lvbox.t5{background:linear-gradient(160deg,#60a5fa,#1d4ed8);border-color:#bfdbfe;box-shadow:0 0 10px #60a5fa88}
+  .lvbox.t6{background:linear-gradient(160deg,#f43f5e,#9f1239);border-color:#fecdd3;box-shadow:0 0 12px #f43f5e99}
+  .lvbox.t7{background:linear-gradient(160deg,#a5f3fc,#0891b2 60%,#164e63);border-color:#ecfeff;box-shadow:0 0 14px #67e8f9aa}
+  .lvbox.t8{background:linear-gradient(160deg,#c084fc,#6b21a8);border-color:#f5d0fe;animation:lvglow 2s ease-in-out infinite}
+  .lvbox.t9{background:linear-gradient(120deg,#f97316,#ef4444,#a855f7,#f97316);background-size:300% 300%;border-color:#fde68a;animation:lvshift 4s linear infinite,lvglow 2s ease-in-out infinite}
+  .lvbox.t10{background:linear-gradient(120deg,#ff0080,#ffd700,#00e5ff,#7c3aed,#ff0080);background-size:400% 400%;border-color:#fff;animation:lvshift 3s linear infinite,lvglow 1.5s ease-in-out infinite}
+  @keyframes lvglow{50%{box-shadow:0 0 20px #f0abfc}}@keyframes lvshift{to{background-position:300% 0}}
+  .lvrow{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .lvinfo{flex:1;min-width:0;font-size:13px}.lvinfo small{color:#cfd8ff;font-size:11px}
+  .lvbar{height:8px;background:#ffffff22;border-radius:6px;overflow:hidden;margin:4px 0 2px}.lvbar div{height:100%;background:linear-gradient(90deg,#ffb703,#fb8500);width:0}
+  .vl{margin-top:3px}.vl:empty{display:none}
+  #ilA,#ilB{margin-top:2px}
+  .lvup{margin-top:12px;font-weight:900;font-size:18px;color:#ffb703;animation:pulse 1s ease-in-out 3}.lvup div{margin:6px 0}.lvup small{display:block;color:#fff;font-size:13px}
+  .bdsec{grid-column:1/-1;font-weight:800;font-size:13px;color:#ffe08a;margin-top:6px;text-align:left}
+  .bdstreak{font-size:12px;color:#dfe4ff;margin-top:8px;text-align:center}
   .spinner{width:34px;height:34px;border:4px solid #ffffff33;border-top-color:var(--acc);border-radius:50%;margin:10px auto;animation:spin 1s linear infinite}
   .rk{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid #ffffff1a}
   .rk .no{width:28px;font-weight:800;text-align:center;font-size:18px}
@@ -436,12 +460,13 @@
             <input id="dName" maxlength="16" placeholder="Adını yaz">
             <div class="pstats"><span>🏆 <b id="pW">0</b> galibiyet</span><span>💔 <b id="pL">0</b> mağlubiyet</span></div>
             <div class="pratio"><div class="pbar"><div id="pBar"></div></div><b id="pR">%0</b></div>
+            <div class="lvrow"><span id="pLvBox"></span><div class="lvinfo"><b id="pLvName">Seviye 1</b><div class="lvbar"><div id="pLvBar"></div></div><small id="pLvTxt"></small></div></div>
             <div class="pbadges" id="pBadges"></div>
           </div>
         </div>
         <div class="dcard">
           <div class="bdhead"><b>🎖️ Rozetlerim <span id="bdCount" style="opacity:.75;font-weight:600"></span></b><button id="bdToggle">Tümü ▾</button></div>
-          <div id="bdBox" class="hidden"><div class="dnote" style="margin-top:6px">Kazandığın rozetlere dokun, profilinde en fazla <b>3 tanesi</b> görünsün. Rakiplerin de bunları görecek!</div><div class="bdgrid" id="bdGrid"></div><div class="bdinfo" id="bdInfo"></div></div>
+          <div id="bdBox" class="hidden"><div class="dnote" style="margin-top:6px">Kazandığın rozetlere dokun, profilinde en fazla <b>3 tanesi</b> görünsün. Rakiplerin de bunları görecek!</div><div class="bdstreak" id="bdStreak"></div><div class="bdgrid" id="bdGrid"></div><div class="bdinfo" id="bdInfo"></div></div>
         </div>
         <div class="dcard lives"><div><b>Canların</b><div class="hearts" id="dHearts">❤️❤️❤️</div></div><button class="dbtn" id="dAdLife">📺 Reklam izle<br><small>+1 ❤️</small></button></div>
         <div class="hidden"><div id="dCats"></div><div id="dCatStat"></div></div>
@@ -474,9 +499,9 @@
       <div class="dcard" style="text-align:center">
         <div style="font-weight:800;font-size:20px">⚔️ Rakip bulundu!</div>
         <div class="intro">
-          <div class="icard"><div class="avatar" id="iaA">?</div><div class="nm" id="inA"></div><div class="vbd" id="ibA"></div><div class="st" id="isA"></div></div>
+          <div class="icard"><div class="avatar" id="iaA">?</div><div class="nm" id="inA"></div><div id="ilA"></div><div class="vbd" id="ibA"></div><div class="st" id="isA"></div></div>
           <div class="ivs">VS</div>
-          <div class="icard b"><div class="avatar b" id="iaB">?</div><div class="nm" id="inB"></div><div class="vbd" id="ibB"></div><div class="st" id="isB"></div></div>
+          <div class="icard b"><div class="avatar b" id="iaB">?</div><div class="nm" id="inB"></div><div id="ilB"></div><div class="vbd" id="ibB"></div><div class="st" id="isB"></div></div>
         </div>
         <button class="repmini" id="iReport">🚩 Şikayet et</button>
         <div class="icount">Birazdan oyun başlıyor… <b id="iCount">3</b></div>
@@ -487,9 +512,9 @@
     <!-- OYUN -->
     <div id="dGame" class="dpage hidden">
       <div class="vs">
-        <div class="vp" id="vpA"><div class="avatar sm" id="vaA">?</div><div class="vn" id="vnA">Sen</div><div class="vbd" id="vbA"></div><div class="vs-s" id="vsA">0</div></div>
+        <div class="vp" id="vpA"><div class="avatar sm" id="vaA">?</div><div class="vn" id="vnA">Sen</div><div class="vl" id="vlA"></div><div class="vbd" id="vbA"></div><div class="vs-s" id="vsA">0</div></div>
         <div class="vsx">VS<small id="dMode">ONLINE</small></div>
-        <div class="vp" id="vpB"><div class="avatar sm b" id="vaB">?</div><div class="vn" id="vnB">Rakip</div><div class="vbd" id="vbB"></div><div class="vs-s" id="vsB">0</div></div>
+        <div class="vp" id="vpB"><div class="avatar sm b" id="vaB">?</div><div class="vn" id="vnB">Rakip</div><div class="vl" id="vlB"></div><div class="vbd" id="vbB"></div><div class="vs-s" id="vsB">0</div></div>
       </div>
       <div class="dboard" id="dBoard"></div>
       <div class="dturn" id="dTurn">Senin sıran!</div>
@@ -1161,7 +1186,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="28";
+const APP_VER="29";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1321,49 +1346,62 @@ async function initNet(){
 D.cat="genel"; // düelloda kategori yok: karışık genel kültür
 // ---------- ROZETLER ----------
 const BADGES=[
-  ["ilk","🎖️","İlk Adım","İlk online düellonu oyna"],
-  ["zafer","🏆","İlk Zafer","İlk online galibiyetini al"],
-  ["seri3","🔥","Alev Alev","Üst üste 3 galibiyet al"],
-  ["seri5","☄️","Durdurulamaz","Üst üste 5 galibiyet al"],
-  ["glad","⚔️","Gladyatör","Toplam 10 galibiyet al"],
-  ["efsane","👑","Efsane","Toplam 50 galibiyet al"],
-  ["simsek","⚡","Şimşek","Online düelloda bir soruyu 3 saniyede bil"],
-  ["kusursuz","🎯","Kusursuz","Bir düelloda 10 sorunun hepsini bil"],
-  ["seri10","🌟","Yenilmez","Üst üste 10 galibiyet al"],
-  ["glad25","🛡️","Şampiyon","Toplam 25 galibiyet al"],
-  ["joker","🃏","Jokerci","Online düelloda joker kullan"],
-  ["usta","📈","Usta Taktisyen","En az 20 maçta %70 kazanma oranı"],
-  ["maraton","🏃","Maratoncu","Toplam 100 online düello oyna"],
-  ["yildiz","⭐","Yıldız Avcısı","Tek oyunculu modda 100 yıldız topla"],
-  ["sadik","💎","Sadık Oyuncu","Toplam 25 online düello oyna"],
-  ["inat","💪","Pes Etmem","Kaybettikten sonra tekrar oynayıp kazan"]
+  // galibiyet serileri (üst üste online galibiyet)
+  ["seri3","🔥","Alev","Üst üste 3 galibiyet","w"],
+  ["seri5","☄️","Kuyruklu Yıldız","Üst üste 5 galibiyet","w"],
+  ["seri10","🌟","Yenilmez","Üst üste 10 galibiyet","w"],
+  ["seri15","⚡","Fırtına","Üst üste 15 galibiyet","w"],
+  ["seri20","🌋","Volkan","Üst üste 20 galibiyet","w"],
+  ["seri30","🐉","Ejderha","Üst üste 30 galibiyet","w"],
+  ["seri50","👑","İmparator","Üst üste 50 galibiyet","w"],
+  // giriş serileri (her gün oyuna girmek)
+  ["gun3","📅","Alışkanlık","3 gün üst üste giriş","g"],
+  ["gun7","🗓️","Bir Hafta","7 gün üst üste giriş","g"],
+  ["gun14","🌙","İki Hafta","14 gün üst üste giriş","g"],
+  ["gun30","🏅","Bir Ay","30 gün üst üste giriş","g"],
+  ["gun60","💫","Tutkulu","60 gün üst üste giriş","g"],
+  ["gun100","🏆","Yüzler Kulübü","100 gün üst üste giriş","g"],
+  ["gun365","🌍","Efsane Yıl","365 gün üst üste giriş","g"]
 ];
+// ---------- SEVİYE SİSTEMİ: online galibiyetle seviye atlanır; her seviye bir öncekinden zor ----------
+// L → L+1 için 2×L galibiyet gerekir (1→2: 2, 5→6: 10, 10→11: 20 …). Toplam: L·(L-1)
+const LV_TIERS=[[1,"Çaylak","🌱"],[5,"Bronz","🥉"],[10,"Gümüş","🥈"],[15,"Altın","🥇"],[20,"Zümrüt","💚"],[25,"Safir","💠"],[30,"Yakut","❤️‍🔥"],[40,"Elmas","💎"],[50,"Usta","🔮"],[75,"Efsane","🐉"],[100,"Ölümsüz","👑"]];
+const lvOf=w=>Math.min(100,Math.floor((1+Math.sqrt(1+4*Math.max(0,w|0)))/2));
+const lvNeed=L=>L*(L-1);
+const tierOf2=L=>{ let t=0; LV_TIERS.forEach((x,i)=>{ if(L>=x[0]) t=i; }); return t; };
+function lvHTML(w,size){ const L=lvOf(w), t=tierOf2(L), T=LV_TIERS[t], st=L>=100?5:((L-T[0])%5)+1;
+  return `<span class="lvbox t${t}${size?" "+size:""}" title="Seviye ${L} · ${T[1]}"><span class="ic">${T[2]}</span><b>${L}</b><span class="st">${"★".repeat(st)}</span></span>`; }
+function renderLevel(){ const w=D.stat.w||0, L=lvOf(w), T=LV_TIERS[tierOf2(L)];
+  $("pLvBox").innerHTML=lvHTML(w,"lg"); $("pLvName").textContent=`Seviye ${L} · ${T[1]}`;
+  if(L>=100){ $("pLvBar").style.width="100%"; $("pLvTxt").textContent="En yüksek seviye! 👑"; return; }
+  const a=lvNeed(L), b=lvNeed(L+1); $("pLvBar").style.width=Math.round((w-a)/(b-a)*100)+"%"; $("pLvTxt").textContent=`Seviye ${L+1} için ${b-w} galibiyet daha (${w-a}/${b-a})`; }
 const BMAP=Object.fromEntries(BADGES.map(b=>[b[0],b]));
-let bEarned=store.get("bdg",[]), bShow=store.get("bdShow",[]);
+let bEarned=store.get("bdg",[]).filter(id=>BMAP[id]), bShow=store.get("bdShow",[]).filter(id=>BMAP[id]);
 const bdHTML=(ids,sm)=>(Array.isArray(ids)?ids:String(ids||"").split(",")).filter(id=>BMAP[id]).slice(0,3).map(id=>`<span class="bdg${sm?" sm":""}" title="${BMAP[id][2]}">${BMAP[id][1]}</span>`).join("");
 function checkBadges(){
-  const st=D.stat, c=k=>catStat(k).w, tot=st.w+st.l+(st.d||0);
-  const totStars=["main","spor","sanat","tarih"].reduce((a,p)=>a+packStars(p),0);
-  const has={ilk:tot>=1,zafer:st.w>=1,seri3:store.get("bestStreak",0)>=3,seri5:store.get("bestStreak",0)>=5,glad:st.w>=10,efsane:st.w>=50,
-    simsek:!!store.get("bFast",0),kusursuz:!!store.get("bPerfect",0),seri10:store.get("bestStreak",0)>=10,glad25:st.w>=25,joker:!!store.get("bJoker",0),
-    usta:(st.w+st.l)>=20&&st.w/(st.w+st.l)>=0.7,maraton:tot>=100,yildiz:totStars>=100,sadik:tot>=25,inat:!!store.get("bComeback",0)};
-  const nw=BADGES.filter(b=>has[b[0]]&&!bEarned.includes(b[0]));
+  const ws=store.get("bestStreak",0), ls=store.get("bestLogin",0);
+  const nw=BADGES.filter(b=>{ const n=+b[0].replace(/\D/g,""); return !bEarned.includes(b[0]) && (b[4]==="w"? ws>=n : ls>=n); });
   if(nw.length){ bEarned=[...bEarned,...nw.map(b=>b[0])]; store.set("bdg",bEarned);
-    nw.forEach(b=>{ if(bShow.length<3) bShow.push(b[0]); }); store.set("bdShow",bShow);
-    setTimeout(()=>{ toast(`🎉 Yeni rozet: ${nw.map(b=>b[1]+" "+b[2]).join(", ")}`); try{SFX.win();}catch(e){} },900); }
+    nw.forEach(b=>{ if(bShow.length<3) bShow.push(b[0]); else { const k=bShow.findIndex(x=>BMAP[x]&&BMAP[x][4]===b[4]); if(k>=0) bShow[k]=b[0]; } }); store.set("bdShow",bShow);
+    setTimeout(()=>{ toast(`🎉 Yeni rozet: ${nw.map(b=>b[1]+" "+b[2]).join(", ")}`); try{SFX.win();}catch(e){} },900); try{ saveProfile(); }catch(e){} }
   renderBadges(); return nw.length>0;
 }
 function renderBadges(){
   $("pBadges").innerHTML=bdHTML(bShow)||'<span class="dnote" style="font-size:12px">Henüz rozet seçilmedi</span>';
   $("bdCount").textContent=`${bEarned.length}/${BADGES.length}`;
   const g=$("bdGrid"); g.innerHTML="";
-  BADGES.forEach(([id,e,n,d])=>{ const b=document.createElement("button"); const got=bEarned.includes(id);
+  $("bdStreak").innerHTML=`🔥 Galibiyet serisi: <b>${store.get("streak",0)}</b> (en iyi ${store.get("bestStreak",0)}) · 📅 Giriş serisi: <b>${store.get("loginStreak",1)}</b> gün`;
+  BADGES.forEach(([id,e,n,d,k],idx)=>{ if(idx===0||BADGES[idx-1][4]!==k){ const h=document.createElement("div"); h.className="bdsec"; h.textContent=k==="w"?"🔥 Galibiyet serileri":"📅 Günlük giriş serileri"; g.appendChild(h); } const b=document.createElement("button"); const got=bEarned.includes(id);
     b.className=got?(bShow.includes(id)?"show":""):"lock"; b.innerHTML=`<span class="e">${e}</span><span class="n">${n}</span>`;
     b.onclick=()=>{ $("bdInfo").textContent=`${e} ${n} — ${d}${got?"":" 🔒"}`; if(!got) return;
       if(bShow.includes(id)) bShow=bShow.filter(x=>x!==id); else if(bShow.length<3) bShow.push(id); else { toast("En fazla 3 rozet gösterebilirsin"); return; }
       store.set("bdShow",bShow); renderBadges(); $("bdInfo").textContent=`${e} ${n} — ${d}`; saveProfile(); };
     g.appendChild(b); });
 }
+(function trackLogin(){ const d=new Date(), key=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); const y=new Date(d-864e5), ykey=y.getFullYear()+"-"+(y.getMonth()+1)+"-"+y.getDate();
+  const last=store.get("lastLogin",""); if(last===key) return; let st=store.get("loginStreak",0); st= last===ykey ? st+1 : 1;
+  store.set("loginStreak",st); store.set("lastLogin",key); if(st>store.get("bestLogin",0)) store.set("bestLogin",st);
+  if(st>1) setTimeout(()=>toast(`📅 ${st}. gün üst üste giriş! Devam et 🔥`),1500); })();
 $("bdToggle").onclick=()=>{ const h=$("bdBox").classList.toggle("hidden"); $("bdToggle").textContent=h?"Tümü ▾":"Kapat ▴"; };
 const myBd=()=>bShow.filter(id=>BMAP[id]).slice(0,3).join(",");
 function catStat(c){ return (D.stat.c||(D.stat.c={}))[c]||(D.stat.c[c]={w:0,l:0}); }
@@ -1374,7 +1412,7 @@ function renderCats(){
   const cs=catStat(D.cat), t=cs.w+cs.l; $("dCatStat").textContent=`${dcatName(D.cat)}: ${cs.w} galibiyet · ${cs.l} mağlubiyet${t?` · %${Math.round(cs.w/t*100)}`:""}`;
 }
 function renderStats(){
-  try{ renderCats(); }catch(e){} try{ checkBadges(); }catch(e){}
+  try{ renderCats(); }catch(e){} try{ checkBadges(); }catch(e){} try{ renderLevel(); }catch(e){}
   const {w,l}=D.stat, t=w+l, r=t?Math.round(w/t*100):0;
   $("pW").textContent=w; $("pL").textContent=l; $("pR").textContent=`%${r}`; $("pBar").style.width=r+"%";
 }
@@ -1398,7 +1436,7 @@ async function loadRank(){
     box.innerHTML="";
     rows.forEach((r,i)=>{ const t=(r.wins||0)+(r.losses||0), ra=t?Math.round((r.wins||0)/t*100):0;
       const el=document.createElement("div"); el.className="rk"+(r.id===D.uid?" me":"");
-      el.innerHTML=`<div class="no">${["🥇","🥈","🥉"][i]||i+1}</div><div class="avatar sm"></div><div class="nm"></div><div class="wl"><b>${r.wins||0}</b> G · ${r.losses||0} M<br>%${ra}</div>`;
+      el.innerHTML=`<div class="no">${["🥇","🥈","🥉"][i]||i+1}</div><div class="avatar sm"></div>${lvHTML(r.wins||0,"sm")}<div class="nm"></div><div class="wl"><b>${r.wins||0}</b> G · ${r.losses||0} M<br>%${ra}</div>`;
       setAv(el.querySelector(".avatar"),r.name,r.ph); el.querySelector(".nm").textContent=cleanName(r.name); if(r.bd){ const sm=document.createElement("small"); sm.textContent=String(r.bd).split(",").filter(id=>BMAP[id]).slice(0,3).map(id=>BMAP[id][1]).join(""); el.querySelector(".nm").appendChild(sm); } box.appendChild(el); });
   }catch(e){ box.innerHTML='<div class="dnote">Sıralama şu an yüklenemedi.</div>'; }
 }
@@ -1477,6 +1515,7 @@ function renderIntro(s){
   $("ibA").innerHTML=bdHTML(A.bd); $("ibB").innerHTML=bdHTML(B.bd);
   const rec=p=> D.mode==="bot"&&p===B0 ? "🤖 Antrenman botu" : `🏆 ${p.w||0} G · 💔 ${p.l||0} M`;
   $("isA").textContent=rec(A); $("isB").textContent=rec(B0);
+  $("ilA").innerHTML=lvHTML(A.w); $("ilB").innerHTML=lvHTML(B0.w);
   clearInterval(D.tick); const t=()=>{ $("iCount").textContent=Math.max(1,Math.ceil((D.introEnd-Date.now())/1000)); }; t(); D.tick=setInterval(t,200);
 }
 function startTurn(i){
@@ -1520,7 +1559,7 @@ function applyState(s){
   if(g.status!=="play") return;
   dShow("dGame");
   $("vnA").textContent=g.players[me].name; setAv($("vaA"),g.players[me].name,g.players[me].ph);
-  const OV=vis(g.players[op]); if(D.mode==="online") checkOpp(g.players[op]); $("vnB").textContent=OV.name||"Rakip"; $("vbA").innerHTML=bdHTML((g.players[me]||{}).bd,1); $("vbB").innerHTML=bdHTML((g.players[op]||{}).bd,1); setAv($("vaB"),OV.name,OV.ph);
+  const OV=vis(g.players[op]); if(D.mode==="online") checkOpp(g.players[op]); $("vnB").textContent=OV.name||"Rakip"; $("vbA").innerHTML=bdHTML((g.players[me]||{}).bd,1); $("vlA").innerHTML=lvHTML((g.players[me]||{}).w,"sm"); $("vlB").innerHTML=lvHTML((g.players[op]||{}).w,"sm"); $("vbB").innerHTML=bdHTML((g.players[op]||{}).bd,1); setAv($("vaB"),OV.name,OV.ph);
   $("dMode").textContent= D.mode==="bot"?"ANTRENMAN":"ONLINE";
   g.done=g.done||[]; const cnt=k=>g.done.filter((x,i)=>x&&i%2===k).length;
   $("vsA").textContent=`${cnt(me)}/10 doğru`; $("vsB").textContent=`${cnt(op)}/10 doğru`;
@@ -1560,12 +1599,14 @@ function showEnd(){
     D.counted=true;
     const gc=g.cat||"genel";
     if(draw) D.stat.d++; else if(won){ D.stat.w++; catStat(gc).w++; } else { D.stat.l++; catStat(gc).l++; if(!unlimited) setLives(lives-1); }
+    if(won && lvOf(D.stat.w)>lvOf(D.stat.w-1)) D.lvUp=lvOf(D.stat.w);
     if(won){ const st=store.get("streak",0)+1; store.set("streak",st); if(st>store.get("bestStreak",0)) store.set("bestStreak",st); if(store.get("lastLost",0)) store.set("bComeback",1); store.set("lastLost",0); }
     else if(!draw){ store.set("streak",0); store.set("lastLost",1); }
     if((g.done||[]).filter((x,i)=>x&&i%2===me).length>=10) store.set("bPerfect",1);
     renderStats(); saveProfile();
   }
   $("dEndLives").innerHTML = D.mode==="bot" ? "🤖 Antrenman — can harcanmadı" : unlimited ? "♾️ Sınırsız can — can gitmedi" : (!draw&&!won ? `❤️ −1 · Kalan can: ${lives}` : `Canların: ${"❤️".repeat(lives)||"0"}`);
+  if(D.lvUp){ const L=D.lvUp; D.lvUp=0; $("dEndLives").innerHTML+=`<div class="lvup">🎉 SEVİYE ATLADIN!<div>${lvHTML(D.stat.w,"lg")}</div><small>Seviye ${L} · ${LV_TIERS[tierOf2(L)][1]}</small></div>`; setTimeout(()=>{ try{ applause(); }catch(e){} },1200); }
   dShow("dEnd");
 }
 function leaveDuel(){ stopSeek(); clearInterval(D.seekTimer);
@@ -1639,7 +1680,7 @@ $("dCancel").onclick=()=>{ D.quick=false; D.retries=0; leaveDuel(); dShow("dLobb
 $("dAgain").onclick=()=>{ leaveDuel(); dShow("dLobby"); renderLives(); };
 $("dBot").onclick=()=>{ leaveDuel(); D.mode="bot"; D.host=true; D.me="me";
   const bots=["Bilge Bot","Zeki Robot","Kelime Ustası","Çark Botu"];
-  D.g={status:"wait",players:[{id:"me",name:myName(),bd:myBd(),ph:myPh(),w:D.stat.w,l:D.stat.l},{id:"bot",name:bots[Math.floor(Math.random()*bots.length)],bd:BADGES.map(b=>b[0]).sort(()=>Math.random()-.5).slice(0,1+Math.floor(Math.random()*3)).join(",")}],qs:makeQuestions(),cat:D.cat,turn:0,done:[],v:1};
+  D.g={status:"wait",players:[{id:"me",name:myName(),bd:myBd(),ph:myPh(),w:D.stat.w,l:D.stat.l},{id:"bot",name:bots[Math.floor(Math.random()*bots.length)],bd:BADGES.map(b=>b[0]).sort(()=>Math.random()-.5).slice(0,1+Math.floor(Math.random()*3)).join(","),w:Math.floor(Math.random()*120)}],qs:makeQuestions(),cat:D.cat,turn:0,done:[],v:1};
   startIntro(); };
 $("dSolve").onclick=()=>{
   if(!D.g||D.g.status!=="play"||!D.myTurn) return;
