@@ -870,7 +870,8 @@ function startLevel(i){
   const T=TIERS[tierOf(i)]; $("lvl").innerHTML=`<span class="zp" style="background:${T.g}">${pack!=="main"?PACKS[pack].emoji+" ":""}${T.emoji} ${T.ad}</span>`;
   if(i>0 && tierOf(i)!==tierOf(i-1) && !store.get(K("seen_tier"+tierOf(i)),false)){ store.set(K("seen_tier"+tierOf(i)),true); setTimeout(()=>toast(`${T.emoji} ${T.ad} rütbesine yükseldin! Kelime başı +${T.odul} 🪙`),300); }
   buildGrid(); buildWheel(); setQuestion(); try{ applyScene(i); }catch(e){}
-  const first=L.words.findIndex(w=>!w.found); if(first>=0) selectWord(first);
+  if(autoFound()){ saveProg(); refreshGrid(); }
+  const first=L.words.findIndex(w=>!w.found); if(first>=0) selectWord(first); else setTimeout(win,600);
 }
 function saveProg(){ const r={}; L.words.forEach(w=>{ if(w.revealed.size) r[w.w]=[...w.revealed]; }); store.set(K("prog_"+lv),{f:L.words.filter(w=>w.found).map(w=>w.w),r}); }
 
@@ -1004,8 +1005,7 @@ $("btnHint").onclick=()=>{
   let wi = (selWord>=0 && !L.words[selWord].found) ? selWord : L.words.findIndex(w=>!w.found);
   if(wi<0) return;
   const w=L.words[wi]; const cs=wordCells(w).filter(c=>!cellShown(c.x+","+c.y));
-  if(!cs.length) return;
-  w.revealed.add(cs[0].k); store.set(K("hintUsed_"+lv),store.get(K("hintUsed_"+lv),0)+1); coins-=25; store.set("coins",coins); $("coins").textContent=coins;
+  if(cs.length){ w.revealed.add(cs[0].k); store.set(K("hintUsed_"+lv),store.get(K("hintUsed_"+lv),0)+1); coins-=25; store.set("coins",coins); $("coins").textContent=coins; }
   selWord=wi;
   if(autoFound()){ SFX.ok(); flash("good",w.w); const next=L.words.findIndex(x=>!x.found); saveProg();
     if(next<0){ refreshGrid(); setQuestion(); setTimeout(win,800); return; }
@@ -1286,7 +1286,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="35";
+const APP_VER="36";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
