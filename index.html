@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Bulmaca Çarkı</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--bg1:#0f4c75;--bg2:#1b262c;--cell:#ffffffee;--cellE:#ffffff2e;--acc:#ffb703;--sel:#8ecae6;--ok:#2a9d8f;--txt:#fff}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;overflow:hidden}
+  body{background:linear-gradient(180deg,#3a7bd5 0%,#0f4c75 45%,#1b262c 100%);color:var(--txt);font-family:'Baloo 2',system-ui,sans-serif;display:flex;justify-content:center;user-select:none;-webkit-user-select:none}
+  .app{width:100%;max-width:480px;height:100%;display:flex;flex-direction:column;padding:10px 12px 14px;position:relative}
+  .bar{display:flex;justify-content:space-between;align-items:center;height:44px}
+  .pill{background:#0006;border-radius:999px;padding:4px 10px;font-weight:700;font-size:16px;display:flex;gap:5px;align-items:center;white-space:nowrap}
+  .ibtn{background:#0006;border:0;color:#fff;border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer}
+  #gridWrap{flex:1 1 auto;display:flex;align-items:center;justify-content:center;min-height:0;padding:6px 0;overflow:hidden}
+  #grid{position:relative}
+  .c{position:absolute;border-radius:7px;background:var(--cellE);display:flex;align-items:center;justify-content:center;font-weight:800;color:#1b262c;cursor:pointer;transition:background .2s,transform .2s}
+  .c.f{background:var(--cell)}
+  .c.s{background:var(--sel)!important}
+  .c.f.s{background:#d6f1ff}
+  .c.pop{animation:pop .35s}
+  @keyframes pop{50%{transform:scale(1.18)}}
+  #q{min-height:86px;background:#ffffffee;color:#1b262c;border-radius:16px;padding:10px 14px;margin:4px 0 6px;font-size:17px;line-height:1.3;display:flex;flex-direction:column;justify-content:center;box-shadow:0 6px 16px #0004}
+  #q .h{font-size:13px;color:#577;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  #q.solved{background:#d8f3dc}
+  #cur{height:40px;display:flex;justify-content:center;align-items:center}
+  #cur span{background:var(--acc);color:#1b262c;font-weight:800;font-size:24px;padding:0 14px;border-radius:10px;letter-spacing:2px;min-width:10px}
+  #cur span:empty{display:none}
+  #cur.bad span{background:#e63946;color:#fff;animation:sh .3s}
+  #cur.good span{background:#2a9d8f;color:#fff}
+  #cur.dup span{background:#adb5bd}
+  #cur.ready span{background:#2a9d8f;color:#fff;cursor:pointer}
+  #cur.ready span::after{content:' ✓'}
+  @keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+  .bottom{display:flex;align-items:center;justify-content:center;gap:10px}
+  .side{display:flex;flex-direction:column;gap:12px}
+  .sbtn{width:52px;height:52px;border-radius:50%;border:0;background:#ffffff2a;color:#fff;font-size:22px;cursor:pointer;position:relative}
+  .sbtn small{white-space:nowrap;position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);background:var(--acc);color:#1b262c;font-size:11px;font-weight:800;border-radius:8px;padding:0 5px}
+  #wheel{width:min(62vw,250px);height:min(62vw,250px);position:relative;touch-action:none}
+  #wheel .bg{position:absolute;inset:0;border-radius:50%;background:#ffffffd9;box-shadow:0 8px 24px #0006}
+  #wheel svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .L{position:absolute;width:22%;height:22%;margin:-11% 0 0 -11%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:clamp(24px,8vw,34px);font-weight:800;color:#1b262c;pointer-events:none;transition:background .1s}
+  .L.on{background:var(--acc);color:#fff}
+  .overlay{position:absolute;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;z-index:30}
+  .box{background:#fff;color:#1b262c;border-radius:22px;padding:24px;width:86%;text-align:center}
+  .box h2{margin:0 0 6px;font-size:30px}
+  .box button{font:inherit;font-weight:800;font-size:20px;border:0;border-radius:14px;padding:12px 18px;background:var(--acc);color:#1b262c;width:100%;margin-top:12px;cursor:pointer}
+  .box .lv{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
+  .box .lv button{margin:0;padding:10px 0;font-size:18px}
+  .box .lv button.lock{background:#dee2e6;color:#999}
+  .box .lv button.done{background:#2a9d8f;color:#fff}
+
+  #home{position:absolute;inset:0;z-index:20;background:linear-gradient(180deg,#3a7bd5 0%,#0f4c75 55%,#1b262c 100%);display:flex;flex-direction:column;align-items:center;padding:40px 28px 30px}
+  #home .logo{width:170px;height:182px;filter:drop-shadow(0 8px 18px #0006)}
+  #home .logo .spin{transform-origin:100px 100px;animation:wheelspin 12s cubic-bezier(.45,0,.25,1) infinite}
+  @keyframes wheelspin{0%{transform:rotate(0)}70%{transform:rotate(1080deg)}100%{transform:rotate(1080deg)}}
+  #home .logo .bulb{fill:#fff8d6}
+  #home .logo .b0{animation:blink 1s infinite}
+  #home .logo .b1{animation:blink 1s .5s infinite}
+  @keyframes blink{50%{fill:#ff9f1c;opacity:.6}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #home h1{margin:14px 0 0;font-size:38px;line-height:1;letter-spacing:1px}
+  #home h1 span{color:var(--acc)}
+  #home .tag{color:#cfe3ff;margin-top:6px;font-size:15px}
+  #home .btns{margin-top:auto;width:100%;display:flex;flex-direction:column;gap:12px}
+  .hbtn{font:inherit;font-weight:800;font-size:22px;border:0;border-radius:18px;padding:14px;cursor:pointer;width:100%;box-shadow:0 5px 0 #0004}
+  .hbtn:active{transform:translateY(3px);box-shadow:0 2px 0 #0004}
+  .hbtn.main{background:var(--acc);color:#1b262c;font-size:28px;padding:18px}
+  .hbtn.sec{background:#ffffff26;color:#fff}
+  #home .cont{text-align:center;color:#cfe3ff;font-size:14px;margin-top:-4px}
+  .set{display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-bottom:1px solid #eee;font-size:18px;text-align:left}
+  .tog{width:54px;height:30px;border-radius:999px;background:#ccc;position:relative;cursor:pointer;flex:none;transition:background .2s}
+  .tog::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .2s}
+  .tog.on{background:#2a9d8f}.tog.on::after{left:27px}
+  .box button.danger{background:#ffe3e3;color:#c1121f}
+
+  #map{position:absolute;inset:0;z-index:25;display:flex;flex-direction:column;background:#0b1d2e}
+  .mtop{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#0b1d2ef2;z-index:2;box-shadow:0 4px 14px #0008}
+  .mprog{flex:1}.mprogTxt{font-weight:800;font-size:15px}
+  .mbar{height:8px;background:#ffffff22;border-radius:6px;overflow:hidden;margin-top:3px}
+  .mbar>div{height:100%;background:linear-gradient(90deg,#2a9d8f,#ffb703,#e63946);border-radius:6px}
+  #mapScroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  #mapScroll::-webkit-scrollbar{display:none}
+  #mapInner{position:relative;width:100%}
+  .zone{position:absolute;left:0;right:0}
+  .seg{position:absolute;left:0;right:0;background-size:cover;background-position:center}
+  .zone .deco{position:absolute;font-size:26px;opacity:.35;pointer-events:none}
+  .ribbon{position:absolute;left:50%;transform:translateX(-50%);padding:8px 22px;border-radius:14px;font-weight:800;font-size:19px;white-space:nowrap;box-shadow:0 6px 0 #0005;z-index:1;text-align:center;line-height:1.1}
+  .ribbon small{display:block;font-size:12px;font-weight:600;opacity:.85}
+  .node{position:absolute;width:62px;height:62px;margin:-31px 0 0 -31px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:24px;cursor:pointer;z-index:1;transition:transform .15s}
+  .node:active{transform:scale(.92)}
+  .node.done{background:radial-gradient(circle at 35% 30%,#fff8,transparent 45%),var(--zc);color:#fff;box-shadow:0 5px 0 #0006}
+  .node.done::after{content:"✓";position:absolute;right:-4px;top:-4px;width:22px;height:22px;border-radius:50%;background:#fff;color:#2a9d8f;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 4px #0005}
+  .node.cur{width:78px;height:78px;margin:-39px 0 0 -39px;background:radial-gradient(circle at 35% 30%,#fff9,transparent 45%),#ffb703;color:#1b262c;font-size:30px;box-shadow:0 6px 0 #a36f00,0 0 0 0 #ffb70399;animation:pulse 1.6s infinite}
+  .node.cur .play{position:absolute;bottom:-26px;background:#fff;color:#1b262c;font-size:12px;padding:2px 10px;border-radius:999px;white-space:nowrap;box-shadow:0 3px 0 #0004}
+  @keyframes pulse{0%{box-shadow:0 6px 0 #a36f00,0 0 0 0 #ffb703aa}70%{box-shadow:0 6px 0 #a36f00,0 0 0 18px #ffb70300}100%{box-shadow:0 6px 0 #a36f00,0 0 0 0 #ffb70300}}
+  .node.lock{background:#ffffff1a;color:#ffffff55;border:3px dashed #ffffff33;font-size:18px;cursor:default}
+  .node.lock span{position:absolute;bottom:-4px;right:-4px;font-size:16px;opacity:.8}
+  .node .stars{position:absolute;top:-18px;font-size:12px;letter-spacing:-2px;white-space:nowrap}
+
+  .hbtn.cat{background:linear-gradient(135deg,#c77dff,#7b2cbf);color:#fff}
+  #cats{position:absolute;inset:0;z-index:26;display:flex;flex-direction:column;background:#0b1d2e;overflow-y:auto}
+  .ctext{color:#cfe3ff;font-size:14px;padding:12px 16px 4px}
+  #catGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 14px 24px}
+  .ccard{border-radius:20px;padding:16px 12px 14px;color:#fff;cursor:pointer;position:relative;box-shadow:0 6px 0 #0006;min-height:170px;display:flex;flex-direction:column;align-items:center;text-align:center;transition:transform .12s}
+  .ccard:active{transform:scale(.96)}
+  .ccard .ce{font-size:40px;line-height:1.1;filter:drop-shadow(0 4px 8px #000a)}
+  .ccard{min-height:190px;justify-content:flex-end;border:2px solid #ffffff30}
+  .ccard .cn{text-shadow:0 2px 8px #000}
+  .ccard .cn{font-weight:800;font-size:22px;margin-top:6px}
+  .ccard .cs{font-size:13px;opacity:.9}
+  .ccard .cb{width:100%;height:8px;background:#0003;border-radius:6px;margin-top:auto;overflow:hidden}
+  .ccard .cb>div{height:100%;background:#fff;border-radius:6px}
+  .ccard .sel{position:absolute;top:8px;right:8px;background:#fff;color:#1b262c;font-size:11px;font-weight:800;border-radius:999px;padding:1px 8px}
+
+  #bg{position:fixed;inset:0;background-size:cover;background-position:center;z-index:0;transition:background-image .4s}
+  #bgShade{position:fixed;inset:0;z-index:0;background:linear-gradient(180deg,#0005 0%,#0002 35%,#0007 72%,#000b 100%)}
+  .app{z-index:1}
+  #place{align-self:center;margin-top:2px;background:#0005;color:#fff;font-weight:700;font-size:13px;padding:2px 12px;border-radius:999px;letter-spacing:.3px;backdrop-filter:blur(4px);white-space:nowrap}
+  .c{box-shadow:0 2px 6px #0003}
+  .c:not(.f){background:#1b262c55;backdrop-filter:blur(4px);border:1.5px solid #ffffffa0}
+  #wheel .bg{background:#ffffffd0;backdrop-filter:blur(6px)}
+
+  #lvl{display:flex}
+  .zp{display:inline-flex;align-items:center;gap:4px;padding:5px 16px;border-radius:999px;font-weight:800;font-size:16px;color:#fff;white-space:nowrap;border:2px solid #ffffff66;box-shadow:inset 0 -3px 0 #0003,0 4px 10px #0005;text-shadow:0 1px 2px #0005;letter-spacing:.3px;position:relative;overflow:hidden}
+  .zp::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,#fff6,transparent);transform:skewX(-20deg);animation:shine 4s infinite}
+  @keyframes shine{0%,70%{left:-60%}100%{left:130%}}
+  .fog{position:absolute;left:0;right:0;top:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;color:#fff;font-weight:800;font-size:16px;text-align:center;padding-bottom:20px;background:linear-gradient(180deg,#0b1d2e 0%,#0b1d2ef0 55%,#0b1d2e00 100%)}
+  .fog small{font-weight:600;opacity:.75;font-size:13px}
+  .ccard .rk{margin-top:auto;display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap}
+  .ccard .rk span{background:#0003;border-radius:999px;padding:2px 10px;font-size:13px;font-weight:700}
+
+  .winbox{position:relative;overflow:hidden;padding-top:18px}
+  .wrays{position:absolute;left:50%;top:-120px;width:360px;height:360px;margin-left:-180px;background:repeating-conic-gradient(#ffb70322 0 10deg,transparent 10deg 20deg);border-radius:50%;animation:spin 20s linear infinite;pointer-events:none}
+  .wstars{position:relative;display:flex;justify-content:center;gap:4px;font-size:44px;height:58px;align-items:flex-end}
+  .wstars span{opacity:.18;filter:grayscale(1);transform:scale(.6);transition:all .35s cubic-bezier(.3,1.8,.5,1)}
+  .wstars span:nth-child(2){font-size:56px}
+  .wstars span.on{opacity:1;filter:none;transform:scale(1)}
+  .winbox h2{position:relative;margin:4px 0 2px}
+  .wlevel{position:relative;font-size:22px;font-weight:800;color:#7b2cbf;margin:2px 0 8px}
+  .wreward{position:relative;display:flex;justify-content:center}
+  .wreward span{background:#fff3cd;border:2px solid #ffb703;border-radius:999px;padding:4px 16px;font-weight:800;font-size:18px}
+  .wnext{position:relative;margin-top:10px;font-size:14px;color:#555}
+
+  #home{background:#0b1d2e!important;overflow:hidden}
+  #home>*:not(.hslides):not(.hshade):not(.hglow){position:relative;z-index:2}
+  .hslides,.hshade{position:absolute;inset:0;z-index:0}
+  .hslides div{position:absolute;inset:0;background-size:cover;background-position:center}
+  @keyframes hslide{0%{opacity:0;transform:scale(1)}4%{opacity:1}20%{opacity:1}25%{opacity:0;transform:scale(1.13)}100%{opacity:0}}
+  .hshade{z-index:1;background:linear-gradient(180deg,#0b1d2ecc 0%,#0b1d2e33 28%,#0b1d2e22 45%,#0b1d2ecc 72%,#0b1d2ef5 100%)}
+  .hglow{position:absolute;z-index:1;top:20px;left:50%;width:240px;height:240px;margin-left:-120px;border-radius:50%;background:radial-gradient(circle,#ffb70366 0%,#ffb70300 65%);animation:glow 3s ease-in-out infinite}
+  @keyframes glow{50%{transform:scale(1.15);opacity:.7}}
+  #home h1{text-shadow:0 4px 18px #000b,0 2px 0 #0006}
+  #home .tag{color:#fff;font-weight:600;text-shadow:0 2px 8px #000}
+  .hstats{display:flex;gap:8px;margin-top:14px}
+  .hstats span{background:#0007;backdrop-filter:blur(8px);border:1px solid #ffffff33;border-radius:999px;padding:4px 14px;font-size:15px;font-weight:700}
+  .hbtn.main{animation:breathe 2.4s ease-in-out infinite;box-shadow:0 6px 0 #a36f00,0 0 30px #ffb70399}
+  @keyframes breathe{50%{transform:scale(1.04);box-shadow:0 6px 0 #a36f00,0 0 45px #ffb703cc}}
+  .hbtn.sec{background:#ffffff1f!important;backdrop-filter:blur(10px);border:1.5px solid #ffffff40;box-shadow:0 4px 14px #0006}
+  .hbtn.cat{box-shadow:0 5px 0 #4a148c,0 6px 20px #7b2cbf88}
+  #home .cont{color:#fff;text-shadow:0 1px 4px #000}
+
+  #duel{position:absolute;inset:0;z-index:28;display:flex;flex-direction:column;background:radial-gradient(circle at 50% 0%,#3b1f6b,#0b1d2e 70%);overflow-y:auto}
+  .dpage{padding:12px 14px 20px;display:flex;flex-direction:column;gap:12px}
+  .dtabs{display:flex;background:#0006;border-radius:14px;padding:4px}
+  .dtabs button{flex:1;border:0;background:none;color:#cfd8ff;font:inherit;font-weight:800;font-size:16px;padding:8px;border-radius:10px;cursor:pointer}
+  .dtabs button.on{background:#7b2cbf;color:#fff}
+  .dcard{background:#ffffff14;border:1px solid #ffffff26;border-radius:18px;padding:14px;backdrop-filter:blur(6px)}
+  .dcard.prof{display:flex;gap:12px;align-items:center}
+  .dcard.rules{font-size:14px;line-height:1.4;color:#e6e9ff}
+  .avatar{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#ffb703,#fb8500);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:26px;color:#1b262c;flex:none;box-shadow:0 0 0 3px #fff4}
+  .avatar.sm{width:42px;height:42px;font-size:19px}
+  .avatar.b{background:linear-gradient(135deg,#ff6b8a,#b5179e);color:#fff}
+  #dName{width:100%;background:#0005;border:1px solid #ffffff40;border-radius:10px;color:#fff;font:inherit;font-weight:800;font-size:18px;padding:6px 10px;outline:none}
+  .pstats{display:flex;gap:10px;font-size:13px;margin-top:6px;color:#dfe4ff}
+  .pratio{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:13px}
+  .pbar{flex:1;height:8px;background:#ff6b8a66;border-radius:6px;overflow:hidden}
+  .pbar>div{height:100%;background:#43d9ad;border-radius:6px;width:0}
+  .dbtn{font:inherit;font-weight:800;font-size:19px;border:0;border-radius:16px;padding:13px;cursor:pointer;background:#ffffff26;color:#fff;border:1.5px solid #ffffff40}
+  .dbtn.gold{background:var(--acc);color:#1b262c;border:0;box-shadow:0 5px 0 #a36f00}
+  .dbtn.ghost{background:#0004}
+  .dbtn small{font-weight:600;font-size:13px;opacity:.8}
+  .drow{display:flex;gap:8px}
+  .drow input{flex:1;min-width:0;background:#0005;border:1.5px solid #ffffff40;border-radius:16px;color:#fff;font:inherit;font-weight:800;font-size:20px;text-align:center;letter-spacing:4px;text-transform:uppercase;outline:none}
+  .dnote{font-size:13px;color:#cfd8ff;text-align:center}
+  .dcodebig{font-size:48px;font-weight:800;letter-spacing:10px;color:var(--acc);margin:6px 0}
+  .spinner{width:34px;height:34px;border:4px solid #ffffff33;border-top-color:var(--acc);border-radius:50%;margin:10px auto;animation:spin 1s linear infinite}
+  .rk{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid #ffffff1a}
+  .rk .no{width:28px;font-weight:800;text-align:center;font-size:18px}
+  .rk .nm{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rk .wl{font-size:12px;color:#cfd8ff;text-align:right}
+  .rk.me{background:#ffb70322;border-radius:10px}
+  .vs{display:flex;align-items:center;justify-content:space-between;gap:6px}
+  .vp{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px;border-radius:16px;background:#0004;border:2px solid transparent;transition:all .25s}
+  .vp.act{border-color:var(--acc);box-shadow:0 0 18px #ffb70388;background:#ffb7031c}
+  .vn{font-weight:800;font-size:14px;margin-top:4px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .vs-s{font-size:12px;color:#cfd8ff}
+  .vsx{font-weight:800;font-size:22px;color:#ff6b8a;text-align:center;line-height:1}
+  .vsx small{display:block;font-size:11px;color:var(--acc)}
+  .dboard{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
+  .dt{aspect-ratio:1;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;background:#ffffff14;border:1.5px solid #ffffff22;color:#ffffff88}
+  .dt.a{border-color:#ffb70388}.dt.b{border-color:#ff6b8a88}
+  .dt.ok.a{background:#ffb703;color:#1b262c}.dt.ok.b{background:#ff6b8a;color:#fff}
+  .dt.cur{transform:scale(1.15);box-shadow:0 0 12px #fff8;background:#fff;color:#1b262c}
+  .dt.fail{background:#444;color:#ff6b8a}
+  .dturn{text-align:center;font-weight:800;font-size:18px}
+  .dtimer{position:relative;height:16px;background:#0006;border-radius:10px;overflow:hidden}
+  .dtimer>div{height:100%;background:linear-gradient(90deg,#e63946,#ffb703,#43d9ad);width:100%;transition:width .2s linear}
+  .dtimer span{position:absolute;inset:0;text-align:center;font-size:12px;font-weight:800;line-height:16px;text-shadow:0 1px 2px #000}
+  .dq{background:#fff;color:#1b262c;border-radius:16px;padding:12px 14px;font-size:16px;line-height:1.3;min-height:64px}
+  .dq small{display:block;color:#7b2cbf;font-weight:800;font-size:12px}
+  .dcur{height:36px;display:flex;justify-content:center;align-items:center}
+  .dcur span{background:var(--acc);color:#1b262c;font-weight:800;font-size:22px;padding:0 14px;border-radius:10px;letter-spacing:2px}
+  .dcur span:empty{display:none}
+  .dcur.bad span{background:#e63946;color:#fff;animation:sh .3s}
+  .dwheel{width:min(58vw,230px);height:min(58vw,230px);position:relative;touch-action:none;margin:0 auto}
+  .dwheel .bg{position:absolute;inset:0;border-radius:50%;background:#ffffffd9}
+  .dwheel svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .dwheel.off{opacity:.45;filter:grayscale(.6)}
+  .dbig{font-size:70px}
+  .hbtn.duel{background:linear-gradient(135deg,#ff6b8a,#b5179e);color:#fff;box-shadow:0 5px 0 #6a0f5c,0 6px 20px #b5179e88}
+  #dTabPlay{display:flex;flex-direction:column;gap:12px}
+  .djrow{display:flex;align-items:center;justify-content:center;gap:10px;min-height:40px}
+  .djoker{font:inherit;font-weight:800;font-size:15px;border:0;border-radius:999px;padding:6px 14px;background:linear-gradient(135deg,#c77dff,#7b2cbf);color:#fff;box-shadow:0 4px 0 #4a148c;cursor:pointer}
+  .djoker small{background:#fff3;border-radius:8px;padding:0 6px;margin-left:4px}
+  .djoker:disabled{opacity:.35;box-shadow:none}
+  .dwheel .L.first{box-shadow:0 0 0 4px #7b2cbf;background:#e0c3fc}
+  .dhint{display:block;margin-top:6px;color:#7b2cbf;font-weight:800;font-size:14px}
+  .dpage>.dbtn,#dTabPlay>.dbtn{width:100%}
+  .dbtn:disabled{opacity:.45}
+  #dEnd .wreward span{color:#1b262c}
+  .dcard.lives{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .hearts{font-size:26px;letter-spacing:2px}
+  .hearts .off{filter:grayscale(1);opacity:.3}
+  .dcard.lives .dbtn{font-size:15px;padding:8px 14px}
+  .hidden{display:none!important}
+  #qi{margin-top:5px;padding-top:5px;border-top:1px dashed #9bb;font-size:14px;line-height:1.25;color:#145}
+  #qi b{color:#7b2cbf}
+  .gem{background:#7b2cbf}
+  .shop .row{display:flex;justify-content:space-between;align-items:center;background:#f1ecfa;border-radius:14px;padding:10px 12px;margin-top:10px}
+  .shop .row button{width:auto;margin:0;padding:8px 14px;font-size:16px}
+  .shop .ad{background:#ffb703}
+  .note{font-size:12px;color:#888;margin-top:10px}
+  #adBox{background:#111;color:#fff}
+  #adBox .big{font-size:60px;font-weight:800;margin:10px 0}
+  .toast{position:absolute;top:56px;left:50%;transform:translateX(-50%);background:#000c;padding:6px 16px;border-radius:999px;font-weight:700;z-index:40;transition:opacity .3s}
+</style>
+</head>
+<body>
+<div id="bg"></div><div id="bgShade"></div>
+<div class="app">
+  <div class="bar">
+    <button class="ibtn" id="btnHomeBtn" aria-label="Ana ekran">☰</button><button class="hidden" id="btnMenu"></button>
+    <div id="lvl"></div>
+    <div style="display:flex;gap:6px"><div class="pill">🪙 <span id="coins">0</span></div><div class="pill" id="gemPill" style="cursor:pointer">💎 <span id="gems">0</span></div></div>
+  </div>
+
+  <div id="place"></div>
+  <div id="gridWrap"><div id="grid"></div></div>
+
+  <div id="q"><div class="h">Soru</div><div id="qt">Bulmacada bir kutucuğa dokun, sorusu burada çıksın.</div><div id="qi" class="hidden"></div></div>
+  <div id="cur"><span id="curTxt"></span></div>
+
+  <div class="bottom">
+    <div class="side">
+      <button class="sbtn" id="btnShuffle" aria-label="Karıştır">🔀</button>
+      <button class="sbtn" id="btnInfo" aria-label="Bilgi" style="background:#7b2cbf;font-weight:800;font-family:Georgia,serif;font-size:26px">i<small style="background:#e0c3fc">1💎</small></button>
+    </div>
+    <div id="wheel"><div class="bg"></div><svg id="lines"></svg></div>
+    <div class="side">
+      <button class="sbtn" id="btnHint" aria-label="İpucu">💡<small>25</small></button>
+    </div>
+  </div>
+
+  <div class="toast hidden" id="toast"></div>
+
+  <div id="home">
+    <div class="hslides"><div style="background-image:url(img/istanbul.jpg)"></div></div><div class="hshade"></div>
+    <div class="hglow"></div>
+    <svg class="logo" viewBox="0 0 200 214" aria-hidden="true">
+  <defs><radialGradient id="lgShine" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <radialGradient id="lgHub" cx="40%" cy="35%"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#e9e3ff"/></radialGradient></defs>
+  <circle cx="100" cy="104" r="96" fill="#000" opacity=".25"/>
+  <circle cx="100" cy="100" r="94" fill="#7a4a00"/><circle cx="100" cy="100" r="92" fill="#ffb703"/><circle cx="100" cy="100" r="83" fill="#5c3a00"/>
+  <circle class="bulb b0" cx="188.0" cy="100.0" r="3.6"/><circle class="bulb b1" cx="181.3" cy="133.7" r="3.6"/><circle class="bulb b0" cx="162.2" cy="162.2" r="3.6"/><circle class="bulb b1" cx="133.7" cy="181.3" r="3.6"/><circle class="bulb b0" cx="100.0" cy="188.0" r="3.6"/><circle class="bulb b1" cx="66.3" cy="181.3" r="3.6"/><circle class="bulb b0" cx="37.8" cy="162.2" r="3.6"/><circle class="bulb b1" cx="18.7" cy="133.7" r="3.6"/><circle class="bulb b0" cx="12.0" cy="100.0" r="3.6"/><circle class="bulb b1" cx="18.7" cy="66.3" r="3.6"/><circle class="bulb b0" cx="37.8" cy="37.8" r="3.6"/><circle class="bulb b1" cx="66.3" cy="18.7" r="3.6"/><circle class="bulb b0" cx="100.0" cy="12.0" r="3.6"/><circle class="bulb b1" cx="133.7" cy="18.7" r="3.6"/><circle class="bulb b0" cx="162.2" cy="37.8" r="3.6"/><circle class="bulb b1" cx="181.3" cy="66.3" r="3.6"/>
+  <g class="spin"><g><path d="M100 100 L70.2 27.9 A78 78 0 0 1 129.8 27.9Z" fill="#e63946"/><path d="M100 100 L129.8 27.9 A78 78 0 0 1 172.1 70.2Z" fill="#f4a261"/><path d="M100 100 L172.1 70.2 A78 78 0 0 1 172.1 129.8Z" fill="#2a9d8f"/><path d="M100 100 L172.1 129.8 A78 78 0 0 1 129.8 172.1Z" fill="#3a86ff"/><path d="M100 100 L129.8 172.1 A78 78 0 0 1 70.2 172.1Z" fill="#ffb703"/><path d="M100 100 L70.2 172.1 A78 78 0 0 1 27.9 129.8Z" fill="#8338ec"/><path d="M100 100 L27.9 129.8 A78 78 0 0 1 27.9 70.2Z" fill="#06d6a0"/><path d="M100 100 L27.9 70.2 A78 78 0 0 1 70.2 27.9Z" fill="#ef476f"/></g>
+    <g stroke="#fff" stroke-opacity=".55" stroke-width="2"><line x1="100" y1="100" x2="70.2" y2="27.9"/><line x1="100" y1="100" x2="129.8" y2="27.9"/><line x1="100" y1="100" x2="172.1" y2="70.2"/><line x1="100" y1="100" x2="172.1" y2="129.8"/><line x1="100" y1="100" x2="129.8" y2="172.1"/><line x1="100" y1="100" x2="70.2" y2="172.1"/><line x1="100" y1="100" x2="27.9" y2="129.8"/><line x1="100" y1="100" x2="27.9" y2="70.2"/></g>
+    <g font-family="Baloo 2, sans-serif" font-weight="800" font-size="27" fill="#fff" text-anchor="middle" style="paint-order:stroke" stroke="#0004" stroke-width="2"><text x="100.0" y="46.0" transform="rotate(0 100.0 46.0)" dy="9">B</text><text x="138.2" y="61.8" transform="rotate(45 138.2 61.8)" dy="9">U</text><text x="154.0" y="100.0" transform="rotate(90 154.0 100.0)" dy="9">L</text><text x="138.2" y="138.2" transform="rotate(135 138.2 138.2)" dy="9">M</text><text x="100.0" y="154.0" transform="rotate(180 100.0 154.0)" dy="9">A</text><text x="61.8" y="138.2" transform="rotate(225 61.8 138.2)" dy="9">C</text><text x="46.0" y="100.0" transform="rotate(270 46.0 100.0)" dy="9">A</text><text x="61.8" y="61.8" transform="rotate(315 61.8 61.8)" dy="9">★</text></g>
+  </g>
+  <circle cx="100" cy="100" r="78" fill="url(#lgShine)"/>
+  <circle cx="100" cy="100" r="21" fill="#ffb703"/><circle cx="100" cy="100" r="17" fill="url(#lgHub)"/>
+  <text x="100" y="110" font-family="Georgia,serif" font-weight="800" font-size="26" fill="#7b2cbf" text-anchor="middle">?</text>
+  <path d="M86 2 L114 2 L100 30 Z" fill="#e63946" stroke="#fff" stroke-width="3" stroke-linejoin="round"/><circle cx="100" cy="9" r="4" fill="#fff"/>
+</svg>
+    <h1>Bulmaca <span>Çarkı</span></h1>
+    <div class="tag">Harfleri kaydır, soruları çöz, dünyayı gez!</div>
+    <div class="hstats"><span>🪙 <b id="hsCoins">0</b></span><span>💎 <b id="hsGems">0</b></span><span>⭐ <b id="hsStars">0</b></span></div>
+    <div class="btns">
+      <button class="hbtn main" id="hStart">BAŞLA</button>
+      <div class="cont" id="hCont"></div>
+      <button class="hbtn duel" id="hDuel">⚔️ Düello</button>
+      <button class="hbtn cat" id="hCats">🗂️ Kategoriler</button>
+      <button class="hbtn sec" id="hMenu">Menü</button>
+      <button class="hbtn sec" id="hSet">Ayarlar</button>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="ovSet"><div class="box">
+    <h2>Ayarlar</h2>
+    <div class="set"><span>🔊 Ses</span><div class="tog" id="tSound"></div></div>
+    <div class="set"><span>📳 Titreşim</span><div class="tog" id="tVib"></div></div>
+    <div class="set" style="border:0"><span>Sürüm</span><span style="color:#888">0.4 (deneme)</span></div>
+    <button class="danger" id="btnReset">İlerlemeyi Sıfırla</button>
+    <div id="resetAsk" class="hidden" style="margin-top:8px;font-size:15px">Tüm bölümler, altın ve elmaslar sıfırlanacak. Emin misin?
+      <div style="display:flex;gap:8px"><button class="danger" id="btnResetYes">Evet, sıfırla</button><button id="btnResetNo" style="background:#dee2e6">Vazgeç</button></div></div>
+    <div style="font-size:11px;color:#999;margin-top:10px;line-height:1.4">Fotoğraflar: Unsplash — Meriç Dağlı, Anthony Delanoix, Tomáš Malík, Alex Azabache, Tim Umphreys, Chloé Lefleur, Johny Goerend, Mirjam Schuinder, Jon.</div>
+    <button id="btnSetClose" style="background:#dee2e6">Kapat</button>
+  </div></div>
+
+  <div class="overlay hidden" id="ovWin"><div class="box winbox">
+    <div class="wrays"></div>
+    <div class="wstars" id="winStars"><span>⭐</span><span>⭐</span><span>⭐</span></div>
+    <h2 id="winTitle">Tebrikler! 🎉</h2>
+    <div class="wlevel" id="winLevel"></div>
+    <div class="wreward"><span>🪙 +<b id="winCoins">25</b></span></div>
+    <div class="wnext" id="winNext"></div>
+    <button id="btnNext">Devam Et ▶</button>
+  </div></div>
+
+  <div class="overlay hidden" id="ovShop"><div class="box shop">
+    <h2>💎 Elmas</h2>
+    <div style="font-size:15px">Elmasla, bilemediğin sorunun cevabı hakkında ek bilgi ve ilk harfini açarsın.</div>
+    <div class="row"><span>📺 Reklam izle<br><small>+1 💎</small></span><button class="ad" id="btnAd">İzle</button></div>
+    <div class="row"><span><b>10 💎</b></span><button data-gem="10">29,99 ₺</button></div>
+    <div class="row"><span><b>30 💎</b> <small>en çok tercih edilen</small></span><button data-gem="30">69,99 ₺</button></div>
+    <div class="row"><span><b>100 💎</b> <small>%40 avantajlı</small></span><button data-gem="100">179,99 ₺</button></div>
+    <div class="note">Deneme sürümü: gerçek reklam ve ödeme yok. Mağazalara çıkınca gerçek reklam ve uygulama içi satın alma bağlanacak.</div>
+    <button id="btnShopClose" style="background:#dee2e6">Kapat</button>
+  </div></div>
+
+  <div class="overlay hidden" id="ovAd"><div class="box" id="adBox">
+    <div>Reklam</div>
+    <div class="big" id="adCount">5</div>
+    <div style="font-size:14px;color:#aaa">Reklam bitince 1 💎 kazanacaksın</div>
+    <button id="btnAdDone" disabled style="opacity:.4">Kapat ve 1 💎 al</button>
+  </div></div>
+
+  <div id="cats" class="hidden">
+    <div class="mtop"><button class="ibtn" id="catsBack" aria-label="Geri">←</button><div class="mprogTxt" style="flex:1;font-size:20px">Kategoriler</div></div>
+    <div class="ctext">Sevdiğin konuyu seç; her kategorinin kendi bölümleri ve ilerlemesi var.</div>
+    <div id="catGrid"></div>
+  </div>
+  <div id="duel" class="hidden">
+    <div class="mtop"><button class="ibtn" id="duelBack" aria-label="Geri">←</button><div class="mprogTxt" style="flex:1;font-size:20px">⚔️ Düello</div><div class="pill" id="dLivesPill">❤️ <span id="dLives">3</span></div></div>
+
+    <!-- LOBİ -->
+    <div id="dLobby" class="dpage">
+      <div class="dtabs"><button class="on" data-tab="play">Oyna</button><button data-tab="rank">🏆 Sıralama</button></div>
+      <div id="dTabPlay">
+        <div class="dcard prof">
+          <div class="avatar" id="dAvatar">?</div>
+          <div style="flex:1;min-width:0">
+            <input id="dName" maxlength="16" placeholder="Adını yaz">
+            <div class="pstats"><span>🏆 <b id="pW">0</b> galibiyet</span><span>💔 <b id="pL">0</b> mağlubiyet</span></div>
+            <div class="pratio"><div class="pbar"><div id="pBar"></div></div><b id="pR">%0</b></div>
+          </div>
+        </div>
+        <div class="dcard rules"><b>Kurallar</b><br>20 soru, sırayla: 1. soru sana, 2. soru rakibine… Her soru için <b>15 saniye</b>. Süresinde bilemeyen kaybeder! Online oyunda <b>3 canın</b> var: kaybedersen <b>1 ❤️</b> gider. Canın biterse reklam izleyerek can kazanırsın.</div>
+        <div class="dcard lives"><div><b>Canların</b><div class="hearts" id="dHearts">❤️❤️❤️</div></div><button class="dbtn" id="dAdLife">📺 Reklam izle<br><small>+1 ❤️</small></button></div>
+        <button class="dbtn gold" id="dQuick">🎲 Rastgele Rakip Bul</button>
+        <button class="dbtn" id="dCreate">⚔️ Arkadaşınla Oyna (Oda Kur)</button>
+        <div class="drow"><input id="dCode" maxlength="5" placeholder="ODA KODU"><button class="dbtn" id="dJoin">Katıl</button></div>
+        <button class="dbtn ghost" id="dBot">🤖 Bota karşı antrenman <small>(altınsız)</small></button>
+        <div class="dnote" id="dNet">Bağlantı kontrol ediliyor…</div>
+      </div>
+      <div id="dTabRank" class="hidden">
+        <div class="dcard" id="dRank"><div class="dnote">Yükleniyor…</div></div>
+      </div>
+    </div>
+
+    <!-- BEKLEME -->
+    <div id="dWait" class="dpage hidden">
+      <div class="dcard" style="text-align:center">
+        <div class="dnote" id="dWaitNote">Oda kodunu arkadaşına gönder</div>
+        <div class="dcodebig" id="dWaitCode">----</div>
+        <div class="spinner"></div>
+        <div style="font-weight:700">Rakip bekleniyor…</div>
+      </div>
+      <button class="dbtn ghost" id="dCancel">Vazgeç</button>
+    </div>
+
+    <!-- OYUN -->
+    <div id="dGame" class="dpage hidden">
+      <div class="vs">
+        <div class="vp" id="vpA"><div class="avatar sm" id="vaA">?</div><div class="vn" id="vnA">Sen</div><div class="vs-s" id="vsA">0</div></div>
+        <div class="vsx">VS<small id="dMode">ONLINE</small></div>
+        <div class="vp" id="vpB"><div class="avatar sm b" id="vaB">?</div><div class="vn" id="vnB">Rakip</div><div class="vs-s" id="vsB">0</div></div>
+      </div>
+      <div class="dboard" id="dBoard"></div>
+      <div class="dturn" id="dTurn">Senin sıran!</div>
+      <div class="dtimer"><div id="dTimeBar"></div><span id="dTimeTxt">15</span></div>
+      <div class="dq" id="dQ">…</div>
+      <div class="djrow"><div class="dcur"><span id="dCur"></span></div><button class="djoker" id="dJoker">🃏 Joker <small>1💎</small></button></div>
+      <div id="dWheel" class="dwheel"><div class="bg"></div><svg id="dLines"></svg></div>
+    </div>
+
+    <!-- SONUÇ -->
+    <div id="dEnd" class="dpage hidden">
+      <div class="dcard" style="text-align:center;padding:26px 16px">
+        <div class="dbig" id="dEndIcon">🏆</div>
+        <h2 id="dEndTitle" style="margin:6px 0">Kazandın!</h2>
+        <div id="dEndTxt" class="dnote" style="font-size:15px"></div>
+        <div class="wreward" style="margin-top:12px"><span id="dEndLives">❤️❤️❤️</span></div>
+      </div>
+      <button class="dbtn gold" id="dAgain">Lobiye Dön</button>
+    </div>
+  </div>
+  <div id="map" class="hidden">
+    <div class="mtop">
+      <button class="ibtn" id="mapBack" aria-label="Geri">←</button>
+      <div class="mprog"><div class="mprogTxt" id="mapProgTxt"></div></div>
+      <div class="pill">⭐ <span id="mapStars">0</span></div>
+    </div>
+    <div id="mapScroll"><div id="mapInner"></div></div>
+  </div>
+</div>
+
+<script>
+//DATA-START
+const MAIN_LEVELS = [
+ {letters:"KALEM", words:[
+  ["KALEM","Yazı yazmak ya da çizim yapmak için kullanılan, kurşun veya mürekkepli araç."],
+  ["ELMA","Newton'un başına düşerek yer çekimini keşfetmesine ilham verdiği anlatılan meyve."],
+  ["KALE","Satrançta yalnızca düz (yatay ve dikey) hareket eden taş."],
+  ["KEL","Keloğlan masallarının kahramanının adının ilk kısmı: saçı olmayan kişi."]]},
+ {letters:"ASLAN", words:[
+  ["ASLAN","'Ormanlar kralı' olarak bilinen yırtıcı hayvan."],
+  ["SANAL","Gerçekte var olmayan, bilgisayar ortamında oluşturulan anlamına gelen sıfat. (… gerçeklik)"],
+  ["ALAN","Matematikte bir yüzeyin büyüklüğü; metrekareyle ölçülür."],
+  ["NAL","Atların toynaklarına çakılan, şans getirdiğine inanılan demir parça."],
+  ["SAL","Kütüklerin birbirine bağlanmasıyla yapılan basit yüzer taşıt."]]},
+ {letters:"ORMAN", words:[
+  ["ORMAN","Ağaçlarla kaplı geniş alan. Belgrad … İstanbul'dadır."],
+  ["ROMAN","Dostoyevski'nin 'Suç ve Ceza'sı hangi edebi türe örnektir?"],
+  ["MOR","Kırmızı ile mavinin karışımından elde edilen renk."],
+  ["NAR","Taneleri kırmızı, Hatay ve Antalya'da çok yetişen, ekşisi yapılan meyve."]]},
+ {letters:"BALIK", words:[
+  ["BALIK","Solungaçlarıyla nefes alan su canlısı. Hamsi bunlardan biridir."],
+  ["AKIL","'… akıldan üstündür' atasözünde geçen, düşünme ve kavrama yeteneği."],
+  ["BAL","Arıların çiçek özünden ürettiği tatlı besin."],
+  ["KIL","Vücudun çeşitli yerlerinde biten ince tüy."]]},
+ {letters:"KİTAP", words:[
+  ["KİTAP","Ciltlenmiş sayfalardan oluşan basılı eser. Kütüphanede bulunur."],
+  ["TAKİP","Sosyal medyada birini 'follow' etmenin Türkçesi."],
+  ["KAP","İçine yiyecek ya da sıvı konan araç; tencere, tas gibi."],
+  ["İP","Uçurtma uçururken elde tutulan uzun, ince şey."]]},
+ {letters:"MARTI", words:[
+  ["MARTI","Deniz kıyılarında yaşayan, vapurda simit kapmasıyla bilinen kuş."],
+  ["TARIM","Toprağı işleyerek bitki yetiştirme ve hayvancılık faaliyeti."],
+  ["MART","Yılın üçüncü ayı. Kadınlar Günü bu ayın 8'indedir."],
+  ["ARTI","Toplama işleminde kullanılan (+) işaretinin adı."]]},
+ {letters:"KEMAN", words:[
+  ["KEMAN","Yay ile çalınan, dört telli çalgı. Paganini bu çalgının ustasıdır."],
+  ["MEKAN","Yer, mahal anlamına gelen kelime. 'Zaman ve …'"],
+  ["KAN","Damarlarda dolaşan kırmızı sıvı. 0 Rh(-) bu sıvının bir grubudur."],
+  ["NEM","Havadaki su buharı miktarı. Hava durumunda yüzde ile verilir."]]},
+ {letters:"KARTAL", words:[
+  ["KARTAL","Beşiktaş'ın sembolü olan yırtıcı kuş."],
+  ["TARLA","Çiftçinin ekin ektiği, sürülmüş toprak parçası."],
+  ["TARAK","Saçı düzeltmek için kullanılan dişli araç."],
+  ["KAR","Kışın gökten yağan beyaz, donmuş su kristalleri."],
+  ["KAT","Binaların her bir yatay bölümü. Asansörde düğmesine basılır."]]},
+ {letters:"BARDAK", words:[
+  ["BARDAK","Türk çayı geleneksel olarak ince belli bu kapta içilir."],
+  ["DAKAR","Senegal'in başkenti; aynı adı taşıyan ünlü rallisiyle de bilinir."],
+  ["KARA","Siyah anlamına gelen renk; Türkiye'nin kuzeyindeki denizin adında da geçer."],
+  ["ADA","Dört tarafı suyla çevrili kara parçası. Büyükada bunlardan biridir."],
+  ["DAR","'Geniş' kelimesinin zıt anlamlısı."]]},
+ {letters:"SARAY", words:[
+  ["SARAY","Topkapı ve Dolmabahçe nedir? Hükümdarların yaşadığı görkemli yapı."],
+  ["ASYA","Yüz ölçümü ve nüfus bakımından dünyanın en büyük kıtası."],
+  ["ARAS","Kars ve Iğdır'dan geçerek Hazar Denizi'ne ulaşan nehir."],
+  ["RAY","Trenlerin üzerinde gittiği demir yol parçası."],
+  ["YAS","Birinin ölümünden duyulan derin üzüntü; '… tutmak'."]]},
+ // ---------- ORTA ----------
+ {letters:"TROYA", words:[
+  ["TROYA","Çanakkale'de bulunan, Homeros'un İlyada destanına konu olan ve tahta atıyla ünlü antik kent."],
+  ["ROTA","Gemi veya uçağın izlediği, önceden belirlenmiş yol."],
+  ["ORTA","Futbolda kanattan ceza sahasına havadan gönderilen pas: '… açmak'."],
+  ["TAY","Atın yavrusuna verilen ad."],
+  ["OYA","Yazma ve tülbent kenarlarına iğneyle işlenen geleneksel süs."]]},
+ {letters:"AKREP", words:[
+  ["AKREP","Saatte saati gösteren kısa kol; aynı zamanda bir burç ve zehirli bir eklembacaklı."],
+  ["PERA","İstanbul'un Beyoğlu semtinin eski adı."],
+  ["KREP","Fransız mutfağından gelen, kâğıt inceliğinde pankek."],
+  ["PARK","İstanbul'daki Gezi, Emirgan ve Yıldız … : şehir içindeki yeşil alan."]]},
+ {letters:"KAPLAN", words:[
+  ["KAPLAN","Bengal ve Sibirya türleri olan, kedigillerin en büyüğü."],
+  ["KANAL","Süveyş … : Akdeniz'i Kızıldeniz'e bağlayan yapay suyolu."],
+  ["KAPAN","Fare ya da ayı yakalamak için kurulan tuzak."],
+  ["KALP","Dakikada ortalama 70 kez atarak kanı pompalayan organ."]]},
+ {letters:"VOLKAN", words:[
+  ["VOLKAN","Etna, Vezüv ve Erciyes'in ortak adı: lav püskürtebilen dağ."],
+  ["KOVAN","Arıların içinde bal yaptığı yuva."],
+  ["VOLAN","Badmintonda raketle karşı tarafa vurulan tüylü top."],
+  ["OVA","Çukurova ve Bafra … : alçakta kalan düz, geniş arazi."],
+  ["KOLA","1886'da Atlanta'da bir eczacı tarafından icat edilen gazlı içecek."]]},
+ {letters:"GALİLE", words:[
+  ["GALİLE","Teleskopla Jüpiter'in uydularını keşfeden, 'Yine de dönüyor' dediği rivayet edilen İtalyan bilim insanı."],
+  ["LALE","Osmanlı'da 1718–1730 arasına adını veren çiçek: … Devri."],
+  ["AİLE","Anne, baba ve çocuklardan oluşan, toplumun en küçük birimi."],
+  ["ELLİ","Yarım yüzyıl kaç yıldır?"]]},
+ {letters:"MERSİN", words:[
+  ["MERSİN","Akkuyu Nükleer Güç Santrali hangi ilimizde kuruludur?"],
+  ["SİREN","Yunan mitolojisinde şarkısıyla denizcileri büyüleyip kayalara sürükleyen yaratık."],
+  ["REİS","Kitab-ı Bahriye'nin yazarı ünlü Osmanlı denizcisi: Piri …"],
+  ["MİNE","Dişin en dıştaki, vücudun en sert dokusu olan tabakası."],
+  ["NEM","Bağıl … : havadaki su buharının yüzde olarak oranı."]]},
+ {letters:"PLATON", words:[
+  ["PLATON","Sokrates'in öğrencisi, Aristoteles'in hocası; 'Devlet' adlı eserin yazarı filozof."],
+  ["NOTA","Do, re, mi gibi sesleri porte üzerinde gösteren işaret."],
+  ["OPAL","Avustralya'da çok çıkarılan, renk oyunlarıyla bilinen değerli taş."],
+  ["TON","1000 kilogramlık ağırlık birimi."],
+  ["ALP","Eski Türklerde 'yiğit, kahraman' anlamına gelen, Alparslan adında da geçen unvan."]]},
+ {letters:"MOZART", words:[
+  ["MOZART","'Türk Marşı'nı besteleyen, Salzburg doğumlu Avusturyalı besteci."],
+  ["ORTAM","Bir canlının içinde yaşadığı çevre; biyolojide 'besi …'."],
+  ["ROMA","Kolezyum'un bulunduğu, 'Bütün yollar ona çıkar' denen şehir."],
+  ["ZAR","Tavlada atılan, 1'den 6'ya kadar noktalı küp."],
+  ["MAT","Satrançta şahın kaçacak yeri kalmadığında oyunu bitiren hamle."]]},
+ {letters:"KASIRGA", words:[
+  ["KASIRGA","Katrina ve Andrew gibi isimler verilen, okyanus üstünde oluşan dev tropikal fırtına."],
+  ["SARGI","Yaranın üstüne sarılan bez, bandaj."],
+  ["KARGA","Ceviz kırmak için arabaların altına bıraktığı gözlenen zeki, siyah kuş."],
+  ["GAR","Haydarpaşa ve Sirkeci … : büyük tren istasyonu."],
+  ["ASA","Hz. Musa'nın Kızıldeniz'i yardığı anlatılan değnek."]]},
+ // ---------- ZOR ----------
+ {letters:"PİRAMİT", words:[
+  ["PİRAMİT","Gize'deki Keops … , antik dünyanın yedi harikasından bugüne kalan tek yapıdır."],
+  ["TAPİR","Güney Amerika ve Asya'da yaşayan, kısa hortumlu, domuza benzeyen otçul hayvan."],
+  ["TİPİ","Kar taneleriyle birlikte esen şiddetli, soğuk fırtına."],
+  ["MART","Julius Sezar'ın öldürüldüğü 'Idus' günü yılın hangi ayındadır?"]]},
+ {letters:"SOKRATES", words:[
+  ["SOKRATES","Baldıran zehri içirilerek idam edilen, 'Bildiğim tek şey hiçbir şey bilmediğimdir' sözüyle bilinen filozof."],
+  ["ESKORT","Önemli bir kişiye ya da araca koruma amacıyla eşlik eden araç veya ekip."],
+  ["KASET","Walkman'de dinlenen, manyetik bantlı ses kayıt aracı."],
+  ["STRES","Vücudun baskı ve gerginliğe verdiği tepki; kortizol hormonuyla ilişkilidir."],
+  ["KOTA","İthalat ya da ihracatta belirlenen miktar sınırı."]]},
+ {letters:"ÇANAKKALE", words:[
+  ["ÇANAKKALE","18 Mart 1915'te 'geçilmez' denilen deniz zaferinin kazanıldığı boğaz ve şehir."],
+  ["ÇAKAL","Kurt ile tilki arası boyda, leşle de beslenen yabani köpekgil."],
+  ["KANAL","TRT 1, ATV, Show TV gibi yayın kuruluşlarının her birine verilen ad."],
+  ["KAÇAK","Gümrükten vergisi ödenmeden geçirilen mal için kullanılan sıfat."],
+  ["ELA","Yeşille açık kahverengi arası göz rengi."]]},
+ {letters:"BARBAROS", words:[
+  ["BARBAROS","1538 Preveze Deniz Zaferi'nin komutanı Hayreddin Paşa'nın lakabı."],
+  ["BORA","Ani başlayan, kısa süren ve çok şiddetli rüzgârlı fırtına."],
+  ["SOBA","Odun veya kömür yakılarak odayı ısıtan araç."],
+  ["OBA","Göçebe Türklerde aynı soydan gelen ailelerin oluşturduğu küçük topluluk."]]},
+ {letters:"ATMOSFER", words:[
+  ["ATMOSFER","Dünya'yı saran, yaklaşık %78'i azottan oluşan gaz katmanı."],
+  ["TERMOS","İçine konan içeceği uzun süre sıcak ya da soğuk tutan şişe."],
+  ["FORMA","Futbolcuların sırtında numarası yazan giysi."],
+  ["SOFRA","Yemek yenen yer; '… bezi', '… kurmak'."],
+  ["METRO","Dünyadaki ilk örneği 1863'te Londra'da açılan yer altı treni."]]},
+ {letters:"ASTRONOT", words:[
+  ["ASTRONOT","Alper Gezeravcı 2024'te uzaya giden ilk Türk … oldu."],
+  ["TORNA","Metal veya ahşabı kendi ekseni etrafında döndürerek şekillendiren tezgâh."],
+  ["TOST","Kaşarlı ya da karışık; iki ekmek arasında ızgarada kızartılan sandviç."],
+  ["STOR","Aşağı yukarı sarılarak açılıp kapanan perde türü."]]},
+ {letters:"KARADENİZ", words:[
+  ["KARADENİZ","Türkiye'nin kuzeyindeki, derin sularında neredeyse hiç oksijen bulunmayan iç deniz."],
+  ["DENİZ","Marmara, tamamen Türkiye sınırları içinde kalan bir iç …"],
+  ["KADER","Alın yazısı, yazgı."],
+  ["RANZA","Üst üste iki yataktan oluşan mobilya."],
+  ["DİKEN","Gülün ve kaktüsün gövdesindeki sivri uç."],
+  ["ZEKA","IQ testleriyle ölçülmeye çalışılan zihinsel yetenek."]]},
+ {letters:"MALAZGİRT", words:[
+  ["MALAZGİRT","1071'de Alparslan'ın Bizans'ı yenerek Anadolu'nun kapılarını açtığı savaş."],
+  ["ZAMİR","Dilbilgisinde ismin yerini tutan sözcük; 'ben, sen, o' gibi."],
+  ["GİTAR","Altı telli, mızrapla ya da parmakla çalınan çalgı."],
+  ["RİGA","Letonya'nın başkenti."],
+  ["MAZİ","Geçmiş zaman anlamına gelen, Arapça kökenli kelime."],
+  ["LAMA","And Dağları'nda yaşayan, tükürmesiyle bilinen deve akrabası."]]}
+];
+const tierOf=i=> (typeof pack!=='undefined' && pack!=='main') ? (i<17?0:i<34?1:2) : (i<10?0 : i<19?1 : 2);
+const TIERS=[{ad:"Çırak",emoji:"🌱",renk:"#2a9d8f",g:"linear-gradient(135deg,#43d9ad,#1b8a6b)",odul:10},{ad:"Kalfa",emoji:"🔥",renk:"#f4a261",g:"linear-gradient(135deg,#ffb347,#e8590c)",odul:15},{ad:"Usta",emoji:"👑",renk:"#e63946",g:"linear-gradient(135deg,#ff6b8a,#b5179e)",odul:20}];
+const MAIN_INFO={"KALEM": "Kurşun olanı silgiyle silinebilir; '… kılıçtan keskindir' denir.", "ELMA": "Kırmızısı, yeşili, sarısı olur; Amasya'nınki meşhurdur.", "KALE": "Futbolda topun girdiği yer; tarihi surlu yapılara da bu ad verilir.", "KEL": "Saçları tamamen dökülmüş kişi için kullanılan 3 harfli sıfat.", "ASLAN": "Yeleli erkeğiyle tanınır; Galatasaray'ın sembolüdür.", "SANAL": "VR gözlükleriyle girilen dünyalara bu sıfat verilir; 'gerçek'in karşıtı.", "ALAN": "Karede kenar × kenar ile hesaplanır.", "NAL": "U şeklindedir; kapılara uğur için asılır.", "SAL": "Huckleberry Finn Mississippi Nehri'nde bununla yolculuk eder.", "ORMAN": "İçinde ağaç, sincap ve ayı bulunur; yangınlara karşı korunur.", "ROMAN": "Hikâyeden uzun, bölümlere ayrılan anlatı türü.", "MOR": "Patlıcanın ve leylak çiçeğinin rengi.", "NAR": "Cennet meyvesi de denir; içinde yüzlerce kırmızı tane vardır.", "BALIK": "Pullarla kaplıdır; oltayla tutulur.", "AKIL": "'Zekâ' ile yakın anlamlı; 'aklına gelmek' sözündeki kelime.", "BAL": "Kovanda petek içinde bulunur; ayılar çok sever.", "KIL": "Fırça yapımında da kullanılır; insanda kollarda ve bacaklarda bulunur.", "KİTAP": "Yazar yazar, yayınevi basar, okur okur.", "TAKİP": "Bir şeyin peşinden gitmek; polis şüpheliyi böyle izler.", "KAP": "Tencere, tabak, kâse… hepsi bu genel adla anılır.", "İP": "Atlamak için de kullanılır; incesine iplik denir.", "MARTI": "Bembeyaz tüylü, çığlık atar gibi öten deniz kuşu; Richard Bach'ın kitabına da adını verdi.", "TARIM": "Çiftçilerin uğraştığı iş; buğday ve pamuk ekmek bunun parçasıdır.", "MART": "İlkbaharın ilk ayı; Çanakkale Zaferi 18'inde anılır.", "ARTI": "Matematikte 'eksi'nin tersi.", "KEMAN": "Çenenin altına yerleştirilerek çalınır.", "MEKAN": "Kafe ve restoranlar için de 'güzel bir …' denir.", "KAN": "Kırmızı rengini hemoglobinden alır; bağışlanabilir.", "NEM": "Yüksek olduğunda hava bunaltıcı gelir; ölçen alete higrometre denir.", "KARTAL": "Kuşların kralı sayılır; gözleri çok keskindir.", "TARLA": "Traktörle sürülür, içine buğday ekilir.", "TARAK": "Saç fırçasının dişli, düz kardeşi.", "KAR": "Kış aylarında kayak yapılan beyaz örtü.", "KAT": "Apartmanda 'zemin', 'birinci', 'ikinci' diye sayılır.", "BARDAK": "Su, çay, ayran içilir; camdan ya da plastikten olur.", "DAKAR": "Afrika'nın en batı ucundaki başkent.", "KARA": "Hem 'siyah' demek hem de denizin karşıtı olan toprak.", "ADA": "Etrafı tamamen su olan kara parçası; İstanbul'da 'Prens …' denenleri var.", "DAR": "Bol olmayan, sıkı; elbise küçük gelince böyle olur.", "SARAY": "Padişahlar ve krallar burada yaşardı.", "ASYA": "Türkiye'nin büyük kısmı bu kıtadadır; Çin ve Hindistan da burada.", "ARAS": "Türkiye'nin Ermenistan ve İran ile sınırının bir kısmını çizen nehir.", "RAY": "Tramvay ve metro da bunun üstünde gider; çelikten yapılır.", "YAS": "Siyah giyilerek tutulur; matem anlamına gelir.", "TROYA": "Heinrich Schliemann kazdı; Brad Pitt'li bir filme de konu oldu.", "ROTA": "Navigasyon uygulamasının çizdiği yol.", "ORTA": "Hem 'merkez' demek hem de futbolda kanattan gelen pas.", "TAY": "Büyüyünce at olur; eşek yavrusuna ise sıpa denir.", "OYA": "Yazmaların kenarındaki iğne işi süs; aynı zamanda bir kadın adı.", "AKREP": "Saatin kısa kolu; uzun kolun adı yelkovandır.", "PERA": "Bugünkü Beyoğlu; adını taşıyan ünlü bir müzesi ve oteli var.", "KREP": "Fransızca bir kelime; Nutella'lı olanı çok sevilir.", "PARK": "Banklı, çocuk oyun alanlı şehir bahçesi; arabayı bırakmaya da '… etmek' denir.", "KAPLAN": "Çizgili postuyla tanınır; Hindistan'ın ulusal hayvanıdır.", "KANAL": "Hem yapay suyolu hem de televizyon yayın kuruluşu anlamına gelir.", "KAPAN": "Bir şeyi yakalayıp kapatan tuzak; 'fare …' denir.", "KALP": "Göğsün sol tarafında atar; ♥ ile gösterilir.", "VOLKAN": "Yanardağın diğer adı; ağzına krater denir.", "KOVAN": "Arıcıların ahşap kutusu; mermi kabına da bu ad verilir.", "VOLAN": "Huni şeklinde, kuş tüyünden yapılan badminton topu.", "OVA": "Dağların arasında düz, verimli tarım arazisi; Konya'nınki çok geniştir.", "KOLA": "Koyu renkli, gazlı, kafeinli içecek.", "GALİLE": "Kilise tarafından yargılanan, Dünya'nın Güneş'in etrafında döndüğünü savunan bilim insanı.", "LALE": "İstanbul'un sembolü olan çiçek; her nisan Emirgan'da festivali yapılır.", "AİLE": "'… fotoğrafı'nda anne, baba ve çocuklar yer alır.", "ELLİ": "Kırk dokuzdan sonra gelen sayı.", "MERSİN": "Akdeniz kıyısında, tantunisiyle ünlü il.", "SİREN": "Ambulans ve itfaiye araçlarının acil durum sesi de aynı adla anılır.", "REİS": "Hem denizci unvanı hem de 'başkan, lider' anlamına gelir.", "MİNE": "Diş fırçalamak bu tabakayı korur; aynı zamanda bir kadın adı.", "PLATON": "Atina'da Akademi'yi kuran Yunan filozof; Eflatun olarak da bilinir.", "NOTA": "Müzisyenlerin okuduğu, porte üzerindeki işaretler.", "OPAL": "Ekim ayının doğum taşı olarak bilinen, süt beyazı ışıltılı taş.", "TON": "Kamyonların taşıma kapasitesi bu birimle söylenir; 1000 kg'a eşittir.", "ALP": "Yiğit anlamındaki unvan; Türk destan kahramanı Er Tunga'nın adının başında da geçer.", "MOZART": "Çocuk dahi olarak bilinir; 'Sihirli Flüt' operasını besteledi.", "ORTAM": "Çevre, hava anlamında; 'sakin bir … ' denir.", "ROMA": "İtalya'nın başkenti; Vatikan bu şehrin içindedir.", "ZAR": "Karşılıklı yüzlerindeki noktaların toplamı her zaman 7'dir.", "MAT": "Satrançta 'şah …' denince oyun biter; parlak olmayan yüzeye de denir.", "KASIRGA": "Atlantik'te 'hurricane', Pasifik'te 'tayfun' denen fırtına.", "SARGI": "Eczanede satılan gazlı bez ve bandaj bu işe yarar.", "KARGA": "Siyah tüylü, 'gak gak' diye öten zeki kuş.", "GAR": "Ankara'daki büyük tren istasyonu da bu adla anılır.", "ASA": "Bastonun eski adı; sihirbaz ve peygamber hikâyelerinde geçer.", "PİRAMİT": "Firavunların mezarı olarak yapılan, tabanı kare, üçgen yüzlü yapı.", "TAPİR": "Fil ile domuz arası görünür; en yakın akrabaları at ve gergedandır.", "TİPİ": "Göz gözü görmez hâle getiren kar fırtınası; Kızılderili çadırının adıyla aynı yazılır.", "SOKRATES": "Hiç kitap yazmadı; düşüncelerini öğrencisi Platon aktardı.", "ESKORT": "Cumhurbaşkanının konvoyundaki koruma araçlarına verilen ad.", "KASET": "CD'den önceki dönemin, kalemle geri sarılan ses kayıt aracı.", "STRES": "Sınav öncesi ya da iş yoğunluğunda hissedilen gerginlik.", "KOTA": "İnternet paketlerindeki kullanım sınırına da bu ad verilir.", "ÇANAKKALE": "Gelibolu Yarımadası ve Truva antik kenti bu ildedir.", "ÇAKAL": "Gece uluyan, kurdun küçük akrabası; kurnaz kişiler için de kullanılır.", "KAÇAK": "Yasal olmayan yoldan gelen; 'kaçmış kişi' anlamına da gelir.", "ELA": "'… gözlü' diye övülen, yeşil ile kahve arası renk.", "BARBAROS": "Beşiktaş'ta türbesi ve heykeli bulunan Osmanlı kaptan-ı deryası.", "BORA": "Ani ve sert fırtına; aynı zamanda yaygın bir erkek adı.", "SOBA": "Borusu bacaya bağlanır; üzerinde kestane pişirilir.", "OBA": "Göçebe çadırı ya da çadırlardan oluşan küçük köy.", "ATMOSFER": "Ozon tabakası da bu katmanın içindedir.", "TERMOS": "Piknikte çay taşımak için kullanılır; iki çeperi arasında boşluk vardır.", "FORMA": "Takım renklerini taşıyan, sırtında oyuncunun adı ve numarası olan giysi.", "SOFRA": "Üzerine yemekler dizilen, etrafında toplanılan masa ya da örtü.", "METRO": "İstanbul'da M1, M2 diye hatları olan raylı ulaşım.", "ASTRONOT": "Uzay giysisi giyer; Rusya'da 'kozmonot' denir.", "TORNA": "Atölyelerde metal parçaları döndürerek işleyen makine.", "TOST": "Ayvalık'ınki meşhurdur; ekmek kızartma makinesinde de yapılır.", "STOR": "Ofislerde sık görülen, zinciriyle yukarı toplanan perde.", "KARADENİZ": "Hamsisi, kemençesi ve yaylalarıyla bilinen bölgeye adını veren deniz.", "DENİZ": "Tuzlu su kütlesi; okyanustan küçük, gölden büyük.", "KADER": "İnsanın yaşayacaklarının önceden belirlendiği inancı.", "RANZA": "Yurtta ve askerde yer kazanmak için kullanılan iki katlı yatak.", "DİKEN": "Kirpinin sırtındaki sivri uçlar da bu adla anılır.", "ZEKA": "Einstein'ın çok yüksek olduğu bilinen zihinsel yetenek.", "MALAZGİRT": "Muş'un ilçesi; Türklerin Anadolu'ya girişinin sembolü.", "ZAMİR": "'Adıl' da denir; 'bu, şu, kim' de bu türdendir.", "GİTAR": "Elektrolu ve akustik türleri olan, rock müziğin temel çalgısı.", "RİGA": "Baltık Denizi kıyısında, Baltık ülkelerinin en büyük şehri.", "MAZİ": "'Geçmiş'in eş anlamlısı; 'mazide kaldı' denir.", "LAMA": "Peru'nun simgesi sayılan, yünü için beslenen hayvan."};
+const CATS={"spor": {"levels": [{"letters": "STOPER", "words": [["STOPER", "Futbolda merkez savunma oyuncusu."], ["SPOR", "Bedeni güçlendiren, kurallı fiziksel etkinlik."], ["SET", "Tenis ve voleybolda maçın bölündüğü oyun parçası."], ["TOP", "Futbolda ayakla, basketbolda elle oynanan yuvarlak araç."]]}, {"letters": "KAARTE", "words": [["KARATE", "Japonya'dan çıkan, 'boş el' anlamına gelen dövüş sanatı."], ["KART", "Futbolda sarısı uyarı, kırmızısı oyundan atılma demektir."], ["ATAK", "Rakip kaleye yapılan hücum."], ["RAKET", "Tenis ve badmintonda topa vurulan alet."]]}, {"letters": "PİLOTG", "words": [["PİLOT", "Yarış otomobilini kullanan sporcu."], ["TOP", "Futbolda ayakla, basketbolda elle oynanan yuvarlak araç."], ["GOL", "Topun kale çizgisini tamamen geçmesiyle kazanılan sayı."], ["LİG", "Takımların sezon boyunca puan için yarıştığı organizasyon."]]}, {"letters": "ESPORK", "words": [["ESPOR", "Bilgisayar oyunlarıyla yapılan rekabetçi yarışmalar."], ["SPOR", "Bedeni güçlendiren, kurallı fiziksel etkinlik."], ["SKOR", "Maçın o anki sayı durumu."], ["ROK", "Satrançta şah ile kalenin birlikte yaptığı özel hamle."]]}, {"letters": "ŞORTUK", "words": [["ŞORT", "Futbolcuların giydiği kısa pantolon."], ["ŞUT", "Kaleye ya da potaya yapılan atış."], ["KORT", "Tenisin oynandığı saha."], ["TUR", "Yarışta pistin bir kez dönülmesi."]]}, {"letters": "FİLEGO", "words": [["FİLE", "Voleybol ve teniste sahayı ikiye ayıran ağ."], ["FİL", "Satrançta çapraz giden taş."], ["LİG", "Takımların sezon boyunca puan için yarıştığı organizasyon."], ["GOLF", "Küçük topu sopayla en az vuruşla deliğe sokma oyunu."]]}, {"letters": "KANORT", "words": [["KANO", "Kürekle ilerletilen dar tekne sporu."], ["ROK", "Satrançta şah ile kalenin birlikte yaptığı özel hamle."], ["ORTA", "Futbolda kanattan ceza sahasına havadan gönderilen pas."], ["KART", "Futbolda sarısı uyarı, kırmızısı oyundan atılma demektir."]]}, {"letters": "SALTOP", "words": [["SALTO", "Havada takla atma hareketi."], ["PAS", "Topun takım arkadaşına gönderilmesi."], ["SOPA", "Golfte topa vurmak için kullanılan alet."], ["POTA", "Basketbolda topun atıldığı çember."]]}, {"letters": "KOŞUTR", "words": [["KOŞU", "Atletizmin temel dalı."], ["ŞUT", "Kaleye ya da potaya yapılan atış."], ["TUR", "Yarışta pistin bir kez dönülmesi."], ["KORT", "Tenisin oynandığı saha."]]}, {"letters": "MARSÇI", "words": [["MARS", "Tavlada rakip hiç taş toplamadan oyunu bitirmek."], ["MAÇ", "İki takım arasındaki karşılaşma."], ["SMAÇ", "Voleybolda topun karşı sahaya sertçe vurulması."], ["SARI", "Fenerbahçe'nin lacivertle birlikte kullandığı renk."]]}, {"letters": "SMAÇİP", "words": [["SMAÇ", "Voleybolda topun karşı sahaya sertçe vurulması."], ["MAÇ", "İki takım arasındaki karşılaşma."], ["ÇİM", "Futbol sahasının yeşil örtüsü."], ["PAS", "Topun takım arkadaşına gönderilmesi."]]}, {"letters": "GOLFİE", "words": [["GOLF", "Küçük topu sopayla en az vuruşla deliğe sokma oyunu."], ["GOL", "Topun kale çizgisini tamamen geçmesiyle kazanılan sayı."], ["FİL", "Satrançta çapraz giden taş."], ["FİLE", "Voleybol ve teniste sahayı ikiye ayıran ağ."]]}, {"letters": "FUTBOLA", "words": [["FUTBOL", "Dünyada en çok izlenen, on birer kişilik takımlarla oynanan top oyunu."], ["BOLT", "100 metre dünya rekorunu 9,58 saniyeyle elinde tutan Jamaikalı atlet Usain …"], ["FAUL", "Rakibe kurallara aykırı müdahale."], ["LABUT", "Bowlingde devrilen şişe biçimli parçalar."]]}, {"letters": "KALECİP", "words": [["KALECİ", "Futbolda topa elle dokunabilen tek oyuncu."], ["KALE", "Futbolda topun girdiği, direkleri olan yer."], ["CEP", "Naim Süleymanoğlu'nun lakabı: '… Herkülü'."], ["EKİP", "Takım anlamına gelen kelime."]]}, {"letters": "SSERVİZ", "words": [["SERVİS", "Tenis ve voleybolda oyunu başlatan vuruş."], ["SERİ", "Arka arkaya gelen galibiyetler."], ["VEZİR", "Satrançta her yöne istediği kadar gidebilen en güçlü taş."], ["ZİRVE", "Dağcıların ulaşmaya çalıştığı en yüksek nokta."]]}, {"letters": "KAARTLD", "words": [["KARTAL", "Beşiktaş'ın sembolü olan yırtıcı kuş."], ["ATAK", "Rakip kaleye yapılan hücum."], ["DART", "Tahtaya küçük oklar atılan hedef oyunu."], ["ARDA", "Real Madrid'de oynayan genç Türk yıldız … Güler."]]}, {"letters": "KISPETİ", "words": [["KISPET", "Yağlı güreşte giyilen deri pantolon."], ["SET", "Tenis ve voleybolda maçın bölündüğü oyun parçası."], ["PİST", "Yarış ya da koşu yapılan özel alan."], ["EKİP", "Takım anlamına gelen kelime."]]}, {"letters": "SPRİNTE", "words": [["SPRİNT", "Kısa mesafe sürat koşusu."], ["PİST", "Yarış ya da koşu yapılan özel alan."], ["TENİS", "Raket ve sarı topla, file üzerinden oynanan spor."], ["SERİ", "Arka arkaya gelen galibiyetler."]]}, {"letters": "RREKOBS", "words": [["REKOR", "Bir dalda ulaşılan en iyi derece."], ["BEK", "Futbolda kanatta oynayan savunma oyuncusu."], ["SKOR", "Maçın o anki sayı durumu."], ["BOKS", "Eldivenlerle yapılan dövüş sporu."]]}, {"letters": "FİNALUP", "words": [["FİNAL", "Turnuvanın kazananı belirleyen son maçı."], ["FAUL", "Rakibe kurallara aykırı müdahale."], ["PUAN", "Futbolda galibiyette 3, beraberlikte 1 alınan değer."], ["PUL", "Tavlada oynatılan yuvarlak taşlar."]]}, {"letters": "KULAÇPE", "words": [["KULAÇ", "Yüzmede kolla yapılan her bir çekiş."], ["KUPA", "Turnuvanın şampiyonuna verilen ödül."], ["KALE", "Futbolda topun girdiği, direkleri olan yer."], ["PUL", "Tavlada oynatılan yuvarlak taşlar."]]}, {"letters": "RAUNTPO", "words": [["RAUNT", "Boks maçının bölündüğü süreli bölüm."], ["PUAN", "Futbolda galibiyette 3, beraberlikte 1 alınan değer."], ["ORTA", "Futbolda kanattan ceza sahasına havadan gönderilen pas."], ["POTA", "Basketbolda topun atıldığı çember."]]}, {"letters": "BLOKTSE", "words": [["BLOK", "Voleybolda filede rakibin smacını durdurma."], ["BOLT", "100 metre dünya rekorunu 9,58 saniyeyle elinde tutan Jamaikalı atlet Usain …"], ["BOKS", "Eldivenlerle yapılan dövüş sporu."], ["BEK", "Futbolda kanatta oynayan savunma oyuncusu."]]}, {"letters": "SAYYIRM", "words": [["SAYI", "Maçta elde edilen puan."], ["YAY", "Okçulukta oku fırlatan gergin araç."], ["SARI", "Fenerbahçe'nin lacivertle birlikte kullandığı renk."], ["MARS", "Tavlada rakip hiç taş toplamadan oyunu bitirmek."]]}, {"letters": "KRAMPONL", "words": [["KRAMPON", "Futbolcuların dişli ayakkabısı."], ["KAMP", "Takımların sezon öncesi toplu hazırlık dönemi."], ["KANO", "Kürekle ilerletilen dar tekne sporu."], ["MOLA", "Basketbolda koçun istediği kısa ara."]]}, {"letters": "PENALTTI", "words": [["PENALTI", "Ceza sahası içindeki faulden sonra 11 metreden atılan atış."], ["ALTIN", "Olimpiyatlarda birinciye verilen madalya."], ["PATEN", "Buz üzerinde ya da tekerlekle kaymak için giyilen ayakkabı."], ["ATLET", "Koşu, atlama ve atma dallarında yarışan sporcu."]]}, {"letters": "PEEDALRC", "words": [["PEDAL", "Bisikleti ilerletmek için ayakla çevrilen parça."], ["DEPAR", "Koşuya ani ve hızlı başlama."], ["PELE", "Üç Dünya Kupası kazanan Brezilyalı efsane futbolcu."], ["CEP", "Naim Süleymanoğlu'nun lakabı: '… Herkülü'."]]}, {"letters": "KKIZAASY", "words": [["KIZAK", "Karda kaymak için kullanılan, üstüne oturulan araç."], ["KASK", "Bisikletçilerin başını koruyan sert başlık."], ["KAYAK", "Karlı dağlarda iki uzun tahtayla kayma sporu."], ["SAYI", "Maçta elde edilen puan."]]}, {"letters": "TAKIMŞPH", "words": [["TAKIM", "Birlikte oynayan sporcu grubu."], ["ATIŞ", "Basketbolda potaya top gönderme."], ["KAMP", "Takımların sezon öncesi toplu hazırlık dönemi."], ["ŞAH", "Satrançta mat edilirse oyunu kaybettiren taş."]]}, {"letters": "EENGLDPA", "words": [["ENGEL", "Koşucuların üzerinden atladığı bariyer: … koşusu."], ["DENGE", "Cimnastikte üzerinde hareket yapılan ince alet: … aleti."], ["PELE", "Üç Dünya Kupası kazanan Brezilyalı efsane futbolcu."], ["PEDAL", "Bisikleti ilerletmek için ayakla çevrilen parça."]]}, {"letters": "KEEMRTİÇ", "words": [["KEMER", "Boks şampiyonlarına verilen ödül."], ["TEKME", "Ayakla vurma hareketi."], ["TERİM", "'İmparator' lakaplı efsanevi Türk teknik direktör Fatih …"], ["ÇİM", "Futbol sahasının yeşil örtüsü."]]}, {"letters": "VEZİRFDB", "words": [["VEZİR", "Satrançta her yöne istediği kadar gidebilen en güçlü taş."], ["ZİRVE", "Dağcıların ulaşmaya çalıştığı en yüksek nokta."], ["FERDİ", "Bireysel sporlar için kullanılan sıfat."], ["DERBİ", "Aynı şehrin büyük takımları arasındaki rekabet maçı."]]}, {"letters": "TTAAMİSH", "words": [["TATAMİ", "Judo ve karatenin yapıldığı minder."], ["STAT", "Futbol maçlarının oynandığı büyük spor alanı."], ["SAHA", "Futbolun oynandığı çimli alan."], ["TİMSAH", "Bursaspor'un sembolü olan hayvan."]]}, {"letters": "TEEKMRHA", "words": [["TEKME", "Ayakla vurma hareketi."], ["KEMER", "Boks şampiyonlarına verilen ödül."], ["HAKEM", "Maçı yöneten, düdük çalan kişi."], ["RAKET", "Tenis ve badmintonda topa vurulan alet."]]}, {"letters": "KKAAYYFS", "words": [["KAYAK", "Karlı dağlarda iki uzun tahtayla kayma sporu."], ["KAFA", "Futbolda topa başla vurma: … golü."], ["KASK", "Bisikletçilerin başını koruyan sert başlık."], ["YAY", "Okçulukta oku fırlatan gergin araç."]]}, {"letters": "DEPAARTN", "words": [["DEPAR", "Koşuya ani ve hızlı başlama."], ["DART", "Tahtaya küçük oklar atılan hedef oyunu."], ["ARDA", "Real Madrid'de oynayan genç Türk yıldız … Güler."], ["PATEN", "Buz üzerinde ya da tekerlekle kaymak için giyilen ayakkabı."]]}, {"letters": "STOPERMA", "words": [["STOPER", "Futbolda merkez savunma oyuncusu."], ["ESPOR", "Bilgisayar oyunlarıyla yapılan rekabetçi yarışmalar."], ["TEMPO", "Oyunun hızı."], ["SOPA", "Golfte topa vurmak için kullanılan alet."]]}, {"letters": "SALTTOME", "words": [["SALTO", "Havada takla atma hareketi."], ["STAT", "Futbol maçlarının oynandığı büyük spor alanı."], ["MOLA", "Basketbolda koçun istediği kısa ara."], ["ATLET", "Koşu, atlama ve atma dallarında yarışan sporcu."]]}, {"letters": "SAATRNÇLU", "words": [["SATRANÇ", "64 kareli tahtada oynanan zekâ sporu."], ["ASLAN", "Galatasaray'ın sembolü olan hayvan."], ["RAUNT", "Boks maçının bölündüğü süreli bölüm."], ["SULTAN", "Türk kadın milli voleybol takımının lakabı: 'Filenin …ları'."]]}, {"letters": "LİBERODKF", "words": [["LİBERO", "Voleybolda farklı renk forma giyen savunma uzmanı."], ["DERBİ", "Aynı şehrin büyük takımları arasındaki rekabet maçı."], ["BLOK", "Voleybolda filede rakibin smacını durdurma."], ["FERDİ", "Bireysel sporlar için kullanılan sıfat."]]}, {"letters": "MİNDEERGT", "words": [["MİNDER", "Güreşin yapıldığı yumuşak zemin."], ["RİNG", "Boks maçlarının yapıldığı ipli alan."], ["TERİM", "'İmparator' lakaplı efsanevi Türk teknik direktör Fatih …"], ["DENGE", "Cimnastikte üzerinde hareket yapılan ince alet: … aleti."]]}, {"letters": "LİSSAANTF", "words": [["LİSANS", "Sporcunun resmî maçlarda oynayabilmesi için gereken belge."], ["ASİST", "Gol atan oyuncuya yapılan son pas."], ["ASLAN", "Galatasaray'ın sembolü olan hayvan."], ["FİNAL", "Turnuvanın kazananı belirleyen son maçı."]]}, {"letters": "ESSKRİMDN", "words": [["ESKRİM", "Flöre, epe ve kılıç dalları olan olimpik spor."], ["DİSK", "Atletizmde döne döne fırlatılan yassı alet."], ["MESSİ", "Sekiz kez Ballon d'Or kazanan Arjantinli futbolcu Lionel …"], ["MİNDER", "Güreşin yapıldığı yumuşak zemin."]]}, {"letters": "NAAKVTLPF", "words": [["NAKAVT", "Boksörün yere düşüp kalkamaması."], ["TAVLA", "Zar ve pullarla oynanan geleneksel oyun."], ["KAPTAN", "Takımı sahada temsil eden, pazubant takan oyuncu."], ["KAFA", "Futbolda topa başla vurma: … golü."]]}, {"letters": "KORRNESZB", "words": [["KORNER", "Top kendi kale çizgisinden çıkınca rakibe verilen köşe vuruşu."], ["REKOR", "Bir dalda ulaşılan en iyi derece."], ["SEZON", "Lig maçlarının oynandığı dönem."], ["BRONZ", "Olimpiyatlarda üçüncüye verilen madalya."]]}, {"letters": "HAALTERŞK", "words": [["HALTER", "Ağırlık kaldırma sporu; Naim Süleymanoğlu bu dalın efsanesidir."], ["ŞAH", "Satrançta mat edilirse oyunu kaybettiren taş."], ["KARATE", "Japonya'dan çıkan, 'boş el' anlamına gelen dövüş sanatı."], ["KARTAL", "Beşiktaş'ın sembolü olan yırtıcı kuş."]]}, {"letters": "SULTANIBŞ", "words": [["SULTAN", "Türk kadın milli voleybol takımının lakabı: 'Filenin …ları'."], ["ALTIN", "Olimpiyatlarda birinciye verilen madalya."], ["LABUT", "Bowlingde devrilen şişe biçimli parçalar."], ["ATIŞ", "Basketbolda potaya top gönderme."]]}, {"letters": "TİMSSAAHG", "words": [["TİMSAH", "Bursaspor'un sembolü olan hayvan."], ["HAGİ", "'Karpatların Maradonası' lakaplı Rumen efsane Gheorghe …"], ["SAHA", "Futbolun oynandığı çimli alan."], ["ASİST", "Gol atan oyuncuya yapılan son pas."]]}, {"letters": "KAAPTNVUL", "words": [["KAPTAN", "Takımı sahada temsil eden, pazubant takan oyuncu."], ["NAKAVT", "Boksörün yere düşüp kalkamaması."], ["KUPA", "Turnuvanın şampiyonuna verilen ödül."], ["TAVLA", "Zar ve pullarla oynanan geleneksel oyun."]]}, {"letters": "ESSKRİMDV", "words": [["ESKRİM", "Flöre, epe ve kılıç dalları olan olimpik spor."], ["DİSK", "Atletizmde döne döne fırlatılan yassı alet."], ["MESSİ", "Sekiz kez Ballon d'Or kazanan Arjantinli futbolcu Lionel …"], ["SERVİS", "Tenis ve voleybolda oyunu başlatan vuruş."]]}], "info": {"FUTBOL": "Topa elle yalnızca kaleci dokunabilir.", "GOL": "Maçın sonucunu bu sayılar belirler.", "PENALTI": "Beyaz noktadan kullanılır.", "KORNER": "Köşe bayrağının yanından kullanılır.", "OFSAYT": "Yan hakem bayrak kaldırarak gösterir.", "FAUL": "Hakem düdük çalarak cezalandırır.", "HAKEM": "Sarı ve kırmızı kart onun cebindedir.", "KART": "Hakemin cebinden çıkar.", "KALECİ": "Eldiven giyer, kaleyi korur.", "FORVET": "Santrfor da denir.", "DERBİ": "Fenerbahçe–Galatasaray maçı buna örnektir.", "LİG": "Türkiye'nin en üst seviyesi 'Süper …'dir.", "KUPA": "Kaptan onu havaya kaldırır.", "MADALYA": "Sporcunun boynuna asılır.", "OLİMPİYAT": "Beş halkalı bir bayrağı vardır.", "MARATON": "Adını bir antik Yunan savaş alanından alır.", "SPRİNT": "100 metre bunun en ünlüsüdür.", "BOLT": "Şimşek pozuyla bilinir.", "TENİS": "Wimbledon bu sporun turnuvasıdır.", "SET": "Voleybolda 25 sayıyla biter.", "FİLE": "Topun üzerinden geçmesi gerekir.", "SMAÇ": "Basketbolda potaya yukarıdan basılan şut için de kullanılır.", "POTA": "Yerden 3,05 metre yüksektedir.", "RİBAUND": "Pota altında mücadele edilerek alınır.", "HİDAYET": "Lakabı Hido'dur.", "VOLEYBOL": "Filenin Sultanları bu sporda yarışır.", "SULTAN": "Padişah unvanıyla aynıdır.", "GÜREŞ": "Minderde de yapılır.", "YAĞLI": "Pehlivanlar zeytinyağına bulanır.", "KISPET": "Manda derisinden yapılır.", "PEHLİVAN": "En güçlüsüne 'baş…' denir.", "HALTER": "Koparma ve silkme bölümleri vardır.", "CEP": "Pantolonda da bulunur.", "BOKS": "Muhammed Ali'nin sporudur.", "RİNG": "Kare olduğu hâlde bu adla anılır.", "RAUNT": "Aralarda sporcular köşelerinde dinlenir.", "NAKAVT": "KO diye kısaltılır.", "KARATE": "Seviye kuşak rengiyle belirlenir.", "JUDO": "İppon ile kazanılır.", "TEKVANDO": "Olimpik bir spordur.", "OKÇULUK": "Osmanlı'da çok sevilirdi.", "GAZOZ": "Aynı zamanda gazlı bir içecek adıdır.", "YAY": "Bir burcun adı da olur.", "ESKRİM": "Maskeyle yapılır.", "YÜZME": "Havuzda yapılır.", "HAVUZ": "İçi suyla doludur.", "KULAÇ": "Serbest stilde atılır.", "SÖRF": "Hawaii'de doğmuştur.", "KAYAK": "Uludağ ve Palandöken'de yapılır.", "KIZAK": "Kış olimpiyatlarında buz pistinde yarışılır.", "PATEN": "Artistik … ünlü bir dalıdır.", "GOLF": "Tiger Woods'un sporu.", "SOPA": "Hokeyde de kullanılır.", "HOKEY": "Kanada'da çok popülerdir.", "SATRANÇ": "Mat eden kazanır.", "VEZİR": "Osmanlı'da devlet adamı unvanıydı.", "ŞAH": "Kral da denir.", "PİYON": "Son sıraya ulaşınca terfi eder.", "FİL": "Hortumlu hayvanla aynı adı taşır.", "ROK": "Kısa ve uzun olmak üzere iki türü vardır.", "TAVLA": "'Mars' olmak bu oyunda ağır yenilgidir.", "PUL": "Mektuba da yapıştırılır.", "MARS": "Bir gezegenin adıdır.", "BİSİKLET": "Tour de France bu sporun en ünlü yarışıdır.", "PEDAL": "Arabada gaz ve fren de böyle adlandırılır.", "FORMULA": "İstanbul Park'ta da yarışları yapıldı.", "PİST": "Atletizmde bir turu 400 metredir.", "PİLOT": "Uçak kullanan da bu adla anılır.", "TUR": "Gezi anlamına da gelir.", "ATLET": "Pistte ve sahada yarışır.", "CİRİT": "Erzurum'da hâlâ oynanır.", "POLO": "Yakalı bir tişört türüne de adını vermiştir.", "RAKET": "Masa tenisinde de kullanılır.", "SKOR": "Tabelada yazar.", "TARAFTAR": "Tribünlerde tezahürat yapar.", "TRİBÜN": "Kale arkası ve maraton bölümleri vardır.", "STAT": "Stadyum da denir.", "KAPTAN": "Gemiyi yöneten de bu adla anılır.", "ANTRENÖR": "Teknik direktör de denir.", "TERİM": "'Kavram' anlamına da gelir.", "HAGİ": "Galatasaray'ın UEFA Kupası kahramanlarındandır.", "ARDA": "Bir nehir adı da olur.", "MESSİ": "2022 Dünya Kupası'nı kazandı.", "PELE": "Asıl adı Edson'dur.", "RONALDO": "Formasında 7 numarayla bilinir.", "ŞAMPİYON": "Kupayı o kaldırır.", "FİNAL": "Yarı son maçlardan sonra oynanır.", "DÜDÜK": "Çaydanlıkta da olur.", "MAÇ": "Futbolda 90 dakika sürer.", "DEVRE": "Elektrikte de kullanılan bir kelimedir.", "UZATMA": "Eleme maçlarında 2×15 dakikadır.", "TOP": "Yuvarlak cisim anlamına gelir.", "SAHA": "Alan, meydan anlamına gelir.", "ÇİM": "Bahçede de biçilir.", "KRAMPON": "Kaymayı önler.", "TEKME": "Dövüş sporlarında puan getirir.", "YUMRUK": "Masaya da vurulur.", "KEMER": "Pantolona da takılır.", "ROVERŞAN": "Makas vuruşu da denir.", "JOKEY": "Hafif olması avantajdır.", "HİPODROM": "İstanbul'dakine Veliefendi denir.", "DART": "Üç okla en yüksek skor 180'dir.", "LABUT": "On tane dizilir.", "KANO": "Akarsularda yapılır.", "KÜREK": "Kendi adıyla olimpik bir spor dalı da vardır.", "YELKEN": "Bodrum'da yarışları yapılır.", "TIRMANIŞ": "Tokyo 2020'de olimpik oldu.", "ZİRVE": "Everest'inki 8.849 metredir.", "KAMP": "Çadırda kalmaya da denir.", "TRANSFER": "Yaz ve ara dönemde yapılır.", "REKOR": "Kırılınca yenisi yazılır.", "DOPİNG": "Testle tespit edilir.", "ESPOR": "LoL ve CS turnuvaları buna örnektir.", "ASİST": "Basketbolda da istatistiği tutulur.", "PAS": "Kısa ya da uzun olabilir.", "ŞUT": "İsabetli olursa sayı olabilir.", "DEPAR": "Sprinterler bloktan çıkarken yapar.", "ATAK": "Kontra olanı çok hızlıdır.", "TAKIM": "Futbolda sahada 11 kişidir.", "KULÜP": "Başkanı ve yönetim kurulu vardır.", "LİSANS": "Federasyondan alınır.", "SEZON": "Yaz arasıyla biter.", "PUAN": "Lig tablosunu belirler.", "ELEME": "Eşleşmelerle ilerler.", "SERVİS": "Hatasız olursa doğrudan sayı getirebilir.", "BLOK": "Basketbolda şut engellemeye de denir.", "TURNUVA": "Kupayla sonuçlanır.", "KORT": "Toprak, çim ve sert türleri vardır.", "TATAMİ": "Japonca bir kelimedir.", "MİNDER": "Evde üzerine oturulur.", "ATIŞ": "Serbest olanı 1 sayıdır.", "SAYI": "Basketbolda 1, 2 ya da 3 olur.", "SIRIK": "Esnek bir çubuktur.", "GÜLLE": "Eski toplarla da atılırdı.", "DİSK": "Bilgisayarda da bulunur.", "ÇEKİÇ": "Çivi çakmaya da yarar.", "KOŞU": "Maraton bunun en uzunudur.", "ENGEL": "Önüne çıkan zorluk anlamına gelir.", "BAYRAK": "Ülkenin sembolüdür.", "SALTO": "Cimnastikte yapılır.", "DENGE": "Düşmemek için gerekir.", "KASK": "Motorcular da takar.", "ŞORT": "Yazın da giyilir.", "FERDİ": "Takımın karşıtıdır.", "KALE": "Satrançta da bir taştır.", "ORTA": "'Merkez' anlamına da gelir.", "SPOR": "Futbol ve basketbol bunlardandır.", "ASLAN": "Ormanlar kralı diye bilinir.", "KANARYA": "Ötüşüyle ünlüdür.", "KARTAL": "Gözleri çok keskindir.", "FIRTINA": "Şiddetli rüzgârlı hava anlamına gelir.", "TİMSAH": "Nil Nehri'nde de yaşar.", "SARI": "Limonun rengidir.", "ALTIN": "Değerli sarı bir metaldir.", "GÜMÜŞ": "Kuyumcularda satılır.", "BRONZ": "Bakır ve kalay alaşımıdır.", "EKİP": "Birlikte çalışan grup.", "ÇALIM": "Dripling de denir.", "KAFA": "Vücudun en üst kısmı.", "BEK": "Sağ ve sol olur.", "STOPER": "Forvetleri durdurur.", "LİBERO": "İtalyanca 'serbest' demektir.", "SERİ": "Dizi film için de denir.", "TEMPO": "Müzikte de kullanılır.", "MOLA": "Dinlenme arası demektir."}}, "sanat": {"levels": [{"letters": "HAMLET", "words": [["HAMLET", "'Olmak ya da olmamak' sözüyle bilinen Shakespeare oyunu."], ["TEMA", "Bir eserin ana konusu."], ["HAT", "Arap harfleriyle güzel yazı sanatı."], ["TEL", "Gitar ve bağlamanın titreşerek ses çıkaran parçası."]]}, {"letters": "OPERAA", "words": [["OPERA", "Şarkılarla anlatılan sahne eseri; La Traviata örnektir."], ["RAP", "Ritimli konuşma biçiminde söylenen müzik türü."], ["ARP", "Kucakta tutulan, çok telli, üçgen biçimli çalgı."], ["ARA", "İstanbul'u fotoğraflarıyla ölümsüzleştiren '… Güler'."]]}, {"letters": "YAAZRS", "words": [["YAZAR", "Kitap yazan kişi."], ["ARYA", "Operada solistin tek başına söylediği şarkı."], ["ARA", "İstanbul'u fotoğraflarıyla ölümsüzleştiren '… Güler'."], ["SAZ", "Bağlamanın halk arasındaki adı."]]}, {"letters": "PPORGA", "words": [["POP", "Popüler müziğin kısaltması."], ["ORG", "Kiliselerde çalınan borulu, tuşlu çalgı."], ["RAP", "Ritimli konuşma biçiminde söylenen müzik türü."], ["ARP", "Kucakta tutulan, çok telli, üçgen biçimli çalgı."]]}, {"letters": "HAMLET", "words": [["HAMLET", "'Olmak ya da olmamak' sözüyle bilinen Shakespeare oyunu."], ["HAT", "Arap harfleriyle güzel yazı sanatı."], ["TEL", "Gitar ve bağlamanın titreşerek ses çıkaran parçası."], ["TEMA", "Bir eserin ana konusu."]]}, {"letters": "SERAMİK", "words": [["SERAMİK", "Kilin şekillendirilip fırında pişirilmesiyle yapılan eser."], ["SEMA", "Mevlevilerin dönerek yaptığı ayin."], ["MASKE", "Oyuncuların yüzüne taktığı örtü."], ["RESİM", "Boya ya da kalemle yapılan görsel eser."]]}, {"letters": "REPLİKZ", "words": [["REPLİK", "Oyuncunun sahnede söylediği söz."], ["KLİP", "Bir şarkı için çekilen kısa video."], ["KİL", "Seramik yapılan çamur."], ["ZEKİ", "'Sanat Güneşi' lakaplı Türk sanat müziği yıldızı … Müren."]]}, {"letters": "SİNEMAŞ", "words": [["SİNEMA", "'Yedinci sanat' olarak bilinen film sanatı."], ["ANİME", "Japon çizgi filmlerine verilen ad."], ["SEMA", "Mevlevilerin dönerek yaptığı ayin."], ["ŞAN", "Opera sanatçılarının aldığı ses eğitimi."]]}, {"letters": "KÜBİZME", "words": [["KÜBİZM", "Picasso'nun öncülük ettiği, nesneleri geometrik parçalara ayıran akım."], ["MÜZİK", "Seslerin ahenkle birleşmesi sanatı."], ["MÜZE", "Sanat ve tarih eserlerinin sergilendiği yer."], ["ZEKİ", "'Sanat Güneşi' lakaplı Türk sanat müziği yıldızı … Müren."]]}, {"letters": "DAVULTİ", "words": [["DAVUL", "Tokmakla çalınan büyük vurmalı çalgı."], ["DAVUT", "Michelangelo'nun Floransa'daki ünlü mermer heykeli."], ["TUVAL", "Ressamların üzerine resim yaptığı gerili bez."], ["DALİ", "Eriyen saat tablosuyla bilinen sürrealist ressam Salvador …"]]}, {"letters": "KİTAPLE", "words": [["KİTAP", "Ciltlenmiş sayfalardan oluşan basılı eser."], ["KİL", "Seramik yapılan çamur."], ["KLİP", "Bir şarkı için çekilen kısa video."], ["PALET", "Ressamın boyaları karıştırdığı ince tahta."]]}, {"letters": "SİMGEŞR", "words": [["SİMGE", "Bir şeyi temsil eden işaret."], ["GİŞE", "Bilet satılan bölme."], ["SERGİ", "Eserlerin halka gösterildiği etkinlik."], ["RESİM", "Boya ya da kalemle yapılan görsel eser."]]}, {"letters": "OSCARZL", "words": [["OSCAR", "Hollywood'un en prestijli film ödülü."], ["CAZ", "New Orleans'ta doğan doğaçlamalı müzik türü."], ["ROL", "Oyuncunun canlandırdığı karakter."], ["SAZ", "Bağlamanın halk arasındaki adı."]]}, {"letters": "NOBELYA", "words": [["NOBEL", "Orhan Pamuk'un 2006'da kazandığı edebiyat ödülü."], ["NEY", "Mevlevi müziğinin kamıştan yapılan üflemeli çalgısı."], ["BALE", "Dansla anlatılan sahne sanatı; Kuğu Gölü ünlüdür."], ["BOYA", "Resimde kullanılan renkli madde; yağlı ve sulu türleri vardır."]]}, {"letters": "ÇİİNŞRA", "words": [["ÇİNİ", "İznik'te üretilen, desenli ve sırlı seramik."], ["ŞİİR", "Dizelerden oluşan edebi tür."], ["ŞAN", "Opera sanatçılarının aldığı ses eğitimi."], ["ŞAİR", "Şiir yazan kişi."]]}, {"letters": "KOORGLS", "words": [["KORO", "Birlikte şarkı söyleyen topluluk."], ["ORG", "Kiliselerde çalınan borulu, tuşlu çalgı."], ["ROL", "Oyuncunun canlandırdığı karakter."], ["SOLO", "Tek başına icra edilen müzik bölümü."]]}, {"letters": "TUVALŞD", "words": [["TUVAL", "Ressamların üzerine resim yaptığı gerili bez."], ["TUŞ", "Piyanonun basılan siyah ve beyaz parçaları."], ["DAVUT", "Michelangelo'nun Floransa'daki ünlü mermer heykeli."], ["DAVUL", "Tokmakla çalınan büyük vurmalı çalgı."]]}, {"letters": "NOBELYA", "words": [["NOBEL", "Orhan Pamuk'un 2006'da kazandığı edebiyat ödülü."], ["NEY", "Mevlevi müziğinin kamıştan yapılan üflemeli çalgısı."], ["BALE", "Dansla anlatılan sahne sanatı; Kuğu Gölü ünlüdür."], ["BOYA", "Resimde kullanılan renkli madde; yağlı ve sulu türleri vardır."]]}, {"letters": "YYAAZRC", "words": [["YAZAR", "Kitap yazan kişi."], ["ARYA", "Operada solistin tek başına söylediği şarkı."], ["YAY", "Keman çalarken tellere sürülen at kılı çubuk."], ["CAZ", "New Orleans'ta doğan doğaçlamalı müzik türü."]]}, {"letters": "MOZAİKNI", "words": [["MOZAİK", "Küçük renkli taşlarla yapılan resim; Zeugma'daki Çingene Kızı ünlüdür."], ["İMZA", "Ressamın tablosunun köşesine attığı ad."], ["OZAN", "Saz çalan halk şairi."], ["AKIM", "Benzer sanatçıların bir arada anıldığı sanat hareketi."]]}, {"letters": "DESTAANÜ", "words": [["DESTAN", "Kahramanlık olaylarını anlatan uzun manzum eser."], ["DANS", "Müzik eşliğinde yapılan ritmik hareket."], ["SANAT", "Duygu ve düşüncelerin estetik ifadesi."], ["DÜET", "İki kişinin birlikte söylediği şarkı."]]}, {"letters": "MMİNAREO", "words": [["MİNARE", "Camilerde ezan okunan ince, yüksek kule."], ["ANİME", "Japon çizgi filmlerine verilen ad."], ["ROMAN", "Bölümlere ayrılan uzun anlatı türü."], ["MİMAR", "Binaların tasarımını yapan kişi."]]}, {"letters": "GALERİTŞ", "words": [["GALERİ", "Sanat eserlerinin sergilenip satıldığı mekân."], ["GİTAR", "Altı telli, mızrapla ya da parmakla çalınan çalgı."], ["GİŞE", "Bilet satılan bölme."], ["ŞAİR", "Şiir yazan kişi."]]}, {"letters": "REESSAMK", "words": [["RESSAM", "Tablo yapan sanatçı."], ["SES", "Şarkıcının en önemli aracı."], ["ESER", "Sanatçının ortaya koyduğu ürün."], ["MASKE", "Oyuncuların yüzüne taktığı örtü."]]}, {"letters": "KOMEDİRN", "words": [["KOMEDİ", "Güldürmeyi amaçlayan oyun ya da film türü."], ["DEKOR", "Sahnede ortamı canlandıran düzenleme."], ["DİNO", "'Mutsuzlar' serisiyle bilinen Türk ressam Abidin …"], ["RENK", "Kırmızı, mavi ve sarı bunların ana olanlarıdır."]]}, {"letters": "KONSERTF", "words": [["KONSER", "Müzisyenlerin seyirci önünde çaldığı etkinlik."], ["RENK", "Kırmızı, mavi ve sarı bunların ana olanlarıdır."], ["TENOR", "En yüksek erkek ses türü; Pavarotti örnektir."], ["FRESK", "Yaş sıva üzerine yapılan duvar resmi."]]}, {"letters": "MEDDAHİZ", "words": [["MEDDAH", "Kahvehanelerde tek başına hikâye anlatan geleneksel sanatçı."], ["HAMDİ", "'Kaplumbağa Terbiyecisi' tablosunun ressamı Osman … Bey."], ["DİZE", "Şiirin her bir satırı."], ["İMZA", "Ressamın tablosunun köşesine attığı ad."]]}, {"letters": "HOORNAKZ", "words": [["HORON", "Karadeniz'e özgü hızlı halk oyunu."], ["ORHAN", "2006'da Nobel Edebiyat Ödülü'nü kazanan yazar … Pamuk."], ["KORO", "Birlikte şarkı söyleyen topluluk."], ["OZAN", "Saz çalan halk şairi."]]}, {"letters": "ALBÜMFTO", "words": [["ALBÜM", "Bir sanatçının şarkılarını bir araya getiren yayın."], ["FABL", "Hayvanların konuşturulduğu ders verici hikâye."], ["TABLO", "Çerçevelenmiş resim eseri."], ["FLÜT", "Yana tutularak üflenen çalgı."]]}, {"letters": "ALKIŞRHM", "words": [["ALKIŞ", "Seyircinin beğenisini ellerini çırparak göstermesi."], ["ŞARKI", "Sözleri ve bestesi olan, söylenen müzik eseri."], ["HALI", "Hav düğümüyle dokunan yer örtüsü; Hereke'ninki ünlüdür."], ["AKIM", "Benzer sanatçıların bir arada anıldığı sanat hareketi."]]}, {"letters": "SSAHNEED", "words": [["SAHNE", "Oyunun ya da konserin sergilendiği yükseltilmiş alan."], ["DANS", "Müzik eşliğinde yapılan ritmik hareket."], ["SES", "Şarkıcının en önemli aracı."], ["DESEN", "Kalem ya da kömürle yapılan çizim."]]}, {"letters": "SEEZNRDİ", "words": [["SEZEN", "'Minik Serçe' lakaplı Türk pop müziği efsanesi … Aksu."], ["ESER", "Sanatçının ortaya koyduğu ürün."], ["DESEN", "Kalem ya da kömürle yapılan çizim."], ["DİZE", "Şiirin her bir satırı."]]}, {"letters": "ŞARKIBLO", "words": [["ŞARKI", "Sözleri ve bestesi olan, söylenen müzik eseri."], ["BARIŞ", "Türk rock müziğinin efsanesi … Manço."], ["ALKIŞ", "Seyircinin beğenisini ellerini çırparak göstermesi."], ["BAROK", "17. yüzyılın gösterişli sanat üslubu."]]}, {"letters": "MÜZİKESG", "words": [["MÜZİK", "Seslerin ahenkle birleşmesi sanatı."], ["MÜZE", "Sanat ve tarih eserlerinin sergilendiği yer."], ["ESKİZ", "Bir eserin ilk taslağı."], ["SİMGE", "Bir şeyi temsil eden işaret."]]}, {"letters": "HAMDİVLF", "words": [["HAMDİ", "'Kaplumbağa Terbiyecisi' tablosunun ressamı Osman … Bey."], ["DİVA", "Ünlü kadın opera sanatçısına verilen unvan."], ["DALİ", "Eriyen saat tablosuyla bilinen sürrealist ressam Salvador …"], ["FİLM", "Sinema salonunda izlenen hareketli görüntü eseri."]]}, {"letters": "DAARBUKEO", "words": [["DARBUKA", "Elle çalınan, kum saati biçimli vurmalı çalgı."], ["EBRU", "Su üzerine serpilen boyaların kâğıda aktarılmasıyla yapılan sanat."], ["BAROK", "17. yüzyılın gösterişli sanat üslubu."], ["DEKOR", "Sahnede ortamı canlandıran düzenleme."]]}, {"letters": "TTRROMPEN", "words": [["TROMPET", "Pistonlu, parlak sesli bakır üflemeli çalgı."], ["MONET", "Nilüferler serisiyle bilinen empresyonist Fransız ressam Claude …"], ["PORTRE", "Bir kişinin yüzünü konu alan resim."], ["TENOR", "En yüksek erkek ses türü; Pavarotti örnektir."]]}, {"letters": "NAAAKRTÖS", "words": [["NAKARAT", "Şarkıda tekrar tekrar söylenen bölüm."], ["TARKAN", "'Şımarık' şarkısıyla dünyaca tanınan Türk pop yıldızı."], ["AKTÖR", "Erkek oyuncu."], ["SANAT", "Duygu ve düşüncelerin estetik ifadesi."]]}, {"letters": "SENARYOHK", "words": [["SENARYO", "Bir filmin diyalog ve sahnelerinin yazılı metni."], ["ORHAN", "2006'da Nobel Edebiyat Ödülü'nü kazanan yazar … Pamuk."], ["KONSER", "Müzisyenlerin seyirci önünde çaldığı etkinlik."], ["SAHNE", "Oyunun ya da konserin sergilendiği yükseltilmiş alan."]]}, {"letters": "SİLÜETBDF", "words": [["SİLÜET", "Bir figürün yalnızca dış hatlarından oluşan koyu görüntü."], ["BİLET", "Konser ya da oyuna giriş belgesi."], ["DÜET", "İki kişinin birlikte söylediği şarkı."], ["FLÜT", "Yana tutularak üflenen çalgı."]]}, {"letters": "KLAARNETM", "words": [["KLARNET", "Roman müziğinin vazgeçilmezi, kamışlı üflemeli çalgı."], ["KALEM", "Çizim ve yazı aracı."], ["TARKAN", "'Şımarık' şarkısıyla dünyaca tanınan Türk pop yıldızı."], ["KAMERA", "Görüntü kaydeden cihaz."]]}, {"letters": "MIZRAPNUO", "words": [["MIZRAP", "Telli çalgıları çalmak için kullanılan küçük parça."], ["NAZIM", "'Memleketimden İnsan Manzaraları'nın şairi … Hikmet."], ["ZURNA", "Davulla birlikte düğünlerde çalınan tiz sesli üflemeli çalgı."], ["ROMAN", "Bölümlere ayrılan uzun anlatı türü."]]}, {"letters": "PPİYYANOD", "words": [["PİYANO", "88 tuşlu klavyeli çalgı."], ["POP", "Popüler müziğin kısaltması."], ["YAY", "Keman çalarken tellere sürülen at kılı çubuk."], ["DİNO", "'Mutsuzlar' serisiyle bilinen Türk ressam Abidin …"]]}, {"letters": "MELODİKFŞ", "words": [["MELODİ", "Bir şarkının akılda kalan ezgisi."], ["KOMEDİ", "Güldürmeyi amaçlayan oyun ya da film türü."], ["FİLM", "Sinema salonunda izlenen hareketli görüntü eseri."], ["ŞEF", "Orkestrayı yöneten kişi."]]}, {"letters": "KAAMMERLS", "words": [["KAMERA", "Görüntü kaydeden cihaz."], ["MAKAM", "Türk müziğinde ezgiyi belirleyen dizi sistemi; Hicaz örnektir."], ["KALEM", "Çizim ve yazı aracı."], ["MASAL", "'Bir varmış bir yokmuş' diye başlayan anlatı."]]}, {"letters": "SİNNEMARG", "words": [["SİNEMA", "'Yedinci sanat' olarak bilinen film sanatı."], ["SİNAN", "Süleymaniye ve Selimiye'yi yapan Osmanlı baş mimarı."], ["MİNARE", "Camilerde ezan okunan ince, yüksek kule."], ["SERGİ", "Eserlerin halka gösterildiği etkinlik."]]}, {"letters": "ORRKESTAPF", "words": [["ORKESTRA", "Şef yönetiminde birlikte çalan büyük çalgı topluluğu."], ["OPERA", "Şarkılarla anlatılan sahne eseri; La Traviata örnektir."], ["FRESK", "Yaş sıva üzerine yapılan duvar resmi."], ["PORTRE", "Bir kişinin yüzünü konu alan resim."]]}, {"letters": "GALERİTBF", "words": [["GALERİ", "Sanat eserlerinin sergilenip satıldığı mekân."], ["GİTAR", "Altı telli, mızrapla ya da parmakla çalınan çalgı."], ["BAGET", "Orkestra şefinin elindeki ince çubuk."], ["FABL", "Hayvanların konuşturulduğu ders verici hikâye."], ["BİLET", "Konser ya da oyuna giriş belgesi."]]}, {"letters": "SOOPRANCHL", "words": [["SOPRANO", "En yüksek kadın ses türü."], ["OSCAR", "Hollywood'un en prestijli film ödülü."], ["HORON", "Karadeniz'e özgü hızlı halk oyunu."], ["SOLO", "Tek başına icra edilen müzik bölümü."]]}, {"letters": "ATÖLYEPŞVU", "words": [["ATÖLYE", "Sanatçının çalıştığı oda."], ["PALET", "Ressamın boyaları karıştırdığı ince tahta."], ["ŞÖVALE", "Tuvali tutan üç ayaklı sehpa."], ["TUŞ", "Piyanonun basılan siyah ve beyaz parçaları."]]}], "info": {"RESSAM": "Fırça ve tuvalle çalışır.", "TUVAL": "Şövaleye yerleştirilir.", "FIRÇA": "Dişler için olanı da vardır.", "ŞÖVALE": "Ressamın önünde durur.", "PALET": "Renk seçeneklerine de bu ad verilir.", "BOYA": "Duvara da sürülür.", "TABLO": "Müzelerde duvara asılır.", "PORTRE": "Mona Lisa bunun en ünlü örneğidir.", "MOZAİK": "Gaziantep'teki müzede sergilenir.", "FRESK": "Sistina Şapeli'nin tavanı buna örnektir.", "HEYKEL": "Yontularak yapılır.", "MERMER": "Marmara Adası'ndan çıkarılır.", "DAVUT": "Golyat'ı yenen gencin adıdır.", "MÜZE": "Topkapı bunlardan biridir.", "GALERİ": "Araba satılan yere de denir.", "SERGİ": "Açılışına vernisaj denir.", "DALİ": "Kıvrık bıyığıyla meşhurdur.", "PİCASSO": "İlk adı Pablo'dur.", "MONET": "Empresyonizm adını onun bir tablosundan alır.", "HAMDİ": "İstanbul Arkeoloji Müzesi'nin kurucusudur.", "DİNO": "Nâzım Hikmet'in yakın dostuydu.", "MİNYATÜR": "Nakkaşlar tarafından yapılırdı.", "EBRU": "UNESCO listesinde yer alır.", "HAT": "Kamış kalemle yazılır.", "TEZHİP": "Hat sanatına eşlik eder.", "ÇİNİ": "Camilerin duvarlarını süsler.", "SERAMİK": "Çömlekçilikle akrabadır.", "KİLİM": "Halıdan daha incedir.", "HALI": "Masallarda uçanı vardır.", "MİMAR": "Proje çizer.", "SİNAN": "Selimiye'yi 'ustalık eserim' diye anmıştır.", "KUBBE": "Ayasofya'nınki ünlüdür.", "MİNARE": "Şerefeleri vardır.", "BESTECİ": "Mozart ve Beethoven bunlardandır.", "ORKESTRA": "Senfonik olanı ünlüdür.", "ŞEF": "Mutfakta da bulunur.", "BAGET": "Fransız ekmeğinin adıyla aynıdır.", "SENFONİ": "Beethoven'ın dokuzuncusu ünlüdür.", "OPERA": "Bir internet tarayıcısının adı da olur.", "BALE": "Parmak uçlarında yapılır.", "TİYATRO": "Perde açılarak başlar.", "SAHNE": "Işıklar oraya çevrilir.", "PERDE": "Pencerede de olur.", "DEKOR": "Ev süslemesine de denir.", "KOSTÜM": "Takım elbiseye de denir.", "SUFLÖR": "Seyirciden gizlenir.", "REPLİK": "Ezberlenir.", "KOMEDİ": "Trajedinin karşıtıdır.", "TRAJEDİ": "Antik Yunan'da doğmuştur.", "HAMLET": "Kahramanı bir Danimarka prensidir.", "KARAGÖZ": "Bursa ile özdeşleşmiştir.", "HACİVAT": "Gölge oyununda yer alır.", "MEDDAH": "Elinde mendil ve sopa tutar.", "ORTAOYUNU": "Pişekâr ve Kavuklu bu oyunun karakterleridir.", "SİNEMA": "Lumière kardeşlerle başladı.", "FİLM": "Eskiden makaralara sarılırdı.", "OSCAR": "Altın renkli bir heykelciktir.", "YEŞİLÇAM": "Adını bir İstanbul sokağından alır.", "SENARYO": "Senarist yazar.", "YÖNETMEN": "'Kamera, motor!' der.", "AKTÖR": "Rol yapar.", "KAMERA": "Telefonlarda da bulunur.", "ŞİİR": "Şairler yazar.", "ŞAİR": "Ozan da denir.", "DİZE": "Mısra da denir.", "KAFİYE": "Uyak da denir.", "NAZIM": "'Şiir' anlamına da gelir.", "YUNUS": "Bir deniz memelisinin adıdır.", "MEVLANA": "Semazenlerle anılır.", "SEMA": "Bir kadın adıdır.", "NEY": "Sesi iniltiye benzetilir.", "BAĞLAMA": "Mızrapla çalınır.", "SAZ": "Âşıkların çalgısıdır.", "KANUN": "'Yasa' anlamına da gelir.", "DARBUKA": "Oyun havalarında çalınır.", "DAVUL": "Ramazanda sahura kaldırır.", "ZURNA": "Kamışla çalınır.", "PİYANO": "Kuyruklusu konserlerde kullanılır.", "TUŞ": "Klavyede de vardır.", "RİTİM": "Davulcu tutar.", "MAKAM": "'Mevki' anlamına da gelir.", "ARYA": "Bir kadın adıdır.", "KORO": "Okullarda da kurulur.", "TENOR": "Bariton ve bastan yüksektir.", "SOPRANO": "Opera divalarının sesidir.", "DİVA": "Leyla Gencer 'Türk …sı' olarak anılır.", "YAZAR": "Kalemiyle geçinir.", "DESTAN": "Ergenekon bunlardan biridir.", "MASAL": "Keloğlan bunun kahramanıdır.", "FABL": "La Fontaine'in ünlü türüdür.", "ŞARKI": "Radyoda çalar.", "KLİP": "YouTube'da izlenir.", "FOTOĞRAF": "Kamerayla çekilir.", "OBJEKTİF": "'Tarafsız' anlamına da gelir.", "ARA": "'Mola' anlamına da gelir.", "DESEN": "Kumaş üzerindeki motife de denir.", "KARİKATÜR": "Mizah dergilerinde yer alır.", "ÇİZGİ": "Düz ya da eğri olabilir.", "MOTİF": "Lale, Osmanlı'nın sevdiği bir …tir.", "RÖNESANS": "Da Vinci bu dönemin ustasıdır.", "BAROK": "Bach bu dönemin bestecisidir.", "KÜBİZM": "Adı 'küp' kelimesinden gelir.", "ESKİZ": "Hızlıca çizilir.", "ATÖLYE": "Usta–çırak ilişkisi orada kurulur.", "VİTRAY": "Kiliselerde sık görülür.", "KOLAJ": "Gazete kâğıdı da kullanılabilir.", "ÜSLUP": "Stil de denir.", "ESER": "En iyisine başyapıt denir.", "RESİM": "Okullarda dersi vardır.", "RENK": "Gökkuşağında yedi tane görülür.", "KONSER": "Bilet alınarak girilir.", "ALBÜM": "Fotoğraflar da içine konur.", "SES": "Kulakla duyulur.", "SOLO": "Gitarla yapılanı ünlüdür.", "DÜET": "İkili performanstır.", "ROL": "En önemlisine 'baş…' denir.", "TEL": "Elektrik kablosuna da denir.", "MIZRAP": "Pena da denir.", "YAY": "Okçulukta da kullanılır.", "ORG": "Elektronik olanı da vardır.", "ARP": "Melekler elinde tutarken resmedilir.", "FLÜT": "Okullarda blok olanı öğretilir.", "KLARNET": "Siyah ve tahtadandır.", "TROMPET": "Caz müziğinde sık kullanılır.", "GİTAR": "Akustik ve elektro türleri vardır.", "MELODİ": "Islıkla da çalınabilir.", "NAKARAT": "Herkes birlikte söyler.", "TÜRKÜ": "Bağlamayla çalınır.", "OZAN": "Âşık da denir.", "HİKAYE": "Öykü de denir.", "ROMAN": "Suç ve Ceza buna örnektir.", "KİTAP": "Kütüphanede bulunur.", "MÜZİK": "Notalarla yazılır.", "DANS": "Halay ve zeybek buna örnektir.", "HALAY": "Davul zurnayla oynanır.", "ZEYBEK": "Efeler oynar.", "HORON": "Kemençeyle oynanır.", "KEMENÇE": "Horonda çalınır.", "SANAT": "Resim, müzik ve tiyatro bunun dallarıdır.", "ESTETİK": "Hoş görünüm anlamında da kullanılır.", "SİMGE": "Sembol de denir.", "TEMA": "Telefon görünümüne de denir.", "İMZA": "Belgelere de atılır.", "ÇERÇEVE": "İçine fotoğraf da konur.", "MÜREKKEP": "Dolma kalemin içinde bulunur.", "KALEM": "Kurşun olanı silinebilir.", "KİL": "Fırında pişirilir.", "ÇÖMLEK": "Avanos'ta çok yapılır.", "ANİME": "Büyük gözlü karakterleriyle bilinir.", "AKIM": "Kübizm bunlardan biridir.", "SİLÜET": "Gün batımında sık görülür.", "GÖLGE": "Işığın engellenmesiyle oluşur.", "KUKLA": "Pinokyo böyle başladı.", "MASKE": "Tiyatronun simgesinde biri güler biri ağlar.", "ALKIŞ": "Perde kapanınca gelir.", "BİLET": "Gişeden alınır.", "GİŞE": "Filmin hasılatına '… başarısı' denir.", "FESTİVAL": "Antalya'daki Altın Portakal bunlardandır.", "PORTAKAL": "Bir turunçgil meyvesidir.", "ŞAN": "'Ün, şöhret' anlamına da gelir.", "CAZ": "Louis Armstrong bu türün ustasıydı.", "POP": "Tarkan bu türün yıldızıdır.", "RAP": "Hip hop kültürünün parçasıdır.", "TARKAN": "Lakabı Megastar'dır.", "SEZEN": "Bir kadın adıdır.", "BARIŞ": "Savaşın karşıtı.", "ZEKİ": "'Akıllı' anlamına gelir.", "ORHAN": "Bir Osmanlı padişahının da adıdır.", "NOBEL": "Dinamitin mucidinin adını taşır."}}, "tarih": {"levels": [{"letters": "ORHANU", "words": [["ORHAN", "Osmanlı'nın ikinci padişahı, Osman Bey'in oğlu."], ["HAN", "Kervanların konakladığı yapı."], ["HUN", "Mete Han'ın hükümdarı olduğu Asya … Devleti."], ["ORHUN", "Türkçenin bilinen en eski yazılı belgeleri: … Yazıtları."]]}, {"letters": "SEEFRV", "words": [["SEFER", "Ordunun savaşa gitmesi."], ["EFES", "İzmir Selçuk'taki, Celsus Kütüphanesi'yle ünlü antik kent."], ["FES", "Osmanlı'nın son döneminde kullanılan kırmızı püsküllü başlık."], ["SEVR", "1920'de imzalanan ama hiç uygulanamayan antlaşma."]]}, {"letters": "TUNÇAH", "words": [["TUNÇ", "Bakır ve kalay alaşımı; bir çağa adını verdi."], ["TAÇ", "Kralların başına taktığı süs."], ["HUN", "Mete Han'ın hükümdarı olduğu Asya … Devleti."], ["HAN", "Kervanların konakladığı yapı."]]}, {"letters": "AAĞÇTŞ", "words": [["AĞA", "Yeniçeri ocağının komutanı: Yeniçeri …sı."], ["ÇAĞ", "Tarihin büyük bölümlerinden her biri; İlk…, Orta…"], ["TAŞ", "İnsanlığın ilk aletlerini yaptığı malzeme: … Devri."], ["TAÇ", "Kralların başına taktığı süs."]]}, {"letters": "SEEFRU", "words": [["SEFER", "Ordunun savaşa gitmesi."], ["EFES", "İzmir Selçuk'taki, Celsus Kütüphanesi'yle ünlü antik kent."], ["FES", "Osmanlı'nın son döneminde kullanılan kırmızı püsküllü başlık."], ["SUR", "Şehri çevreleyen savunma duvarı."]]}, {"letters": "HİLAFET", "words": [["HİLAFET", "1924'te kaldırılan halifelik kurumu."], ["FATİH", "İstanbul'u 1453'te fetheden II. Mehmed'in unvanı."], ["HALİFE", "İslam dünyasının dinî lideri unvanı."], ["FETİH", "1453'te İstanbul'un alınmasına verilen ad."]]}, {"letters": "HİİTTAŞ", "words": [["HİTİT", "Başkenti Hattuşa olan Anadolu uygarlığı."], ["TAHT", "Hükümdarın oturduğu makam."], ["ŞAHİ", "Fatih'in İstanbul kuşatmasında kullandığı dev top."], ["TAŞ", "İnsanlığın ilk aletlerini yaptığı malzeme: … Devri."]]}, {"letters": "FEVZİRG", "words": [["FEVZİ", "Kurtuluş Savaşı'nın Genelkurmay başkanı Mareşal … Çakmak."], ["VEZİR", "Osmanlı'da divan üyesi yüksek devlet adamı."], ["VERGİ", "Devletin halktan topladığı para."], ["FRİG", "Gordion'u başkent yapan Anadolu uygarlığı."]]}, {"letters": "BEYLİKA", "words": [["BEYLİK", "Selçuklu'nun dağılmasından sonra Anadolu'da kurulan küçük devletlerin her biri."], ["BEY", "Beylik yöneticisi unvanı."], ["LAİK", "Din ve devlet işlerinin ayrılmasını ifade eden sıfat."], ["KALE", "Düşmana karşı yapılan surlu yapı."]]}, {"letters": "AATİNLK", "words": [["ATİNA", "Demokrasinin doğduğu antik şehir."], ["NİL", "Antik Mısır'ın hayat kaynağı olan nehir."], ["ANTİK", "Eski çağlara ait anlamına gelen sıfat."], ["LAİK", "Din ve devlet işlerinin ayrılmasını ifade eden sıfat."]]}, {"letters": "SEZARUF", "words": [["SEZAR", "'Geldim, gördüm, yendim' diyen Romalı lider Julius …"], ["ZEUS", "Yunan mitolojisinde tanrıların başı."], ["ZAFER", "Savaşta kazanılan başarı."], ["SUR", "Şehri çevreleyen savunma duvarı."]]}, {"letters": "TARİHFS", "words": [["TARİH", "Geçmişte yaşanan olayları inceleyen bilim."], ["HARF", "1928'de Latin alfabesine geçişle yapılan … Devrimi."], ["HİSAR", "Küçük kale; Boğaz'da Rumeli ve Anadolu …ı karşılıklı durur."], ["FATİH", "İstanbul'u 1453'te fetheden II. Mehmed'in unvanı."]]}, {"letters": "AANZKĞÇ", "words": [["ANZAK", "Çanakkale'de savaşan Avustralya–Yeni Zelanda kolordusu."], ["KAĞAN", "Eski Türk devletlerinde hükümdar unvanı."], ["AĞA", "Yeniçeri ocağının komutanı: Yeniçeri …sı."], ["ÇAĞ", "Tarihin büyük bölümlerinden her biri; İlk…, Orta…"]]}, {"letters": "VERGİFZ", "words": [["VERGİ", "Devletin halktan topladığı para."], ["FRİG", "Gordion'u başkent yapan Anadolu uygarlığı."], ["VEZİR", "Osmanlı'da divan üyesi yüksek devlet adamı."], ["FEVZİ", "Kurtuluş Savaşı'nın Genelkurmay başkanı Mareşal … Çakmak."]]}, {"letters": "PAADİŞHK", "words": [["PADİŞAH", "Osmanlı hükümdarı."], ["PAŞA", "Osmanlı'da yüksek rütbeli asker ve devlet adamı unvanı."], ["ŞAHİ", "Fatih'in İstanbul kuşatmasında kullandığı dev top."], ["ŞAPKA", "1925'te fesin yerine getirilen başlık için yapılan devrim."]]}, {"letters": "FERMANHO", "words": [["FERMAN", "Padişahın yazılı emri."], ["HAREM", "Osmanlı sarayında padişah ailesinin yaşadığı bölüm."], ["ROMA", "Julius Sezar'ın döneminde Akdeniz'e hükmeden devletin başkenti."], ["HARF", "1928'de Latin alfabesine geçişle yapılan … Devrimi."]]}, {"letters": "MAAREŞLK", "words": [["MAREŞAL", "Orduda en yüksek rütbe."], ["MARŞ", "Mehmet Akif'in yazdığı İstiklal …ı."], ["KRAL", "Bir krallığın hükümdarı."], ["KALE", "Düşmana karşı yapılan surlu yapı."]]}, {"letters": "DEVRİMSA", "words": [["DEVRİM", "Köklü değişim; Atatürk'ün yaptığı yenilikler."], ["DEMİR", "Hititlerin işlediği metal; adını bir çağa verdi."], ["SEVR", "1920'de imzalanan ama hiç uygulanamayan antlaşma."], ["MİDAS", "Dokunduğunu altına çeviren efsanevi Frig kralı."]]}, {"letters": "MIZRAKTL", "words": [["MIZRAK", "Ucu sivri, uzun saplı silah."], ["KAZIM", "Doğu Cephesi komutanı … Karabekir."], ["TIMAR", "Osmanlı'da hizmet karşılığı verilen toprak dirliği."], ["KRAL", "Bir krallığın hükümdarı."]]}, {"letters": "VİYAANDL", "words": [["VİYANA", "Osmanlı'nın iki kez kuşattığı Avusturya başkenti."], ["DİVAN", "Osmanlı'da devlet işlerinin görüşüldüğü kurul."], ["NİL", "Antik Mısır'ın hayat kaynağı olan nehir."], ["LİDYA", "Parayı ilk kullanan Anadolu uygarlığı."]]}, {"letters": "SİİPAHRT", "words": [["SİPAHİ", "Osmanlı'da tımarlı atlı asker."], ["PİRİ", "Ünlü dünya haritasını çizen Osmanlı denizcisi … Reis."], ["HİSAR", "Küçük kale; Boğaz'da Rumeli ve Anadolu …ı karşılıklı durur."], ["TARİH", "Geçmişte yaşanan olayları inceleyen bilim."]]}, {"letters": "SEEÇİMTY", "words": [["SEÇİM", "1934'te kadınlara milletvekili … ve seçilme hakkı verildi."], ["İSMET", "Lozan'da Türkiye'yi temsil eden … Paşa."], ["METE", "Asya Hun Devleti'nin onlu ordu sistemini kuran hükümdarı … Han."], ["SEYİT", "Çanakkale'de dev top mermisini sırtında taşıyan onbaşı."]]}, {"letters": "NUUTKEÇA", "words": [["NUTUK", "Atatürk'ün 1927'de altı gün boyunca okuduğu büyük söylev."], ["KENT", "Şehir."], ["TUNÇ", "Bakır ve kalay alaşımı; bir çağa adını verdi."], ["AKÇE", "Osmanlı'nın küçük gümüş parası."]]}, {"letters": "İSMEETYÇ", "words": [["İSMET", "Lozan'da Türkiye'yi temsil eden … Paşa."], ["SEYİT", "Çanakkale'de dev top mermisini sırtında taşıyan onbaşı."], ["SEÇİM", "1934'te kadınlara milletvekili … ve seçilme hakkı verildi."], ["METE", "Asya Hun Devleti'nin onlu ordu sistemini kuran hükümdarı … Han."]]}, {"letters": "FIRATMOP", "words": [["FIRAT", "Mezopotamya'yı sulayan iki büyük nehirden biri."], ["TIMAR", "Osmanlı'da hizmet karşılığı verilen toprak dirliği."], ["TOP", "Kuşatmalarda surları yıkan ateşli silah."], ["ROMA", "Julius Sezar'ın döneminde Akdeniz'e hükmeden devletin başkenti."]]}, {"letters": "AANTİKFE", "words": [["ANTİK", "Eski çağlara ait anlamına gelen sıfat."], ["AKİF", "İstiklal Marşı'nın şairi Mehmet … Ersoy."], ["ATİNA", "Demokrasinin doğduğu antik şehir."], ["KENT", "Şehir."]]}, {"letters": "ŞAAPKDEİ", "words": [["ŞAPKA", "1925'te fesin yerine getirilen başlık için yapılan devrim."], ["PAŞA", "Osmanlı'da yüksek rütbeli asker ve devlet adamı unvanı."], ["KADEŞ", "Hititler ile Mısır arasında imzalanan, bilinen ilk yazılı barış antlaşması."], ["İPEK", "Çin'den Avrupa'ya uzanan ünlü ticaret yolu: … Yolu."]]}, {"letters": "HİLAFETD", "words": [["HİLAFET", "1924'te kaldırılan halifelik kurumu."], ["HALİFE", "İslam dünyasının dinî lideri unvanı."], ["FETİH", "1453'te İstanbul'un alınmasına verilen ad."], ["HALİDE", "Sultanahmet mitingindeki konuşmasıyla ünlü yazar … Edip."]]}, {"letters": "MIZRAKŞB", "words": [["MIZRAK", "Ucu sivri, uzun saplı silah."], ["KAZIM", "Doğu Cephesi komutanı … Karabekir."], ["MARŞ", "Mehmet Akif'in yazdığı İstiklal …ı."], ["BARIŞ", "Savaşın sona ermesi hâli."]]}, {"letters": "BEYLİKGP", "words": [["BEYLİK", "Selçuklu'nun dağılmasından sonra Anadolu'da kurulan küçük devletlerin her biri."], ["BEY", "Beylik yöneticisi unvanı."], ["BİLGE", "Orhun Yazıtları'nda adı geçen Göktürk hükümdarı … Kağan."], ["İPEK", "Çin'den Avrupa'ya uzanan ünlü ticaret yolu: … Yolu."]]}, {"letters": "SEZARUFB", "words": [["SEZAR", "'Geldim, gördüm, yendim' diyen Romalı lider Julius …"], ["ZEUS", "Yunan mitolojisinde tanrıların başı."], ["ZAFER", "Savaşta kazanılan başarı."], ["BURSA", "Osmanlı'nın ilk başkenti."]]}, {"letters": "OSMANLIYZ", "words": [["OSMANLI", "1299'da kurulan, 600 yılı aşkın süren devlet."], ["OSMAN", "Osmanlı Devleti'nin kurucusu … Gazi."], ["MAYIN", "Suya ya da toprağa yerleştirilen patlayıcı."], ["LOZAN", "1923'te Türkiye'nin bağımsızlığını tanıyan antlaşma."]]}, {"letters": "TUUĞRLASV", "words": [["TUĞRUL", "Büyük Selçuklu Devleti'nin kurucusu … Bey."], ["TUĞRA", "Padişahın imzası yerine geçen süslü işaret."], ["ULUS", "Ortak tarihi ve dili olan topluluk."], ["TRUVA", "Tahta atıyla bilinen, Çanakkale'deki antik kent."]]}, {"letters": "AAANKRĞZM", "words": [["ANKARA", "13 Ekim 1923'te Türkiye'nin başkenti olan şehir."], ["KAĞAN", "Eski Türk devletlerinde hükümdar unvanı."], ["ANZAK", "Çanakkale'de savaşan Avustralya–Yeni Zelanda kolordusu."], ["MAĞARA", "İlk insanların barındığı ve duvarlarına resim yaptığı doğal oyuk."]]}, {"letters": "EEDİRNNMV", "words": [["EDİRNE", "Osmanlı'nın İstanbul'dan önceki başkenti."], ["NENE", "Erzurum'da Rus askerlerine karşı savaşan kahraman kadın … Hatun."], ["DEMİR", "Hititlerin işlediği metal; adını bir çağa verdi."], ["DEVRİM", "Köklü değişim; Atatürk'ün yaptığı yenilikler."]]}, {"letters": "MECLİSDAK", "words": [["MECLİS", "23 Nisan 1920'de Ankara'da açılan Türkiye Büyük Millet …"], ["DİCLE", "Mezopotamya'yı sulayan iki nehirden biri; Fırat'ın ikizi."], ["MİSAK", "1920'de son Osmanlı Mebusan Meclisi'nde kabul edilen 'Ulusal Ant': … Millî."], ["MİDAS", "Dokunduğunu altına çeviren efsanevi Frig kralı."]]}, {"letters": "SOYADIKNM", "words": [["SOYADI", "1934'te çıkarılan kanunla herkesin alması zorunlu olan aile adı."], ["KADIN", "1934'te milletvekili seçme ve seçilme hakkı kazanan grup."], ["KONYA", "Anadolu Selçuklu Devleti'nin başkenti."], ["OSMAN", "Osmanlı Devleti'nin kurucusu … Gazi."], ["MAYIN", "Suya ya da toprağa yerleştirilen patlayıcı."]]}, {"letters": "TUĞRAVODP", "words": [["TUĞRA", "Padişahın imzası yerine geçen süslü işaret."], ["TRUVA", "Tahta atıyla bilinen, Çanakkale'deki antik kent."], ["ORDU", "Bir devletin silahlı kuvvetleri."], ["TOP", "Kuşatmalarda surları yıkan ateşli silah."]]}, {"letters": "ORHUNADMÇ", "words": [["ORHUN", "Türkçenin bilinen en eski yazılı belgeleri: … Yazıtları."], ["ORHAN", "Osmanlı'nın ikinci padişahı, Osman Bey'in oğlu."], ["ORDU", "Bir devletin silahlı kuvvetleri."], ["MOHAÇ", "1526'da Kanuni'nin Macarları yendiği meydan savaşı."]]}, {"letters": "ERRTUUĞLSN", "words": [["ERTUĞRUL", "Osman Bey'in babası … Gazi."], ["TUĞRUL", "Büyük Selçuklu Devleti'nin kurucusu … Bey."], ["ULUS", "Ortak tarihi ve dili olan topluluk."], ["NUSRET", "18 Mart'tan önce Çanakkale Boğazı'na mayın döken gemi."]]}, {"letters": "FİRAVUNKDE", "words": [["FİRAVUN", "Antik Mısır hükümdarı."], ["AKİF", "İstiklal Marşı'nın şairi Mehmet … Ersoy."], ["DİVAN", "Osmanlı'da devlet işlerinin görüşüldüğü kurul."], ["KERVAN", "Develerle yük taşıyan ticaret kafilesi."]]}, {"letters": "SAAAMURYBK", "words": [["SAMURAY", "Japonya'nın kılıçlı savaşçı sınıfı."], ["AMASYA", "Haziran 1919'da 'Milletin bağımsızlığını yine milletin azim ve kararı kurtaracaktır' denen genelgenin yayımlandığı şehir."], ["BURSA", "Osmanlı'nın ilk başkenti."], ["BAYRAK", "Ay yıldızlı kırmızı kumaş; ulusun simgesi."], ["SAKARYA", "1921'de 22 gün 22 gece süren meydan muharebesi."]]}, {"letters": "CENGİZABLD", "words": [["CENGİZ", "Moğol İmparatorluğu'nun kurucusu … Han."], ["GAZİ", "Savaştan sağ dönen kahraman; TBMM'nin 1921'de Mustafa Kemal'e verdiği unvan."], ["BİLGE", "Orhun Yazıtları'nda adı geçen Göktürk hükümdarı … Kağan."], ["DİCLE", "Mezopotamya'yı sulayan iki nehirden biri; Fırat'ın ikizi."]]}, {"letters": "AATTİİLHGZ", "words": [["ATTİLA", "Avrupa Hun hükümdarı; Roma'yı titretti."], ["TAHT", "Hükümdarın oturduğu makam."], ["HİTİT", "Başkenti Hattuşa olan Anadolu uygarlığı."], ["GAZİ", "Savaştan sağ dönen kahraman; TBMM'nin 1921'de Mustafa Kemal'e verdiği unvan."]]}, {"letters": "SAAAKRYBNM", "words": [["SAKARYA", "1921'de 22 gün 22 gece süren meydan muharebesi."], ["BAYRAK", "Ay yıldızlı kırmızı kumaş; ulusun simgesi."], ["ANKARA", "13 Ekim 1923'te Türkiye'nin başkenti olan şehir."], ["AMASYA", "Haziran 1919'da 'Milletin bağımsızlığını yine milletin azim ve kararı kurtaracaktır' denen genelgenin yayımlandığı şehir."]]}, {"letters": "KONGREVAYÇ", "words": [["KONGRE", "Kurtuluş Savaşı'nda Erzurum ve Sivas'ta yapılan büyük toplantı."], ["KERVAN", "Develerle yük taşıyan ticaret kafilesi."], ["KONYA", "Anadolu Selçuklu Devleti'nin başkenti."], ["AKÇE", "Osmanlı'nın küçük gümüş parası."]]}, {"letters": "SSİİPAHRVÇ", "words": [["SİPAHİ", "Osmanlı'da tımarlı atlı asker."], ["PİRİ", "Ünlü dünya haritasını çizen Osmanlı denizcisi … Reis."], ["SİVAS", "1919'da ulusal kongrenin toplandığı şehir."], ["ÇİVİ", "Sümerlerin kil tabletlere yazdığı yazı türü: … yazısı."]]}, {"letters": "HALİDEYŞTK", "words": [["HALİDE", "Sultanahmet mitingindeki konuşmasıyla ünlü yazar … Edip."], ["LİDYA", "Parayı ilk kullanan Anadolu uygarlığı."], ["ŞEHİT", "Vatan için hayatını kaybeden kişi."], ["KADEŞ", "Hititler ile Mısır arasında imzalanan, bilinen ilk yazılı barış antlaşması."]]}, {"letters": "OSMANLIZHÇ", "words": [["OSMANLI", "1299'da kurulan, 600 yılı aşkın süren devlet."], ["LOZAN", "1923'te Türkiye'nin bağımsızlığını tanıyan antlaşma."], ["HAÇLI", "Kudüs'ü almak için düzenlenen Avrupa seferleri: … Seferleri."], ["MOHAÇ", "1526'da Kanuni'nin Macarları yendiği meydan savaşı."]]}, {"letters": "AANITKBİRŞ", "words": [["ANITKABİR", "Atatürk'ün ebedî istirahatgâhı."], ["ATİNA", "Demokrasinin doğduğu antik şehir."], ["ANTİK", "Eski çağlara ait anlamına gelen sıfat."], ["BARIŞ", "Savaşın sona ermesi hâli."], ["TAŞ", "İnsanlığın ilk aletlerini yaptığı malzeme: … Devri."]]}], "info": {"OSMANLI": "Söğüt'te doğmuştur.", "SÖĞÜT": "Aynı zamanda bir ağaç adıdır.", "BURSA": "'Yeşil' lakaplı şehirdir.", "EDİRNE": "Selimiye Camii buradadır.", "FATİH": "İstanbul'da bir ilçenin adıdır.", "FETİH": "'Fethetmek' fiilinden gelir.", "KANUNİ": "Avrupalılar ona 'Muhteşem' der.", "YAVUZ": "'Sert, hiddetli' anlamına gelir.", "ORHAN": "İlk Osmanlı parasını bastırdı.", "OSMAN": "Devlete adını vermiştir.", "ERTUĞRUL": "Söğüt'te türbesi vardır.", "SADRAZAM": "Veziriazam da denir.", "YENİÇERİ": "1826'da kaldırıldı.", "SİPAHİ": "Dirlik sahibiydi.", "TIMAR": "Atı temizlemeye de bu ad verilir.", "DİVAN": "Bir oturma mobilyasının adıdır.", "HAREM": "Topkapı'da gezilebilir.", "TANZİMAT": "'Düzenlemeler' anlamına gelir.", "FERMAN": "Tuğralı olurdu.", "TUĞRA": "Paraların üzerinde de bulunurdu.", "MEDRESE": "Camilerin çevresinde kurulurdu.", "HAN": "Hükümdar unvanı da olur.", "KERVAN": "İpek Yolu'nda yol alırdı.", "İPEK": "Bir böcekten elde edilen kumaş.", "GÖKTÜRK": "Orhun Yazıtları'nı bıraktı.", "ORHUN": "Moğolistan'da bir nehir adıdır.", "BİLGE": "'Bilgili, akıllı' anlamına gelir.", "KAĞAN": "Han'dan büyük sayılırdı.", "HUN": "Attila da Avrupa'daki koluna liderlik etti.", "METE": "Türk ordusunun kuruluş yılı onun tahta çıkışına dayandırılır.", "ATTİLA": "'Tanrı'nın kırbacı' diye anılır.", "UYGUR": "Kendi alfabeleri vardı.", "SELÇUKLU": "Anadolu'daki kolunun başkenti Konya'ydı.", "ALPARSLAN": "Tuğrul Bey'in yeğenidir.", "TUĞRUL": "Bir yırtıcı kuşun adıdır.", "KONYA": "Mevlana'nın şehri.", "BEYLİK": "Osmanlı da böyle başladı.", "ATATÜRK": "1934'te TBMM tarafından verildi.", "SAMSUN": "Kurtuluş Savaşı'nın başladığı yer sayılır.", "ERZURUM": "Palandöken'iyle ünlüdür.", "SİVAS": "Kangal köpekleriyle ünlüdür.", "AMASYA": "Elmasıyla ünlüdür.", "KONGRE": "Delegeler katılır.", "SAKARYA": "Bir il ve nehir adıdır.", "İNÖNÜ": "İkinci cumhurbaşkanının soyadıdır.", "LOZAN": "İsviçre'de bir şehirdir.", "SEVR": "Fransa'da bir kasaba adıdır.", "MUDANYA": "Bursa'nın sahil ilçesidir.", "MECLİS": "TBMM'nin M'sidir.", "ANKARA": "Anıtkabir buradadır.", "ANITKABİR": "Rasattepe'de inşa edildi.", "NUTUK": "Kurtuluş Savaşı'nı anlatır.", "HARF": "Alfabenin her bir öğesi.", "SOYADI": "Nüfus cüzdanında yazar.", "ŞAPKA": "Başa takılır.", "FES": "Fas'ta bir şehrin adıdır.", "SEFER": "'Yolculuk' anlamına da gelir.", "ORDU": "Karadeniz'de bir il adıdır.", "PAŞA": "Mustafa Kemal'e de verilmişti.", "GAZİ": "Ankara'da bir üniversitenin adıdır.", "HİLAFET": "Halife makamıdır.", "MISIR": "Patlamışı sinemada yenir.", "FİRAVUN": "Tutankamon bunlardan biridir.", "ROMA": "Bugün İtalya'nın başkentidir.", "SEZAR": "Mart ayının ortasında öldürüldü.", "SPARTA": "'300' filmi bu şehri anlatır.", "ATİNA": "Bugün Yunanistan'ın başkentidir.", "TRUVA": "Troya diye de bilinir.", "EFES": "Artemis Tapınağı yakınındadır.", "HİTİT": "Mısır'la barış antlaşması imzaladılar.", "KADEŞ": "Aslı Hititçe ve Mısırca yazılmıştır.", "LİDYA": "Başkenti Sard'dı.", "FRİG": "Kral Midas bu uygarlıktandır.", "MİDAS": "Eşek kulaklı diye anlatılır.", "SÜMER": "Kil tabletlere yazdılar.", "ÇİVİ": "Çekiçle çakılır.", "NAPOLYON": "Bonapart soyadıyla bilinir.", "KOLOMB": "Cenevizliydi.", "VİKİNG": "Boynuzlu miğferli sanılır.", "SAMURAY": "Katana taşırdı.", "CENGİZ": "Tarihin en geniş kara imparatorluklarından birini kurdu.", "TİMUR": "'Aksak' lakabıyla anılır.", "HAÇLI": "Adını haç işaretinden alır.", "KUDÜS": "Selahaddin Eyyubi 1187'de aldı.", "BİZANS": "Başkenti Konstantinopolis'ti.", "AYASOFYA": "Justinianus yaptırdı.", "TOPKAPI": "Kaşıkçı Elması burada sergilenir.", "MATBAA": "Gutenberg geliştirdi.", "TELGRAF": "Kurtuluş Savaşı'nda çok kullanıldı.", "PİRİ": "'Yaşlı, ulu' anlamına gelir.", "PREVEZE": "Yunanistan'da bir şehirdir.", "VİYANA": "Valsleriyle ünlüdür.", "MOHAÇ": "Macaristan'da bir şehirdir.", "ÇALDIRAN": "Van'ın ilçesidir.", "NİĞBOLU": "Tuna kıyısında bir kaledir.", "KOSOVA": "Bugün bir Balkan ülkesidir.", "ŞEHİT": "Çanakkale'de on binlercesi vardır.", "ANZAK": "25 Nisan'da anılır.", "SEYİT": "Balıkesir Havran'dandır.", "NUSRET": "Adı 'zafer' anlamına gelir.", "MAYIN": "Nusret gemisi bunlardan döktü.", "SAVAŞ": "Barışın karşıtı.", "ZAFER": "30 Ağustos … Bayramı olarak kutlanır.", "BARIŞ": "Antlaşmayla sağlanır.", "KALE": "Satrançta da bir taştır.", "SUR": "İstanbul'unkiler Theodosius döneminden kalmadır.", "HİSAR": "Rumeli'deki Fatih tarafından yaptırıldı.", "KILIÇ": "Kının içinde taşınır.", "KALKAN": "Kılıçla birlikte taşınırdı.", "MIZRAK": "Süvariler kullanırdı.", "TOP": "Fatih'in kullandığı dev olanı ünlüdür.", "ŞAHİ": "'Padişaha ait' anlamına gelir.", "TAHT": "Buraya oturmak hükümdar olmak demektir.", "TAÇ": "'… giyme töreni' yapılır.", "KRAL": "Satrançta da bir taştır.", "SULTAN": "Hanedanın kadın üyelerine de denirdi.", "PADİŞAH": "Sultan da denir.", "VEZİR": "Satrançta en güçlü taştır.", "BEY": "Osman Gazi'ye de bu unvanla seslenilir.", "AĞA": "Köylerde toprak sahibine de denir.", "ŞEHZADE": "Sancaklarda yönetici olarak yetişirdi.", "SANCAK": "'Bayrak' anlamına da gelir.", "EYALET": "Beylerbeyi yönetirdi.", "VERGİ": "Öşür bunlardan biridir.", "ÖŞÜR": "'Onda bir' anlamına gelir.", "AKÇE": "Orhan Bey ilk kez bastırdı.", "ULUS": "Ankara'da tarihî bir semttir.", "MİLLET": "Ulus anlamına gelir.", "DEVRİM": "İnkılap da denir.", "LAİK": "1937'de Anayasa'ya girdi.", "SEÇİM": "Sandıkta yapılır.", "KADIN": "Erkeğin karşıtıdır.", "BAYRAK": "Gönderde dalgalanır.", "MARŞ": "Askerî yürüyüş şarkısı.", "AKİF": "Safahat'ın yazarıdır.", "İSTİKLAL": "1921'de kabul edildi.", "CEPHE": "Binanın ön yüzüne de denir.", "TAARRUZ": "'Saldırı' anlamına gelir.", "İZMİR": "Kordon'uyla ünlüdür.", "MİSAK": "'Yemin, ant' anlamına gelir.", "SALTANAT": "Hükümranlık anlamına gelir.", "HALİFE": "Son sahibi Abdülmecid Efendi'ydi.", "İSMET": "Sonradan İnönü soyadını aldı.", "KAZIM": "Bir erkek adıdır.", "FEVZİ": "Bir erkek adıdır.", "MAREŞAL": "TBMM, Sakarya'dan sonra Mustafa Kemal'e verdi.", "NENE": "Büyükanne anlamına gelir.", "HALİDE": "Bir kadın adıdır.", "TARİH": "Takvimdeki gün, ay ve yıl.", "ÇAĞ": "Dönem anlamına gelir.", "MAĞARA": "Fransa'daki Lascaux ünlüdür.", "TAŞ": "Sert doğal madde.", "TUNÇ": "Bronz da denir.", "DEMİR": "Mıknatısa yapışır.", "YAZIT": "Orhun'dakiler ünlüdür.", "ANTİK": "'… kent' Efes gibi yerlere denir.", "KENT": "Antik olanları Efes ve Troya gibidir.", "TAPINAK": "Artemis'inki yedi harikadan biriydi.", "ZEUS": "Olimpos'ta yaşadığına inanılırdı.", "NİL": "Dünyanın en uzun nehirlerindendir.", "DİCLE": "Diyarbakır'dan geçer.", "FIRAT": "Keban Barajı üzerindedir."}}};
+const PACKS={main:{img:'c_kutuphane.jpg',ad:'Genel Kültür',emoji:'📚',renk:'#3a7bd5',bg:'linear-gradient(135deg,#3a7bd5,#1d4e89)'},spor:{img:'c_stadyum.jpg',ad:'Spor',emoji:'⚽',renk:'#2a9d8f',bg:'linear-gradient(135deg,#2ec4b6,#137a63)'},sanat:{img:'c_tablo.jpg',ad:'Sanat',emoji:'🎨',renk:'#c77dff',bg:'linear-gradient(135deg,#c77dff,#7b2cbf)'},tarih:{img:'c_tarih.jpg',ad:'Tarih',emoji:'🏛️',renk:'#e76f51',bg:'linear-gradient(135deg,#f4a261,#c1440e)'}};
+//DATA-END
+
+//GEN-START
+function layout(words){
+  const base = words.slice().sort((a,b)=>[...b].length-[...a].length);
+  let best=null;
+  for(let attempt=0; attempt<80; attempt++){
+    let order = base.slice();
+    if(attempt>0){ const rest=order.slice(1); for(let i=rest.length-1;i>0;i--){const j=Math.floor(rnd(attempt*31+i)*(i+1));[rest[i],rest[j]]=[rest[j],rest[i]];} order=[order[0],...rest]; }
+    const r = tryPlace(order);
+    if(r){ const area=(r.w)*(r.h)+Math.abs(r.w-r.h)*2; if(!best||area<best.area){ best={...r,area}; } }
+  }
+  return best;
+}
+function rnd(s){ const x=Math.sin(s*9301+49297)*233280; return x-Math.floor(x); }
+function tryPlace(order){
+  const cells=new Map(); // "x,y" -> {ch, dirs:Set}
+  const P=[];
+  const put=(w,x,y,d)=>{ const a=[...w]; a.forEach((ch,k)=>{ const cx=d==="H"?x+k:x, cy=d==="H"?y:y+k; const key=cx+","+cy; if(!cells.has(key)) cells.set(key,{ch,dirs:new Set()}); cells.get(key).dirs.add(d);}); P.push({w,x,y,d}); };
+  const get=(x,y)=>cells.get(x+","+y);
+  const ok=(w,x,y,d)=>{
+    const a=[...w]; let inter=0;
+    const dx=d==="H"?1:0, dy=d==="H"?0:1;
+    if(get(x-dx,y-dy)||get(x+dx*a.length,y+dy*a.length)) return false;
+    for(let k=0;k<a.length;k++){
+      const cx=x+dx*k, cy=y+dy*k, c=get(cx,cy);
+      if(c){ if(c.ch!==a[k]||c.dirs.has(d)) return false; inter++; }
+      else { if(get(cx+dy,cy+dx)||get(cx-dy,cy-dx)) return false; }
+    }
+    return inter>0;
+  };
+  put(order[0],0,0,"H");
+  for(let i=1;i<order.length;i++){
+    const w=order[i], a=[...w]; let cands=[];
+    P.forEach(p=>{ const pa=[...p.w]; pa.forEach((pc,pi)=>a.forEach((c,j)=>{ if(pc!==c) return;
+      const d=p.d==="H"?"V":"H";
+      const x=p.d==="H"?p.x+pi:p.x-j, y=p.d==="H"?p.y-j:p.y+pi;
+      if(ok(w,x,y,d)) cands.push({x,y,d});
+    }));});
+    if(!cands.length) return null;
+    let bestC=null,bestS=1e9;
+    cands.forEach(c=>{ const b=bounds([...P,{w,...c}]); const s=b.w*b.h+Math.abs(b.w-b.h)*2; if(s<bestS){bestS=s;bestC=c;} });
+    put(w,bestC.x,bestC.y,bestC.d);
+  }
+  const b=bounds(P);
+  return { w:b.w, h:b.h, placed:P.map(p=>({w:p.w,x:p.x-b.x0,y:p.y-b.y0,d:p.d})) };
+}
+function bounds(P){ let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9; P.forEach(p=>{ const n=[...p.w].length; const ex=p.d==="H"?p.x+n-1:p.x, ey=p.d==="H"?p.y:p.y+n-1; x0=Math.min(x0,p.x);y0=Math.min(y0,p.y);x1=Math.max(x1,ex);y1=Math.max(y1,ey);}); return {x0,y0,w:x1-x0+1,h:y1-y0+1}; }
+//GEN-END
+
+// ---------- DURUM ----------
+const $=id=>document.getElementById(id);
+const store={ get(k,d){ try{ const v=localStorage.getItem("bc_"+k); return v==null?d:JSON.parse(v);}catch(e){return d;} }, set(k,v){ try{ localStorage.setItem("bc_"+k,JSON.stringify(v)); }catch(e){} } };
+let pack=store.get("pack","main"); if(!PACKS[pack]) pack="main";
+const K=k=> pack==="main"?k:pack+"_"+k;
+let LEVELS = pack==="main"?MAIN_LEVELS:CATS[pack].levels;
+let INFO = pack==="main"?MAIN_INFO:Object.assign({},MAIN_INFO,CATS[pack].info);
+let gems=store.get("gems",3), infoOpen=store.get(K("info"),{});
+let coins=store.get("coins",50), unlocked=store.get(K("unlocked"),0), lv=Math.min(store.get(K("lv"),0),LEVELS.length-1);
+let L=null, cellMap=new Map(), selWord=-1, letters=[], wheelPos=[];
+
+function startLevel(i){
+  lv=i; store.set(K("lv"),lv);
+  const def=LEVELS[i];
+  const words=def.words.map(w=>w[0]);
+  const lay=layout(words);
+  const saved=store.get(K("prog_"+i),null);
+  L={ def, lay, words:lay.placed.map(p=>({...p, q:def.words.find(x=>x[0]===p.w)[1], found:false, revealed:new Set()})) };
+  if(saved){ L.words.forEach(w=>{ if(saved.f.includes(w.w)) w.found=true; const r=saved.r[w.w]; if(r) r.forEach(k=>w.revealed.add(k)); }); }
+  letters=[...def.letters]; shuffleLetters(false);
+  selWord=-1;
+  const T=TIERS[tierOf(i)]; $("lvl").innerHTML=`<span class="zp" style="background:${T.g}">${pack!=="main"?PACKS[pack].emoji+" ":""}${T.emoji} ${T.ad}</span>`;
+  if(i>0 && tierOf(i)!==tierOf(i-1) && !store.get(K("seen_tier"+tierOf(i)),false)){ store.set(K("seen_tier"+tierOf(i)),true); setTimeout(()=>toast(`${T.emoji} ${T.ad} rütbesine yükseldin! Kelime başı +${T.odul} 🪙`),300); }
+  buildGrid(); buildWheel(); setQuestion(); try{ applyScene(i); }catch(e){}
+  const first=L.words.findIndex(w=>!w.found); if(first>=0) selectWord(first);
+}
+function saveProg(){ const r={}; L.words.forEach(w=>{ if(w.revealed.size) r[w.w]=[...w.revealed]; }); store.set(K("prog_"+lv),{f:L.words.filter(w=>w.found).map(w=>w.w),r}); }
+
+// ---------- IZGARA ----------
+function wordCells(w){ return [...w.w].map((ch,k)=>({x:w.d==="H"?w.x+k:w.x, y:w.d==="H"?w.y:w.y+k, ch, k})); }
+function buildGrid(){
+  const g=$("grid"); g.innerHTML=""; cellMap.clear();
+  const wrap=$("gridWrap"); const W=wrap.clientWidth-4, Hh=wrap.clientHeight-4;
+  const size=Math.floor(Math.min(W/L.lay.w, Hh/L.lay.h, 56));
+  const gap=Math.max(2,Math.round(size*0.07));
+  g.style.width=(L.lay.w*size)+"px"; g.style.height=(L.lay.h*size)+"px";
+  L.words.forEach((w,wi)=>wordCells(w).forEach(c=>{
+    const key=c.x+","+c.y;
+    if(!cellMap.has(key)){
+      const el=document.createElement("div"); el.className="c";
+      el.style.cssText=`left:${c.x*size+gap/2}px;top:${c.y*size+gap/2}px;width:${size-gap}px;height:${size-gap}px;font-size:${Math.round(size*0.58)}px`;
+      el.onclick=()=>onCellTap(key);
+      g.appendChild(el); cellMap.set(key,{el,ch:c.ch,words:[]});
+    }
+    cellMap.get(key).words.push(wi);
+  }));
+  refreshGrid();
+}
+function cellShown(key){ const c=cellMap.get(key); return c.words.some(wi=>{ const w=L.words[wi]; if(w.found) return true; const k=wordCells(w).find(z=>z.x+","+z.y===key).k; return w.revealed.has(k); }); }
+function refreshGrid(){
+  cellMap.forEach((c,key)=>{
+    const shown=cellShown(key);
+    c.el.textContent=shown?c.ch:"";
+    c.el.classList.toggle("f",shown);
+    c.el.classList.toggle("s",selWord>=0 && c.words.includes(selWord));
+  });
+}
+function onCellTap(key){
+  const c=cellMap.get(key);
+  // kesişim kutusunda tekrar dokununca diğer kelimeye geç
+  let pick=c.words.find(wi=>!L.words[wi].found && wi!==selWord);
+  if(pick===undefined) pick = c.words.includes(selWord)? selWord : c.words[0];
+  if(c.words.length>1 && c.words.includes(selWord)){ const other=c.words.find(wi=>wi!==selWord); if(other!==undefined) pick=other; }
+  selectWord(pick);
+}
+function selectWord(wi){ selWord=wi; refreshGrid(); setQuestion(); }
+function setQuestion(){
+  const q=$("q");
+  if(selWord<0){ $("qi").classList.add("hidden"); q.classList.remove("solved"); $("qt").textContent="Bulmacada bir kutucuğa dokun, sorusu burada çıksın."; q.querySelector(".h").textContent="Soru"; return; }
+  const w=L.words[selWord], n=[...w.w].length;
+  q.querySelector(".h").textContent = w.found ? `✅ Bulundu: ${w.w}` : `Soru · ${n} harf · ${w.d==="H"?"yatay":"dikey"}`;
+  q.classList.toggle("solved",w.found);
+  $("qt").textContent=w.q;
+  const qi=$("qi"), key=lv+":"+w.w;
+  if(infoOpen[key] && !w.found){ qi.innerHTML=`ℹ️ <b>Bilgi:</b> `; qi.appendChild(document.createTextNode(INFO[w.w]||"")); const f=document.createElement("div"); f.innerHTML=`<b>İlk harf:</b> ${[...w.w][0]}`; qi.appendChild(f); qi.classList.remove("hidden"); }
+  else qi.classList.add("hidden");
+}
+
+// ---------- ÇARK ----------
+function shuffleLetters(rebuild=true){ for(let i=letters.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[letters[i],letters[j]]=[letters[j],letters[i]];} if(rebuild) buildWheel(); }
+function buildWheel(){
+  const wh=$("wheel"); wh.querySelectorAll(".L").forEach(e=>e.remove());
+  const n=letters.length; wheelPos=[];
+  letters.forEach((ch,i)=>{
+    const a=-Math.PI/2+i*2*Math.PI/n, r=n>7?0.37:0.34;
+    const x=0.5+r*Math.cos(a), y=0.5+r*Math.sin(a);
+    const el=document.createElement("div"); el.className="L"; el.textContent=ch; el.style.left=(x*100)+"%"; el.style.top=(y*100)+"%"; if(n>7){ el.style.width=el.style.height="19%"; el.style.margin="-9.5% 0 0 -9.5%"; el.style.fontSize="clamp(20px,6.5vw,28px)"; }
+    wh.appendChild(el); wheelPos.push({x,y,el,ch});
+  });
+}
+let path=[], drawing=false, pointer=null;
+function hit(px,py){ const r=$("wheel").getBoundingClientRect(); const x=(px-r.left)/r.width, y=(py-r.top)/r.height; let bi=-1; wheelPos.forEach((p,i)=>{ if(Math.hypot(p.x-x,p.y-y)<(wheelPos.length>7?0.095:0.11)) bi=i; }); return {bi,x,y}; }
+function drawLines(){
+  const svg=$("lines"), r=$("wheel").getBoundingClientRect();
+  svg.setAttribute("viewBox",`0 0 ${r.width} ${r.height}`);
+  let pts=path.map(i=>[wheelPos[i].x*r.width,wheelPos[i].y*r.height]);
+  if(drawing&&pointer&&path.length) pts.push([pointer.x*r.width,pointer.y*r.height]);
+  svg.innerHTML = pts.length>1 ? `<polyline points="${pts.map(p=>p.join(",")).join(" ")}" fill="none" stroke="#ffb703" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>` : "";
+  wheelPos.forEach((p,i)=>p.el.classList.toggle("on",path.includes(i)));
+  $("curTxt").textContent=path.map(i=>wheelPos[i].ch).join("");
+}
+const wh=$("wheel");
+wh.addEventListener("pointerdown",e=>{ e.preventDefault(); const h=hit(e.clientX,e.clientY); if(h.bi<0) return; try{wh.setPointerCapture(e.pointerId);}catch(_){} drawing=true; path=[h.bi]; pointer=h; $("cur").className=""; drawLines(); });
+wh.addEventListener("pointermove",e=>{ if(!drawing) return; const h=hit(e.clientX,e.clientY); pointer=h;
+  if(h.bi>=0){ if(path.length>1 && path[path.length-2]===h.bi) path.pop(); else if(!path.includes(h.bi)) path.push(h.bi); }
+  drawLines(); });
+const end=()=>{ if(!drawing) return; drawing=false; const w=path.map(i=>wheelPos[i].ch).join(""); pointer=null; path=[]; drawLines(); submit(w); };
+wh.addEventListener("pointerup",end); wh.addEventListener("pointercancel",end);
+
+function flash(cls,txt){ const c=$("cur"); $("curTxt").textContent=txt; c.className=cls; setTimeout(()=>{ c.className=""; $("curTxt").textContent=""; },650); }
+function toast(t){ const el=$("toast"); el.textContent=t; el.classList.remove("hidden"); el.style.opacity=1; clearTimeout(el._t); el._t=setTimeout(()=>{el.style.opacity=0; setTimeout(()=>el.classList.add("hidden"),300);},1400); }
+
+function submit(w){
+  if([...w].length<2){ $("curTxt").textContent=""; return; }
+  const idx=L.words.findIndex(x=>x.w===w);
+  if(idx<0){ flash("bad",w); SFX.bad(); return; }
+  if(L.words[idx].found){ flash("dup",w); toast("Bunu zaten buldun"); return; }
+  L.words[idx].found=true; const odul=TIERS[tierOf(lv)].odul; coins+=odul; store.set("coins",coins); $("coins").textContent=coins;
+  flash("good",w); SFX.ok();
+  if(idx!==selWord) toast(`Doğru kelime! +${odul} 🪙`);
+  wordCells(L.words[idx]).forEach((c,k)=>{ const el=cellMap.get(c.x+","+c.y).el; setTimeout(()=>{ el.classList.add("pop"); setTimeout(()=>el.classList.remove("pop"),400); },k*70); });
+  saveProg();
+  const next=L.words.findIndex(x=>!x.found);
+  if(next<0){ refreshGrid(); setQuestion(); setTimeout(win,800); return; }
+  selWord = (idx===selWord) ? next : selWord;
+  refreshGrid(); setQuestion();
+}
+function win(){
+  SFX.win();
+  coins+=25; store.set("coins",coins); $("coins").textContent=coins;
+  if(lv+1>unlocked){ unlocked=Math.min(lv+1,LEVELS.length-1); store.set(K("unlocked"),unlocked); }
+  const last = lv>=LEVELS.length-1;
+  const used=store.get(K("hintUsed_"+lv),0), st= used===0?3:used<=2?2:1;
+  const T=TIERS[tierOf(Math.min(lv+1,LEVELS.length-1))], rankUp=!last && tierOf(lv+1)!==tierOf(lv);
+  $("winTitle").textContent = rankUp ? `${T.emoji} ${T.ad} oldun!` : ["Harika! 🎉","Süpersin! 🎉","Bravo! 🎉","Muhteşem! 🎉"][lv%4];
+  $("winLevel").textContent = last ? "Bu yolun sonuna geldin! Yeni seviyeler yakında." : `${lv+2}. seviyeye hoş geldin!`;
+  $("winCoins").textContent = 25;
+  $("winNext").textContent = last ? "" : `📍 Sıradaki durak: ${placeName(lv+1)}`;
+  $("btnNext").textContent = last ? "Baştan Oyna" : "Devam Et ▶";
+  const sp=[...document.querySelectorAll("#winStars span")]; sp.forEach(x=>x.classList.remove("on"));
+  sp.forEach((x,k)=>{ if(k<st) setTimeout(()=>{ x.classList.add("on"); beep([[700+k*200,.12]]); },450+k*380); });
+  store.set(K("done_"+lv),true);
+  $("ovWin").classList.remove("hidden");
+}
+
+// ---------- BUTONLAR ----------
+$("btnShuffle").onclick=()=>shuffleLetters();
+$("btnHint").onclick=()=>{
+  if(coins<25){ toast("Yeterli altın yok (25 🪙)"); return; }
+  let wi = (selWord>=0 && !L.words[selWord].found) ? selWord : L.words.findIndex(w=>!w.found);
+  if(wi<0) return;
+  const w=L.words[wi]; const cs=wordCells(w).filter(c=>!cellShown(c.x+","+c.y));
+  if(!cs.length) return;
+  w.revealed.add(cs[0].k); store.set(K("hintUsed_"+lv),store.get(K("hintUsed_"+lv),0)+1); coins-=25; store.set("coins",coins); $("coins").textContent=coins;
+  selWord=wi; saveProg(); refreshGrid(); setQuestion();
+};
+$("btnNext").onclick=()=>{ $("ovWin").classList.add("hidden"); const n = lv>=LEVELS.length-1 ? 0 : lv+1; if(n===0){ LEVELS.forEach((_,i)=>store.set(K("prog_"+i),null)); } startLevel(n); };
+const ZONES=[
+ {ad:"Çırak Yolu",emoji:"🌱",alt:"Kolay sorular",img:"orman.jpg",renk:"#2a9d8f",bg:["#1d5e4a","#0f3b30"],deco:["🌳","🌲","🍃","🌼","🐦"]},
+ {ad:"Kalfa Tepesi",emoji:"🔥",alt:"Orta zorlukta sorular",img:"z_kalfa.jpg",renk:"#f4a261",bg:["#7a4a1e","#4a2a10"],deco:["⛰️","🏜️","🌵","🦅","🔥"]},
+ {ad:"Usta Zirvesi",emoji:"👑",alt:"Zor sorular",img:"z_usta.jpg",renk:"#e63946",bg:["#5a1430","#2a0a24"],deco:["🏔️","❄️","⭐","🌙","🏰"]}];
+function levelStars(i){ const d=store.get(K("done_"+i),false); if(!d) return 0; const used=store.get(K("hintUsed_"+i),0); return used===0?3:used<=2?2:1; }
+function openMap(){
+  const inner=$("mapInner"); inner.innerHTML="";
+  const W=$("map").clientWidth||375, STEP=96, HEAD=160, PADB=70, PADT=60;
+  const N=LEVELS.length, n=Math.min(N, unlocked+4);
+  // her bölümün y'si (aşağıdan yukarı)
+  const ys=[], zoneSpans=[]; let y=PADB;
+  for(let i=0;i<n;i++){
+    if(i===0||tierOf(i)!==tierOf(i-1)){ zoneSpans.push({t:tierOf(i),start:y}); y+=HEAD; }
+    ys.push(y); y+=STEP;
+  }
+  const FOG=n<N?150:0; const H=y+PADT+FOG; inner.style.height=H+"px";
+  zoneSpans.forEach((z,k)=>{ z.end = k+1<zoneSpans.length ? zoneSpans[k+1].start : H; });
+  const Y=v=>H-v; // aşağıdan yukarı
+  // her 4 bölümde bir kategoriye özel fotoğraf
+  const imgs=MAPIMG[pack]||MAPIMG.main;
+  for(let j=0;4*j<n;j++){
+    const lo = j===0 ? 0 : (ys[4*j-1]+ys[4*j])/2, hi = 4*j+4<n ? (ys[4*j+3]+ys[4*j+4])/2 : H;
+    const sg=document.createElement("div"); sg.className="seg";
+    sg.style.top=Y(hi)+"px"; sg.style.height=(hi-lo)+"px";
+    sg.style.backgroundImage=`linear-gradient(180deg,#0b1d2e 0%,#0b1d2e00 14%,#0b1d2e00 86%,#0b1d2e 100%), linear-gradient(0deg,#0005,#0002), url(img/${imgs[j%imgs.length]})`;
+    inner.appendChild(sg);
+  }
+  // bölgeler
+  zoneSpans.forEach(z=>{
+    const Z=ZONES[z.t], el=document.createElement("div"); el.className="zone";
+    el.style.top=Y(z.end)+"px"; el.style.height=(z.end-z.start)+"px";
+    
+    const r=document.createElement("div"); r.className="ribbon"; r.style.background=Z.renk; r.style.color="#fff";
+    r.style.top=((z.end-z.start)-HEAD+78)+"px";
+    r.innerHTML=`${Z.emoji} ${Z.ad}<small>${Z.alt}</small>`; el.appendChild(r);
+    inner.appendChild(el);
+  });
+  // yol
+  const xs=ys.map((_,i)=> W/2 + Math.sin(i*0.85)*W*0.28);
+  const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  svg.setAttribute("width",W); svg.setAttribute("height",H); svg.style.cssText="position:absolute;left:0;top:0;z-index:0";
+  const seg=(i)=>{ const x0=xs[i],y0=Y(ys[i]),x1=xs[i+1],y1=Y(ys[i+1]),my=(y0+y1)/2; return `M${x0},${y0} C${x0},${my} ${x1},${my} ${x1},${y1}`; };
+  for(let i=0;i<n-1;i++){
+    const done=i<unlocked, p=document.createElementNS("http://www.w3.org/2000/svg","path");
+    p.setAttribute("d",seg(i)); p.setAttribute("fill","none"); p.setAttribute("stroke-linecap","round");
+    p.setAttribute("stroke",done?"#ffb703":"#ffffff40"); p.setAttribute("stroke-width",done?10:7);
+    if(!done) p.setAttribute("stroke-dasharray","2 14");
+    svg.appendChild(p);
+  }
+  inner.appendChild(svg);
+  // düğümler
+  let starsTotal=0, doneCount=0;
+  for(let i=0;i<n;i++){
+    const d=document.createElement("div"); const Z=ZONES[tierOf(i)];
+    const isDone=store.get(K("done_"+i),false), isCur=(i===Math.min(unlocked,n-1)) && !(isDone && i===n-1), locked=i>unlocked;
+    d.className="node "+(isCur?"cur":isDone?"done":locked?"lock":"done");
+    d.style.setProperty("--zc",Z.renk);
+    d.style.left=xs[i]+"px"; d.style.top=Y(ys[i])+"px";
+    if(locked){ d.innerHTML=`${i+1}<span>🔒</span>`; d.onclick=()=>{ toast("Önce önceki bölümleri bitir"); }; }
+    else{
+      const st=levelStars(i); if(isDone){ starsTotal+=st; doneCount++; }
+      d.innerHTML=`${isDone?`<div class="stars">${"⭐".repeat(st)}</div>`:""}${i+1}${isCur?'<div class="play">▶ OYNA</div>':""}`;
+      d.onclick=()=>{ $("map").classList.add("hidden"); hideHome(); startLevel(i); };
+    }
+    inner.appendChild(d);
+  }
+  if(n<N){ const f=document.createElement("div"); f.className="fog"; f.style.height=(FOG+120)+"px"; f.innerHTML="☁️ ☁️ ☁️<div>Yol devam ediyor…</div><small>Yeni bölümler sen ilerledikçe açılır</small>"; inner.appendChild(f); }
+  $("mapStars").textContent=starsTotal;
+  const T=TIERS[tierOf(Math.min(unlocked,N-1))]; $("mapProgTxt").innerHTML=`${PACKS[pack].emoji} ${PACKS[pack].ad} <span class="zp" style="background:${T.g};font-size:13px;padding:2px 10px;margin-left:6px">${T.emoji} ${T.ad}</span>`;
+  $("map").classList.remove("hidden");
+  const cy=Y(ys[Math.min(unlocked,n-1)]); const sc=$("mapScroll");
+  requestAnimationFrame(()=>{ sc.scrollTop=Math.max(0,cy-sc.clientHeight/2); });
+}
+$("btnMenu").onclick=openMap;
+let mapFrom=null;
+$("mapBack").onclick=()=>{ $("map").classList.add("hidden"); if(mapFrom==="cats"){ mapFrom=null; openCats(); } };
+$("btnHomeBtn").onclick=()=>showHome();
+window.addEventListener("resize",()=>{ if(L){ buildGrid(); drawLines(); } });
+let lastGH=0;
+try{ new ResizeObserver(()=>{ const h=$("gridWrap").clientHeight; if(L && Math.abs(h-lastGH)>2){ lastGH=h; buildGrid(); } }).observe($("gridWrap")); }catch(e){}
+
+
+// ---------- ELMAS / BİLGİ ----------
+function setGems(n){ gems=n; store.set("gems",gems); $("gems").textContent=gems; }
+function openShop(){ $("ovShop").classList.remove("hidden"); }
+$("gemPill").onclick=openShop;
+$("btnShopClose").onclick=()=>$("ovShop").classList.add("hidden");
+$("btnInfo").onclick=()=>{
+  let wi=(selWord>=0 && !L.words[selWord].found)? selWord : L.words.findIndex(w=>!w.found);
+  if(wi<0) return;
+  const key=lv+":"+L.words[wi].w;
+  if(infoOpen[key]){ selectWord(wi); toast("Bu sorunun bilgisi zaten açık"); return; }
+  if(gems<1){ toast("Elmasın kalmadı"); openShop(); return; }
+  setGems(gems-1); store.set(K("hintUsed_"+lv),store.get(K("hintUsed_"+lv),0)+1); infoOpen[key]=true; store.set(K("info"),infoOpen);
+  selectWord(wi); toast("Bilgi açıldı (-1 💎)");
+};
+let adTimer=null;
+$("btnAd").onclick=()=>{ adReward=null;
+  $("ovShop").classList.add("hidden"); $("ovAd").classList.remove("hidden");
+  let n=5; $("adCount").textContent=n; const b=$("btnAdDone"); b.disabled=true; b.style.opacity=.4;
+  clearInterval(adTimer); adTimer=setInterval(()=>{ n--; $("adCount").textContent=Math.max(n,0); if(n<=0){ clearInterval(adTimer); b.disabled=false; b.style.opacity=1; } },1000);
+};
+$("btnAdDone").onclick=()=>{ $("ovAd").classList.add("hidden"); if(typeof adReward==="function"){ const f=adReward; adReward=null; f(); return; } setGems(gems+1); toast("+1 💎 kazandın"); };
+document.querySelectorAll("[data-gem]").forEach(b=>b.onclick=()=>{ const n=+b.dataset.gem; setGems(gems+n); $("ovShop").classList.add("hidden"); toast(`Deneme: ${n} 💎 eklendi (ödeme alınmadı)`); });
+
+// ---------- ANA EKRAN / AYARLAR / SES ----------
+let soundOn=store.get("sound",true), vibOn=store.get("vib",true), menuFromHome=false, actx=null;
+function beep(notes){ if(!soundOn) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); let t=actx.currentTime;
+  notes.forEach(([f,d])=>{ const o=actx.createOscillator(), g=actx.createGain(); o.type="triangle"; o.frequency.value=f; g.gain.setValueAtTime(.15,t); g.gain.exponentialRampToValueAtTime(.001,t+d); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+d); t+=d*.8; }); }catch(e){} }
+function buzz(ms){ if(vibOn && navigator.vibrate) try{ navigator.vibrate(ms); }catch(e){} }
+const SFX={ ok:()=>{beep([[660,.12],[990,.18]]);buzz(30);}, bad:()=>{beep([[200,.2]]);buzz([40,40,40]);}, win:()=>{beep([[523,.15],[659,.15],[784,.15],[1047,.3]]);buzz(120);} };
+function showHome(){ try{ $("hsCoins").textContent=coins; $("hsGems").textContent=gems; $("hsStars").textContent=["main","spor","sanat","tarih"].reduce((a,p)=>a+packStars(p),0); }catch(e){} $("hCont").textContent = `${PACKS[pack].emoji} ${PACKS[pack].ad} · ${TIERS[tierOf(lv)].emoji} ${TIERS[tierOf(lv)].ad}`; $("home").classList.remove("hidden"); }
+function hideHome(){ $("home").classList.add("hidden"); }
+function syncToggles(){ $("tSound").classList.toggle("on",soundOn); $("tVib").classList.toggle("on",vibOn); }
+$("hStart").onclick=()=>{ hideHome(); beep([[523,.08],[784,.12]]); if(L) buildGrid(); };
+$("hMenu").onclick=()=>{ mapFrom=null; menuFromHome=true; $("btnMenu").click(); };
+$("hSet").onclick=()=>{ syncToggles(); $("resetAsk").classList.add("hidden"); $("ovSet").classList.remove("hidden"); };
+$("tSound").onclick=()=>{ soundOn=!soundOn; store.set("sound",soundOn); syncToggles(); beep([[880,.08]]); };
+$("tVib").onclick=()=>{ vibOn=!vibOn; store.set("vib",vibOn); syncToggles(); buzz(40); };
+$("btnSetClose").onclick=()=>$("ovSet").classList.add("hidden");
+$("btnReset").onclick=()=>$("resetAsk").classList.remove("hidden");
+$("btnResetNo").onclick=()=>$("resetAsk").classList.add("hidden");
+$("btnResetYes").onclick=()=>{ try{ Object.keys(localStorage).filter(k=>k.startsWith("bc_")).forEach(k=>localStorage.removeItem(k)); }catch(e){}
+  coins=50; gems=3; unlocked=0; infoOpen={}; store.set("coins",coins); store.set("gems",gems); store.set("sound",soundOn); store.set("vib",vibOn);
+  $("coins").textContent=coins; $("gems").textContent=gems; startLevel(0); $("ovSet").classList.add("hidden"); showHome(); toast("İlerleme sıfırlandı"); };
+
+// ---------- KATEGORİLER ----------
+function setPack(p){
+  pack=p; store.set("pack",p);
+  LEVELS = p==="main"?MAIN_LEVELS:CATS[p].levels;
+  INFO = p==="main"?MAIN_INFO:Object.assign({},MAIN_INFO,CATS[p].info);
+  unlocked=store.get(K("unlocked"),0); infoOpen=store.get(K("info"),{});
+  lv=Math.min(store.get(K("lv"),0),LEVELS.length-1);
+  startLevel(lv);
+}
+function packStars(p){ const pre=p==="main"?"":p+"_", n=(p==="main"?MAIN_LEVELS:CATS[p].levels).length; let st=0; for(let i=0;i<n;i++){ if(store.get(pre+"done_"+i,false)){ const u=store.get(pre+"hintUsed_"+i,0); st+= u===0?3:u<=2?2:1; } } return st; }
+function packRank(p){ const u=store.get((p==="main"?"":p+"_")+"unlocked",0); return p==="main"?(u<10?0:u<19?1:2):(u<17?0:u<34?1:2); }
+function packDone(p){ const n=(p==="main"?MAIN_LEVELS:CATS[p].levels).length; let d=0; for(let i=0;i<n;i++) if(store.get((p==="main"?"":p+"_")+"done_"+i,false)) d++; return [d,n]; }
+function openCats(){
+  const g=$("catGrid"); g.innerHTML="";
+  ["main","spor","sanat","tarih"].forEach(p=>{
+    const P=PACKS[p], [d,n]=packDone(p), c=document.createElement("div");
+    c.className="ccard"; c.style.background=`linear-gradient(180deg,#0001 0%,#0002 40%,#000c 100%), url(img/${P.img}) center/cover, ${P.bg}`;
+    c.innerHTML=`${p===pack?'<div class="sel">SEÇİLİ</div>':""}<div class="cn">${P.ad}</div><div class="rk"><span>${TIERS[packRank(p)].emoji} ${TIERS[packRank(p)].ad}</span><span>⭐ ${packStars(p)}</span></div>`;
+    c.onclick=()=>{ setPack(p); $("cats").classList.add("hidden"); showHome(); mapFrom="cats"; openMap(); };
+    g.appendChild(c);
+  });
+  $("cats").classList.remove("hidden");
+}
+$("hCats").onclick=openCats;
+$("catsBack").onclick=()=>$("cats").classList.add("hidden");
+
+// ---------- MANZARALAR ----------
+const SCN=(()=>{
+  const sky=(id,stops)=>`<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="800" gradientUnits="userSpaceOnUse">${stops.map((c,i)=>`<stop offset="${i/(stops.length-1)}" stop-color="${c}"/>`).join("")}</linearGradient>`;
+  const R=(seed)=>{let s=seed;return ()=>{s=(s*9301+49297)%233280;return s/233280;};};
+  const stars=(n,seed,maxY=420)=>{const r=R(seed);let o="";for(let i=0;i<n;i++)o+=`<circle cx="${(r()*400).toFixed(0)}" cy="${(r()*maxY).toFixed(0)}" r="${(r()*1.6+.4).toFixed(1)}" fill="#fff" opacity="${(r()*.6+.3).toFixed(2)}"/>`;return o;};
+  const pine=(x,y,h,c)=>{const w=h*.42;return `<path d="M${x} ${y-h} L${x+w*.55} ${y-h*.55} L${x+w*.3} ${y-h*.55} L${x+w*.75} ${y-h*.18} L${x+w*.4} ${y-h*.18} L${x+w} ${y} L${x-w} ${y} L${x-w*.4} ${y-h*.18} L${x-w*.75} ${y-h*.18} L${x-w*.3} ${y-h*.55} L${x-w*.55} ${y-h*.55}Z" fill="${c}"/>`;};
+  const pines=(n,y,h,c,seed)=>{const r=R(seed);let o="";for(let i=0;i<n;i++){o+=pine(-20+i*(440/(n-1))+r()*20,y+r()*15,h*(.75+r()*.5),c);}return o;};
+  const cloud=(x,y,s,o=.85)=>`<g fill="#fff" opacity="${o}"><ellipse cx="${x}" cy="${y}" rx="${40*s}" ry="${14*s}"/><ellipse cx="${x-18*s}" cy="${y-8*s}" rx="${18*s}" ry="${14*s}"/><ellipse cx="${x+12*s}" cy="${y-12*s}" rx="${22*s}" ry="${17*s}"/></g>`;
+  const birds=(pts,c)=>pts.map(([x,y,s])=>`<path d="M${x-8*s} ${y} q${4*s} ${-5*s} ${8*s} 0 q${4*s} ${-5*s} ${8*s} 0" stroke="${c}" stroke-width="${1.6*s}" fill="none"/>`).join("");
+  const scenes=[
+  {ad:"İstanbul",svg:()=>`<defs>${sky("s",["#3d2c6b","#c2508a","#ff9a62","#ffc78a"])}<linearGradient id="w" x1="0" y1="560" x2="0" y2="800" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#7b4a7d"/><stop offset="1" stop-color="#2a1f45"/></linearGradient></defs>
+    <rect width="400" height="800" fill="url(#s)"/><circle cx="200" cy="520" r="70" fill="#ffd98a" opacity=".85"/>${birds([[90,220,1],[120,240,.8],[300,180,1.1]],"#2a1f45")}
+    <g fill="#2a1f45"><path d="M0 560 L0 520 Q60 500 120 515 L120 560Z"/><ellipse cx="200" cy="478" rx="58" ry="42"/><rect x="140" y="478" width="120" height="82"/><ellipse cx="148" cy="500" rx="26" ry="20"/><ellipse cx="252" cy="500" rx="26" ry="20"/><rect x="196" y="420" width="8" height="20"/>
+    ${[105,125,275,295].map(x=>`<rect x="${x}" y="380" width="8" height="180"/><path d="M${x-2} 382 L${x+4} 345 L${x+10} 382Z"/><rect x="${x-3}" y="430" width="14" height="5"/>`).join("")}
+    <rect x="330" y="430" width="26" height="130"/><path d="M326 432 L343 395 L360 432Z"/><path d="M360 560 L360 505 Q380 495 400 500 L400 560Z"/></g>
+    <rect y="560" width="400" height="240" fill="url(#w)"/>${[0,1,2,3,4,5].map(i=>`<rect x="${170+((i*13)%30)-15}" y="${575+i*16}" width="${60-i*7}" height="3" rx="1.5" fill="#ffd98a" opacity="${.6-i*.08}"/>`).join("")}`},
+  {ad:"Paris",svg:()=>`<defs>${sky("s",["#1f2154","#5b4b8a","#c779a2","#f7b58f"])}</defs><rect width="400" height="800" fill="url(#s)"/>${stars(40,3,300)}<circle cx="320" cy="140" r="26" fill="#fff3d6" opacity=".9"/>
+    <g fill="#241c3f"><path d="M197 150 L203 150 L206 250 L214 370 L232 490 L270 660 L240 660 L222 575 L178 575 L160 660 L130 660 L168 490 L186 370 L194 250Z"/><rect x="180" y="362" width="40" height="10"/><rect x="164" y="482" width="72" height="12"/><rect x="198" y="128" width="4" height="24"/></g>
+    <path d="M168 660 Q200 590 232 660Z" fill="url(#s)"/>
+    <g fill="#1a1433">${[[0,640,50],[45,655,40],[80,630,35],[250,645,45],[290,625,40],[330,650,35],[360,635,45]].map(([x,y,w])=>`<rect x="${x}" y="${y}" width="${w}" height="${800-y}"/><path d="M${x-4} ${y} L${x+w/2} ${y-18} L${x+w+4} ${y}Z"/>`).join("")}<rect y="700" width="400" height="100"/></g>
+    ${[[10,670],[25,690],[60,680],[95,660],[265,670],[300,650],[340,680],[375,665],[310,700],[20,720]].map(([x,y])=>`<rect x="${x}" y="${y}" width="6" height="8" fill="#ffd27a" opacity=".85"/>`).join("")}`},
+  {ad:"Tokyo",svg:()=>`<defs>${sky("s",["#9ec5ff","#cfe0ff","#ffd6e0","#ffc2d1"])}</defs><rect width="400" height="800" fill="url(#s)"/><circle cx="300" cy="240" r="46" fill="#ff5d73" opacity=".9"/>${cloud(90,180,1)}${cloud(330,330,.7)}
+    <path d="M-20 600 L200 320 L420 600Z" fill="#7d8cc4"/><path d="M200 320 L246 380 L232 374 L222 390 L208 378 L196 392 L184 376 L170 388 L154 380Z" fill="#fff"/><rect y="590" width="400" height="210" fill="#e9a8c0"/>
+    <g fill="#3a2d55">${[0,1,2,3,4].map(i=>{const w=70-i*11,y=600-i*36;return `<rect x="${95-w*.28}" y="${y-26}" width="${w*.56}" height="26"/><path d="M${95-w/2-8} ${y-24} Q95 ${y-40} ${95+w/2+8} ${y-24} L${95+w/2-4} ${y-30} L${95-w/2+4} ${y-30}Z"/>`;}).join("")}<rect x="93" y="400" width="4" height="25"/></g>
+    <rect x="300" y="560" width="10" height="70" fill="#5b3a29"/>${[[305,540,40],[275,560,28],[335,565,30],[300,510,26],[320,530,24]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="#ff9ebb" opacity=".95"/>`).join("")}
+    ${[[40,700],[120,660],[220,720],[360,690],[180,640]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="4" fill="#fff" opacity=".8"/>`).join("")}`},
+  {ad:"Gize",svg:()=>`<defs>${sky("s",["#5fb3e6","#a6d8f0","#f7e0a8","#f2c27a"])}</defs><rect width="400" height="800" fill="url(#s)"/><circle cx="310" cy="190" r="48" fill="#fff6c9"/>${birds([[80,200,1],[110,215,.8]],"#5b4636")}
+    <path d="M-10 620 L170 360 L360 620Z" fill="#e2a85a"/><path d="M170 360 L360 620 L230 620Z" fill="#b97d3b"/>
+    <path d="M220 620 L330 470 L440 620Z" fill="#d99b4f"/><path d="M330 470 L440 620 L360 620Z" fill="#a86e30"/>
+    <path d="M10 620 L70 545 L130 620Z" fill="#d99b4f"/><path d="M70 545 L130 620 L90 620Z" fill="#a86e30"/>
+    <path d="M0 610 Q120 580 220 612 T400 600 L400 800 L0 800Z" fill="#edc07a"/><path d="M0 690 Q150 650 260 690 T400 680 L400 800 L0 800Z" fill="#e0a95c"/>`},
+  {ad:"Orman",svg:()=>`<defs>${sky("s",["#bfeccd","#86cfa4","#4a9c78","#2c6e55"])}</defs><rect width="400" height="800" fill="url(#s)"/><circle cx="200" cy="200" r="60" fill="#fffbe0" opacity=".7"/>
+    ${[0,1,2,3].map(i=>`<path d="M${150+i*30} 150 L${60+i*90} 800 L${110+i*90} 800Z" fill="#fff" opacity=".07"/>`).join("")}
+    ${pines(9,520,150,"#3f8f6c",11)}${pines(7,640,200,"#2a6b4f",23)}${pines(6,790,280,"#16402f",37)}`},
+  {ad:"Kapadokya",svg:()=>`<defs>${sky("s",["#7fb2f0","#bcd5f5","#ffd9b0","#ffb98a"])}</defs><rect width="400" height="800" fill="url(#s)"/>
+    ${[[80,220,26,"#e63946"],[290,160,20,"#ffb703"],[200,300,16,"#2a9d8f"],[340,300,12,"#8338ec"],[40,370,10,"#fb8500"],[150,140,10,"#3a86ff"]].map(([x,y,r,c])=>`<ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r*1.15}" fill="${c}"/><path d="M${x-r*.9} ${y+r*.5} L${x-r*.25} ${y+r*1.6} L${x+r*.25} ${y+r*1.6} L${x+r*.9} ${y+r*.5}Z" fill="${c}" opacity=".8"/><rect x="${x-r*.25}" y="${y+r*1.7}" width="${r*.5}" height="${r*.4}" fill="#6b4226"/><path d="M${x} ${y-r*1.15} L${x} ${y+r*1.15}" stroke="#fff" stroke-opacity=".35" stroke-width="${r*.15}"/>`).join("")}
+    <path d="M0 560 Q100 540 200 560 T400 550 L400 800 L0 800Z" fill="#e3b98d"/>
+    ${[[40,560,22,170],[95,575,18,120],[150,560,26,200],[230,570,20,140],[290,555,28,210],[355,575,20,130]].map(([x,y,w,h])=>`<path d="M${x-w} ${y+40} Q${x-w*.6} ${y-h*.4} ${x-w*.35} ${y-h} L${x+w*.35} ${y-h} Q${x+w*.6} ${y-h*.4} ${x+w} ${y+40}Z" fill="#d4a373"/><ellipse cx="${x}" cy="${y-h}" rx="${w*.55}" ry="${w*.32}" fill="#8c5a3c"/><rect x="${x-3}" y="${y-h*.45}" width="6" height="9" rx="3" fill="#6b4226" opacity=".7"/>`).join("")}
+    <path d="M0 650 Q120 620 240 650 T400 640 L400 800 L0 800Z" fill="#c99566"/>`},
+  {ad:"Kuzey Işıkları",svg:()=>`<defs>${sky("s",["#050b1f","#0b1d3a","#123a5c","#1d4d6e"])}<linearGradient id="a" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3dffb0" stop-opacity="0"/><stop offset=".3" stop-color="#3dffb0"/><stop offset=".7" stop-color="#4cc9f0"/><stop offset="1" stop-color="#b388ff" stop-opacity="0"/></linearGradient><filter id="b"><feGaussianBlur stdDeviation="14"/></filter></defs>
+    <rect width="400" height="800" fill="url(#s)"/>${stars(90,7,520)}
+    <g filter="url(#b)" opacity=".7"><path d="M-40 260 Q80 140 200 230 T440 180 L440 230 Q320 290 200 290 T-40 320Z" fill="url(#a)"/><path d="M-40 360 Q120 280 240 350 T440 300 L440 330 Q300 390 200 380 T-40 400Z" fill="url(#a)" opacity=".6"/></g>
+    <path d="M-10 640 L90 470 L160 560 L250 420 L330 540 L410 470 L410 800 L-10 800Z" fill="#1b2f4a"/><path d="M90 470 L120 520 L105 515 L95 530 L75 500Z M250 420 L285 475 L268 468 L255 485 L238 470 L225 460Z M410 470 L410 515 L395 500 L380 510Z" fill="#dfe9f5"/>
+    ${pines(10,720,110,"#0d1b2a",5)}<rect y="715" width="400" height="85" fill="#dfe9f5"/>${pines(6,800,170,"#09121e",9)}`},
+  {ad:"Tropik Sahil",svg:()=>`<defs>${sky("s",["#3fb8e6","#7fd3f0","#bdeaf7","#e8f8fc"])}<linearGradient id="w" x1="0" y1="470" x2="0" y2="640" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#0096c7"/><stop offset="1" stop-color="#48cae4"/></linearGradient></defs>
+    <rect width="400" height="800" fill="url(#s)"/><circle cx="90" cy="170" r="44" fill="#fff8c4"/>${cloud(280,140,1)}${cloud(150,280,.6)}${birds([[300,240,1],[325,255,.8]],"#2b4a5a")}
+    <rect y="470" width="400" height="200" fill="url(#w)"/>${[0,1,2].map(i=>`<path d="M0 ${560+i*30} Q100 ${550+i*30} 200 ${560+i*30} T400 ${560+i*30}" stroke="#fff" stroke-opacity=".35" stroke-width="3" fill="none"/>`).join("")}
+    <path d="M0 640 Q200 600 400 650 L400 800 L0 800Z" fill="#f6d7a7"/><path d="M0 700 Q200 670 400 710 L400 800 L0 800Z" fill="#efc88c"/>
+    <path d="M330 760 Q320 600 270 470" stroke="#8b5e34" stroke-width="14" fill="none" stroke-linecap="round"/>
+    <g fill="#2d936c">${[[-60,30],[-20,-30],[30,-25],[70,25],[0,50],[-40,60]].map(([dx,dy])=>`<path d="M270 470 Q${270+dx*.6} ${470+dy*.2-30} ${270+dx*1.6} ${470+dy+20} Q${270+dx*.7} ${470+dy*.3} 270 470Z"/>`).join("")}</g>`},
+  {ad:"Alpler",svg:()=>`<defs>${sky("s",["#5aa9f0","#9fcaf5","#d8ebfb","#eef6fd"])}<linearGradient id="l" x1="0" y1="600" x2="0" y2="800" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#6fb6e8"/><stop offset="1" stop-color="#2f7fb8"/></linearGradient></defs>
+    <rect width="400" height="800" fill="url(#s)"/>${cloud(110,150,.9)}${cloud(310,230,.7)}
+    <path d="M-20 600 L80 380 L150 470 L230 300 L320 450 L420 360 L420 600Z" fill="#8aa3c4"/><path d="M80 380 L110 430 L95 425 L82 440 L68 420 L55 430Z M230 300 L272 365 L252 358 L238 378 L222 360 L205 350Z M420 360 L420 410 L400 395 L385 405Z" fill="#fff"/>
+    <path d="M-20 610 L60 500 L130 570 L200 480 L290 590 L360 520 L420 580 L420 620 L-20 620Z" fill="#5d7a9c"/>
+    ${pines(12,620,70,"#2e5e4e",13)}<rect y="618" width="400" height="182" fill="url(#l)"/>${[0,1,2,3].map(i=>`<rect x="${60+i*80}" y="${650+i*25}" width="${50-i*8}" height="2.5" fill="#fff" opacity=".4"/>`).join("")}`}
+  ];
+  return scenes;
+})();
+const MAPIMG={main:['istanbul.jpg','paris.jpg','tokyo.jpg','gize.jpg','orman.jpg','kapadokya.jpg','kuzey.jpg','sahil.jpg','alpler.jpg'],spor:['c_stadyum.jpg','m_sp_basket.jpg','m_sp_tenis.jpg','m_sp_havuz.jpg','m_sp_pist.jpg','m_sp_kayak.jpg'],sanat:['c_tablo.jpg','m_sa_tiyatro.jpg','m_sa_konser.jpg','m_sa_heykel.jpg','m_sa_palet.jpg','m_sa_sinema.jpg'],tarih:['c_tarih.jpg','m_ta_kolezyum.jpg','m_ta_ayasofya.jpg','m_ta_parthenon.jpg','m_ta_kale.jpg','m_ta_piramit.jpg']};
+const MAPNAMES={main:['İstanbul','Paris','Tokyo','Gize','Orman','Kapadokya','Kuzey Işıkları','Tropik Sahil','Alpler'],spor:['Stadyum','Basketbol Sahası','Tenis Kortu','Olimpik Havuz','Atletizm Pisti','Kayak Pisti'],sanat:['Müze Galerisi','Tiyatro Sahnesi','Konser Salonu','Davut Heykeli','Ressam Atölyesi','Sinema Salonu'],tarih:['Efes','Kolezyum','Ayasofya','Akropolis','Neuschwanstein Kalesi','Gize Piramidi']};
+function segIdx(i){ const a=MAPIMG[pack]||MAPIMG.main; return Math.floor(i/4)%a.length; }
+function placeImg(i){ return (MAPIMG[pack]||MAPIMG.main)[segIdx(i)]; }
+function placeName(i){ return (MAPNAMES[pack]||MAPNAMES.main)[segIdx(i)]; }
+const PHOTO_KEYS=["istanbul","paris","tokyo","gize","orman","kapadokya","kuzey","sahil","alpler"];
+function sceneFor(i){ const off={main:0,spor:3,sanat:6,tarih:1}[typeof pack!=="undefined"?pack:"main"]||0; return SCN[(i+off)%SCN.length]; }
+function applyScene(i){
+  const sc=sceneFor(i);
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">${sc.svg()}</svg>`;
+  const im=placeImg(i);
+  $("bg").style.backgroundImage=`url("img/${im}"), url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}")`;
+  try{ const nx=new Image(); nx.src=`img/${placeImg(i+4)}`; }catch(e){}
+  $("place").textContent=`📍 ${placeName(i)}`;
+}
+
+// ================= DÜELLO =================
+const D={ room:null, db:null, user:null, uid:null, g:null, mode:null, timer:null, tick:null, rebro:null, offs:[], lastTurn:-1, endAt:0, stat:{w:0,l:0,d:0} };
+const LIFE_MAX=3;
+let lives=Math.min(store.get("lives",LIFE_MAX),LIFE_MAX);
+function setLives(n){ lives=Math.max(0,Math.min(LIFE_MAX,n)); store.set("lives",lives); renderLives(); }
+function renderLives(){
+  $("dLives").textContent=lives;
+  $("dHearts").innerHTML=[0,1,2].map(i=>`<span class="${i<lives?"":"off"}">❤️</span>`).join("");
+  $("dAdLife").style.display = lives<LIFE_MAX ? "" : "none";
+}
+// genel reklam penceresi (elmas ve can için ortak)
+let adReward=null;
+function showAd(onDone){
+  adReward=onDone; $("ovAd").classList.remove("hidden");
+  let n=5; $("adCount").textContent=n; const b=$("btnAdDone"); b.disabled=true; b.style.opacity=.4;
+  clearInterval(adTimer); adTimer=setInterval(()=>{ n--; $("adCount").textContent=Math.max(n,0); if(n<=0){ clearInterval(adTimer); b.disabled=false; b.style.opacity=1; } },1000);
+}
+
+// soru havuzu: tüm paketlerden 3-7 harfli kelimeler
+function duelPool(){
+  const m=new Map();
+  const add=(lv)=>lv.words.forEach(([w,q])=>{ const n=[...w].length; if(n>=3&&n<=7&&!m.has(w)) m.set(w,q); });
+  MAIN_LEVELS.forEach(add); Object.values(CATS).forEach(c=>c.levels.forEach(add));
+  return [...m.entries()];
+}
+const DECOY=[..."AEİIKLMNRSTUOYBDÜ"];
+let POOL=null; const P=()=>POOL||(POOL=duelPool());
+const QW=q=>P()[q.k][0], QT=q=>P()[q.k][1];
+function makeQuestions(){
+  const idx=P().map((_,i)=>i); for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]];}
+  return idx.slice(0,20).map(k=>{ const w=P()[k][0]; const L=[...w]; if(L.length<7) L.push(DECOY[Math.floor(Math.random()*DECOY.length)]);
+    for(let i=L.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[L[i],L[j]]=[L[j],L[i]];} return {k,l:L.join("")}; });
+}
+const myName=()=> ($("dName").value.trim()||"Oyuncu").slice(0,16);
+const initials=n=>(n||"?").trim().slice(0,1).toLocaleUpperCase("tr-TR");
+
+// ---------- ekranlar ----------
+function dShow(id){ ["dLobby","dWait","dGame","dEnd"].forEach(x=>$(x).classList.toggle("hidden",x!==id)); }
+async function openDuel(){
+  $("duel").classList.remove("hidden"); dShow("dLobby"); renderLives();
+  try{ $("dName").value=store.get("pname",""); }catch(e){}
+  $("dAvatar").textContent=initials($("dName").value);
+  renderStats();
+  if(!D.inited){ D.inited=true; initNet(); }
+}
+async function initNet(){
+  try{ D.room=await window.claude?.use?.("room"); }catch(e){ D.room=null; }
+  try{ D.db=await window.claude?.use?.("db"); }catch(e){ D.db=null; }
+  try{ D.user=await window.claude?.use?.("user"); D.uid=D.user? await D.user.id():null; }catch(e){ D.user=null; }
+  $("dNet").textContent = D.room ? "🟢 Online hazır. Oda kur ya da arkadaşının kodunu gir." : "Online bağlantı yok; bota karşı antrenman yapabilirsin.";
+  $("dCreate").disabled=$("dJoin").disabled=$("dQuick").disabled=!D.room;
+  if(D.db && D.uid){
+    try{ const s=await D.db.doc("profiles/"+D.uid).get(); if(s.exists){ const d=s.data(); D.stat={w:d.wins||0,l:d.losses||0,d:d.draws||0}; if(!$("dName").value && d.name){ $("dName").value=d.name; store.set("pname",d.name);} } }catch(e){}
+    renderStats();
+  }
+}
+function renderStats(){
+  const {w,l}=D.stat, t=w+l, r=t?Math.round(w/t*100):0;
+  $("pW").textContent=w; $("pL").textContent=l; $("pR").textContent=`%${r}`; $("pBar").style.width=r+"%";
+}
+async function saveProfile(){
+  store.set("pname",myName()); $("dAvatar").textContent=initials(myName());
+  if(!(D.db&&D.uid)) return;
+  try{ await D.db.doc("profiles/"+D.uid).set({name:myName(),wins:D.stat.w,losses:D.stat.l,draws:D.stat.d,updated:Date.now()}); }catch(e){}
+}
+async function loadRank(){
+  const box=$("dRank");
+  if(!D.db){ box.innerHTML='<div class="dnote">Sıralama tablosu için online bağlantı gerekiyor.</div>'; return; }
+  box.innerHTML='<div class="dnote">Yükleniyor…</div>';
+  try{
+    const snap=await D.db.collection("profiles").orderBy("wins","desc").limit(50).get();
+    const rows=snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>(r.wins||0)+(r.losses||0)+(r.draws||0)>0);
+    if(!rows.length){ box.innerHTML='<div class="dnote">Henüz kimse online düello oynamadı. İlk sen ol! 🏆</div>'; return; }
+    box.innerHTML="";
+    rows.forEach((r,i)=>{ const t=(r.wins||0)+(r.losses||0), ra=t?Math.round((r.wins||0)/t*100):0;
+      const el=document.createElement("div"); el.className="rk"+(r.id===D.uid?" me":"");
+      el.innerHTML=`<div class="no">${["🥇","🥈","🥉"][i]||i+1}</div><div class="avatar sm">${initials(r.name)}</div><div class="nm"></div><div class="wl"><b>${r.wins||0}</b> G · ${r.losses||0} M<br>%${ra}</div>`;
+      el.querySelector(".nm").textContent=r.name||"Oyuncu"; box.appendChild(el); });
+  }catch(e){ box.innerHTML='<div class="dnote">Sıralama şu an yüklenemedi.</div>'; }
+}
+
+// ---------- oda ----------
+function rcode(){ const a="ABCDEFGHJKLMNPRSTUVYZ23456789"; let s=""; for(let i=0;i<4;i++) s+=a[Math.floor(Math.random()*a.length)]; return s; }
+async function joinRoom(code,asHost){
+  if(lives<=0){ toast("Canın kalmadı — reklam izleyerek can kazan"); return; }
+  saveProfile();
+  let r; try{ r=await D.room.join("duel-"+code.toLowerCase()); }catch(e){ toast("Odaya bağlanılamadı"); return; }
+  D.r=r; D.code=code; D.mode="online"; D.host=asHost; D.me=Math.random().toString(36).slice(2,10);
+  D.offs.push(r.on("duel",m=>onMsg(m.data,m)));
+  D.offs.push(r.onPeers(ch=>{ if(D.g&&D.g.status==="play"&&ch.left.length&&ch.peers.length<2) finish(D.g.players.findIndex(p=>p.id===D.me),"left"); }));
+  if(asHost){
+    D.g={status:"wait",code,players:[{id:D.me,name:myName()}],qs:makeQuestions(),turn:0,done:[],v:1};
+    $("dWaitCode").textContent=code; dShow("dWait");
+    clearInterval(D.rebro); D.rebro=setInterval(()=>{ if(D.g&&D.g.status!=="end") send({t:"state",s:pub()}); },2500);
+  }else{
+    dShow("dWait"); $("dWaitCode").textContent=code;
+    send({t:"hello",id:D.me,name:myName()});
+    clearInterval(D.rebro); D.rebro=setInterval(()=>{ if(!D.g||D.g.status==="wait") send({t:"hello",id:D.me,name:myName()}); },2000);
+  }
+}
+function send(o){ if(D.mode==="online"&&D.r){ try{ D.r.emit("duel",o); }catch(e){} } }
+function pub(){ const g=D.g; return {...g, left: g.status==="play"? Math.max(0,D.endAt-Date.now()) : 0}; }
+function onMsg(d,m){
+  if(!d||typeof d!=="object") return;
+  if(D.host){
+    if(d.t==="hello" && D.g.status==="wait" && d.id!==D.me){
+      D.g.players[1]={id:d.id,name:String(d.name||"Rakip").slice(0,16)}; stopSeek(); startTurn(0);
+    }
+    if(d.t==="ans" && D.g.status==="play" && d.i===D.g.turn && D.g.players[d.i%2].id===d.id) hostAnswer(d.i,d.w);
+    if(d.t==="joker" && D.g.status==="play" && d.i===D.g.turn && D.g.players[d.i%2].id===d.id) hostJoker(d.i);
+  }else if(d.t==="state" && d.s && d.s.players && d.s.players[1] && d.s.players[1].id===D.me){
+    applyState(d.s);
+  }
+}
+// ---------- host mantığı ----------
+function startTurn(i){
+  const g=D.g; g.status="play"; g.turn=i; g.v++; D.endAt=Date.now()+15000;
+  clearTimeout(D.timer); D.timer=setTimeout(()=>{ if(g.status==="play"&&g.turn===i) finish(1-(i%2),"time"); },15000+300);
+  send({t:"state",s:pub()}); applyState(pub());
+  if(D.mode==="bot" && i%2===1) botPlay(i);
+}
+function hostJoker(i){
+  const g=D.g; if(g.status!=="play"||g.turn!==i) return;
+  g.jk=g.jk||[]; if(g.jk[i]) return; g.jk[i]=1; g.v++;
+  D.endAt+=5000; clearTimeout(D.timer);
+  D.timer=setTimeout(()=>{ if(g.status==="play"&&g.turn===i) finish(1-(i%2),"time"); },Math.max(0,D.endAt-Date.now())+300);
+  send({t:"state",s:pub()}); applyState(pub());
+}
+function hostAnswer(i,w){
+  const g=D.g; if(g.status!=="play"||g.turn!==i) return;
+  if(w!==QW(g.qs[i])) return;
+  g.done[i]=1; clearTimeout(D.timer);
+  if(i>=19){ finish(-1,"draw"); return; }
+  startTurn(i+1);
+}
+function finish(winner,reason){
+  const g=D.g; if(!g||g.status==="end") return;
+  g.status="end"; g.winner=winner; g.reason=reason; g.v++; clearTimeout(D.timer);
+  send({t:"state",s:pub()}); applyState(pub());
+}
+// bot
+function botPlay(i){
+  const fail=Math.random()<0.1+i*0.006, t=fail?16000:2500+Math.random()*7000;
+  setTimeout(()=>{ if(D.g&&D.g.status==="play"&&D.g.turn===i&&!fail) hostAnswer(i,QW(D.g.qs[i])); },t);
+}
+// ---------- ortak görünüm ----------
+function myIdx(){ return D.g.players.findIndex(p=>p.id===D.me); }
+function applyState(s){
+  if(!D.host) D.g=s;
+  const g=D.g, me=myIdx(), op=1-me;
+  if(g.status==="end"){ showEnd(); return; }
+  if(g.status!=="play") return;
+  dShow("dGame");
+  $("vnA").textContent=g.players[me].name; $("vaA").textContent=initials(g.players[me].name);
+  $("vnB").textContent=(g.players[op]||{}).name||"Rakip"; $("vaB").textContent=initials((g.players[op]||{}).name);
+  $("dMode").textContent= D.mode==="bot"?"ANTRENMAN":"ONLINE";
+  const cnt=k=>g.done.filter((x,i)=>x&&i%2===k).length;
+  $("vsA").textContent=`${cnt(me)}/10 doğru`; $("vsB").textContent=`${cnt(op)}/10 doğru`;
+  const mine=g.turn%2===me;
+  $("vpA").classList.toggle("act",mine); $("vpB").classList.toggle("act",!mine);
+  $("dTurn").textContent= mine ? "🎯 Senin sıran!" : `⏳ ${(g.players[op]||{}).name||"Rakip"} cevaplıyor…`;
+  // tahta
+  const b=$("dBoard"); b.innerHTML="";
+  for(let i=0;i<20;i++){ const t=document.createElement("div"); const own=i%2===me?"a":"b";
+    t.className=`dt ${own}${g.done[i]?" ok":""}${i===g.turn?" cur":""}`; t.textContent=g.done[i]?"✓":i+1; b.appendChild(t); }
+  const q=g.qs[g.turn];
+  $("dQ").innerHTML=`<small>Soru ${g.turn+1} / 20 · ${[...QW(q)].length} harf</small>`; $("dQ").appendChild(document.createTextNode(QT(q)));
+  const jkNow=!!(g.jk&&g.jk[g.turn]);
+  if(!D.host && D.lastTurn===g.turn && jkNow && !D.jkSeen){ D.endAt=Date.now()+(s.left||0); }
+  if(D.lastTurn!==g.turn){ D.jkSeen=false; D.lastTurn=g.turn; if(!D.host) D.endAt=Date.now()+(s.left||15000); buildDWheel(q.l); $("dCur").textContent=""; if(mine) beep([[660,.1]]); }
+  $("dWheel").classList.toggle("off",!mine); D.myTurn=mine;
+  $("dJoker").disabled = !mine || jkNow;
+  if(jkNow){ const W=[...QW(q)]; if(!D.jkSeen){ D.jkSeen=true; const L=[...q.l]; const rest=[...W]; const keep=[]; L.forEach(c=>{ const k=rest.indexOf(c); if(k>=0){ rest.splice(k,1); keep.push(c);} }); buildDWheel(keep.join("")); const fi=dPos.findIndex(p=>p.ch===W[0]); if(fi>=0) dPos[fi].el.classList.add("first"); }
+    const h=document.createElement("span"); h.className="dhint"; h.textContent=`🃏 İlk harf: ${W[0]} · Son harf: ${W[W.length-1]} · +5 sn`; $("dQ").appendChild(h); }
+  clearInterval(D.tick); D.tick=setInterval(dTick,150); dTick();
+}
+function dTick(){
+  const left=Math.max(0,D.endAt-Date.now()); $("dTimeBar").style.width=(left/15000*100)+"%"; $("dTimeTxt").textContent=Math.ceil(left/1000)+" sn";
+  if(left<=0) clearInterval(D.tick);
+}
+function showEnd(){
+  clearInterval(D.tick); clearInterval(D.rebro); const g=D.g, me=myIdx();
+  const draw=g.winner===-1, won=g.winner===me;
+  const opName=(g.players[1-me]||{}).name||"Rakip";
+  $("dEndIcon").textContent= draw?"🤝":won?"🏆":"💔";
+  $("dEndTitle").textContent= draw?"Berabere!":won?"Kazandın!":"Kaybettin";
+  const why={time:"süresinde cevap veremedi",left:"oyundan ayrıldı",draw:""}[g.reason]||"";
+  $("dEndTxt").textContent= draw ? "İkiniz de 10 sorunun hepsini bildiniz!" : won ? `${opName} ${why}.` : (g.reason==="time"?"15 saniyede cevap veremedin.":"Bağlantı koptu.");
+  if(D.mode==="online" && !D.counted){
+    D.counted=true;
+    if(draw) D.stat.d++; else if(won) D.stat.w++; else { D.stat.l++; setLives(lives-1); }
+    renderStats(); saveProfile();
+    if(won) SFX.win(); else if(!draw) SFX.bad();
+  }
+  $("dEndLives").innerHTML = D.mode==="bot" ? "🤖 Antrenman — can harcanmadı" : (!draw&&!won ? `❤️ −1 · Kalan can: ${lives}` : `Canların: ${"❤️".repeat(lives)||"0"}`);
+  dShow("dEnd");
+}
+function leaveDuel(){ stopSeek();
+  clearTimeout(D.timer); clearInterval(D.tick); clearInterval(D.rebro);
+  D.offs.forEach(f=>{try{f();}catch(e){}}); D.offs=[];
+  try{ D.r&&D.r.leave(); }catch(e){} D.r=null; D.g=null; D.lastTurn=-1; D.counted=false; D.mode=null;
+}
+
+// ---------- düello çarkı ----------
+let dPos=[], dPath=[], dDraw=false, dPtr=null;
+function buildDWheel(letters){
+  const wh=$("dWheel"); wh.querySelectorAll(".L").forEach(e=>e.remove()); dPos=[]; dPath=[];
+  const L=[...letters], n=L.length;
+  L.forEach((ch,i)=>{ const a=-Math.PI/2+i*2*Math.PI/n, r=0.34, x=0.5+r*Math.cos(a), y=0.5+r*Math.sin(a);
+    const el=document.createElement("div"); el.className="L"; el.textContent=ch; el.style.left=(x*100)+"%"; el.style.top=(y*100)+"%"; wh.appendChild(el); dPos.push({x,y,el,ch}); });
+  dLines();
+}
+function dHit(px,py){ const r=$("dWheel").getBoundingClientRect(), x=(px-r.left)/r.width, y=(py-r.top)/r.height; let bi=-1; dPos.forEach((p,i)=>{ if(Math.hypot(p.x-x,p.y-y)<0.11) bi=i; }); return {bi,x,y}; }
+function dLines(){
+  const svg=$("dLines"), r=$("dWheel").getBoundingClientRect(); svg.setAttribute("viewBox",`0 0 ${r.width} ${r.height}`);
+  const pts=dPath.map(i=>[dPos[i].x*r.width,dPos[i].y*r.height]); if(dDraw&&dPtr&&dPath.length) pts.push([dPtr.x*r.width,dPtr.y*r.height]);
+  svg.innerHTML= pts.length>1?`<polyline points="${pts.map(p=>p.join(",")).join(" ")}" fill="none" stroke="#ff6b8a" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>`:"";
+  dPos.forEach((p,i)=>p.el.classList.toggle("on",dPath.includes(i))); $("dCur").textContent=dPath.map(i=>dPos[i].ch).join("");
+}
+(()=>{ const wh=$("dWheel");
+  wh.addEventListener("pointerdown",e=>{ if(!D.myTurn) return; e.preventDefault(); const h=dHit(e.clientX,e.clientY); if(h.bi<0) return; try{wh.setPointerCapture(e.pointerId);}catch(_){} dDraw=true; dPath=[h.bi]; dPtr=h; $("dCur").parentElement.className="dcur"; dLines(); });
+  wh.addEventListener("pointermove",e=>{ if(!dDraw) return; const h=dHit(e.clientX,e.clientY); dPtr=h; if(h.bi>=0){ if(dPath.length>1&&dPath[dPath.length-2]===h.bi) dPath.pop(); else if(!dPath.includes(h.bi)) dPath.push(h.bi);} dLines(); });
+  const end=()=>{ if(!dDraw) return; dDraw=false; const w=dPath.map(i=>dPos[i].ch).join(""); dPath=[]; dPtr=null; dLines(); dSubmit(w); };
+  wh.addEventListener("pointerup",end); wh.addEventListener("pointercancel",end);
+})();
+function dSubmit(w){
+  if(!D.g||D.g.status!=="play"||!D.myTurn||[...w].length<2) return;
+  const i=D.g.turn;
+  if(w!==QW(D.g.qs[i])){ const c=$("dCur").parentElement; $("dCur").textContent=w; c.className="dcur bad"; SFX.bad(); setTimeout(()=>{c.className="dcur";$("dCur").textContent="";},600); return; }
+  SFX.ok(); D.myTurn=false;
+  if(D.host) hostAnswer(i,w); else send({t:"ans",i,w,id:D.me});
+}
+
+// ---------- düğmeler ----------
+$("hDuel").onclick=openDuel;
+$("duelBack").onclick=()=>{ if(D.g&&D.g.status==="play"){ finish(D.host?1-myIdx():myIdx()===0?1:0,"left"); } leaveDuel(); $("duel").classList.add("hidden"); showHome(); };
+document.querySelectorAll(".dtabs button").forEach(b=>b.onclick=()=>{ document.querySelectorAll(".dtabs button").forEach(x=>x.classList.toggle("on",x===b)); $("dTabPlay").classList.toggle("hidden",b.dataset.tab!=="play"); $("dTabRank").classList.toggle("hidden",b.dataset.tab!=="rank"); if(b.dataset.tab==="rank") loadRank(); });
+$("dName").addEventListener("change",saveProfile);
+$("dName").addEventListener("input",()=>{ $("dAvatar").textContent=initials($("dName").value); });
+$("dCreate").onclick=()=>{ if(!$("dName").value.trim()){ toast("Önce adını yaz"); $("dName").focus(); return; } joinRoom(rcode(),true).then(()=>{ $("dWaitNote").textContent="Oda kodunu arkadaşına gönder"; }); };
+$("dJoin").onclick=()=>{ const c=$("dCode").value.trim().toUpperCase(); if(c.length<4){ toast("4 haneli oda kodunu gir"); return; } if(!$("dName").value.trim()){ toast("Önce adını yaz"); return; } joinRoom(c,false); };
+$("dCancel").onclick=()=>{ leaveDuel(); dShow("dLobby"); };
+$("dAgain").onclick=()=>{ leaveDuel(); dShow("dLobby"); renderLives(); };
+$("dBot").onclick=()=>{ leaveDuel(); D.mode="bot"; D.host=true; D.me="me";
+  const bots=["Bilge Bot","Zeki Robot","Kelime Ustası","Çark Botu"];
+  D.g={status:"wait",players:[{id:"me",name:myName()},{id:"bot",name:bots[Math.floor(Math.random()*bots.length)]}],qs:makeQuestions(),turn:0,done:[],v:1};
+  startTurn(0); };
+$("dJoker").onclick=()=>{
+  if(!D.g||D.g.status!=="play"||!D.myTurn) return;
+  if((D.g.jk||[])[D.g.turn]) return;
+  if(gems<1){ toast("Elmasın yok — mağazadan alabilirsin"); openShop(); return; }
+  setGems(gems-1); beep([[523,.08],[784,.14]]); toast("🃏 Joker kullanıldı! +5 sn");
+  if(D.host) hostJoker(D.g.turn); else { $("dJoker").disabled=true; send({t:"joker",i:D.g.turn,id:D.me}); }
+};
+// ---------- rastgele eşleşme (lobi) ----------
+async function quickMatch(){
+  if(!D.room){ toast("Online bağlantı yok"); return; }
+  if(!$("dName").value.trim()){ toast("Önce adını yaz"); $("dName").focus(); return; }
+  if(lives<=0){ toast("Canın kalmadı — reklam izleyerek can kazan"); return; }
+  const now=Date.now();
+  const cands=(D.room.peers()||[]).filter(p=>!p.isMe && p.presence && p.presence.seek && p.presence.seek.code && now-(p.presence.seek.ts||0)<120000);
+  if(cands.length){
+    const c=cands[Math.floor(Math.random()*cands.length)].presence.seek.code;
+    await joinRoom(c,false); $("dWaitNote").textContent="Rakibe bağlanılıyor…";
+  }else{
+    const c=rcode(); await joinRoom(c,true);
+    try{ await D.room.presence({seek:{code:c,ts:Date.now()}}); }catch(e){}
+    $("dWaitNote").textContent="Rakip aranıyor… Biri düello aradığında otomatik eşleşeceksin. Oda kodu:";
+  }
+}
+function stopSeek(){ try{ D.room&&D.room.presence({seek:null}); }catch(e){} }
+$("dQuick").onclick=quickMatch;
+$("dAdLife").onclick=()=>showAd(()=>{ setLives(lives+1); toast("+1 ❤️ kazandın"); });
+
+// ---------- İZLEME MODU (Claude'un oynaması için) ----------
+let demoBusy=false;
+async function demoSwipe(word){
+  if(demoBusy||!L) return; demoBusy=true;
+  const chars=[...word], used=[], idx=[];
+  for(const ch of chars){ const i=wheelPos.findIndex((p,k)=>p.ch===ch && !used.includes(k)); if(i<0){ demoBusy=false; return; } used.push(i); idx.push(i); }
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  drawing=true; path=[]; $("cur").className="";
+  for(const i of idx){ path.push(i); pointer={x:wheelPos[i].x,y:wheelPos[i].y}; drawLines(); await sleep(260); }
+  await sleep(200); drawing=false;
+  const w=path.map(i=>wheelPos[i].ch).join(""); pointer=null; path=[]; drawLines(); submit(w);
+  await sleep(700); demoBusy=false;
+}
+window.addEventListener("message",e=>{
+  const d=e.data; if(!d||typeof d!=="object") return;
+  if(typeof d.bcDemo==="string") demoSwipe(d.bcDemo);
+  if(d.bcNext && !$("ovWin").classList.contains("hidden")) $("btnNext").click();
+  if(d.bcState && e.source) e.source.postMessage({bcStateReply:{lv:lv+1, letters:letters.join(""), words:L.words.map(w=>({q:w.q,n:[...w.w].length,found:w.found}))}},"*");
+});
+
+$("coins").textContent=coins; $("gems").textContent=gems;
+startLevel(lv);
+showHome();
+</script>
+</body>
+</html>
