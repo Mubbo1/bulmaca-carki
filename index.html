@@ -1161,7 +1161,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="27";
+const APP_VER="28";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1568,7 +1568,7 @@ function showEnd(){
   $("dEndLives").innerHTML = D.mode==="bot" ? "🤖 Antrenman — can harcanmadı" : unlimited ? "♾️ Sınırsız can — can gitmedi" : (!draw&&!won ? `❤️ −1 · Kalan can: ${lives}` : `Canların: ${"❤️".repeat(lives)||"0"}`);
   dShow("dEnd");
 }
-function leaveDuel(){ stopSeek();
+function leaveDuel(){ stopSeek(); clearInterval(D.seekTimer);
   clearTimeout(D.timer); clearInterval(D.tick); clearInterval(D.rebro);
   D.offs.forEach(f=>{try{f();}catch(e){}}); D.offs=[];
   try{ D.r&&D.r.leave(); }catch(e){} D.r=null; D.g=null; D.lastTurn=-1; D.counted=false; D.mode=null; D.introShown=false; D.endSfx=false;
@@ -1661,8 +1661,7 @@ async function quickMatch(){ D.quick=true; if(!nameOk()) return;
   if(!D.room){ toast("Online bağlantı yok"); return; }
   if(!$("dName").value.trim()){ toast("Önce adını yaz"); $("dName").focus(); return; }
   if(!hasLife()){ toast("Canın kalmadı — reklam izle ya da sınırsız can al"); openLife(); return; }
-  const now=Date.now();
-  const cands=(D.room.peers()||[]).filter(p=>!p.isMe && p.presence && p.presence.seek && p.presence.seek.code && (p.presence.seek.cat||"genel")===D.cat && now-(p.presence.seek.ts||0)<120000);
+  const cands=seekers();
   let picked=null;
   for(const p of cands.sort(()=>Math.random()-.5)){ const c=p.presence.seek.code; if(!D.room.claim || await D.room.claim(c)){ picked=c; break; } }
   if(picked){
@@ -1671,8 +1670,18 @@ async function quickMatch(){ D.quick=true; if(!nameOk()) return;
     const c=rcode(); await joinRoom(c,true);
     try{ await D.room.presence({seek:{code:c,ts:Date.now(),cat:D.cat}}); }catch(e){}
     $("dWaitNote").textContent=""; $("dWaitCode").style.display="none"; $("dWaitTitle").textContent="🎲 Rakip aranıyor…";
+    // aynı anda basan iki kişi ikisi de oda açabilir: beklerken sırayı tara, kodu büyük olan küçüğün odasına geçer
+    clearInterval(D.seekTimer); D.seekTimer=setInterval(async()=>{
+      if(!D.quick||D.mode!=="online"||!D.host||!D.g||D.g.status!=="wait"||D.g.code!==c){ clearInterval(D.seekTimer); return; }
+      const other=seekers().map(p=>p.presence.seek.code).filter(x=>x<c).sort()[0];
+      if(!other || D.switching) return; D.switching=true;
+      try{ if(!D.room.claim || await D.room.claim(other)){ clearInterval(D.seekTimer); leaveDuel(); D.quick=true;
+          await joinRoom(other,false); $("dWaitNote").textContent=""; $("dWaitCode").style.display="none"; $("dWaitTitle").textContent="Rakibe bağlanılıyor…"; } }
+      finally{ D.switching=false; }
+    },1500);
   }
 }
+function seekers(){ const now=Date.now(); return (D.room&&D.room.peers?D.room.peers():[]).filter(p=>!p.isMe && p.presence && p.presence.seek && p.presence.seek.code && (p.presence.seek.cat||"genel")===D.cat && now-(p.presence.seek.ts||0)<120000); }
 function stopSeek(){ try{ D.room&&D.room.presence({seek:null}); }catch(e){} }
 $("dQuick").onclick=quickMatch;
 $("dAdLife").onclick=()=>showAd(()=>{ setLives(lives+1); toast("+1 ❤️ kazandın"); },"❤️");
