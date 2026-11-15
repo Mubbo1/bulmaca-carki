@@ -1070,6 +1070,13 @@ function applyScene(i){
 }
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
+// ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
+const APP_VER="13";
+(function(){ if(!/github\.io$/.test(location.hostname)) return;
+  const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
+    if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
+  chk(); document.addEventListener("visibilitychange",()=>{ if(!document.hidden) chk(); });
+})();
 const FB_CONFIG={apiKey:"AIzaSyDCxMccH0zg7MdZ2wUlhTdxwRCqiIbSAgQ",authDomain:"bulmaca-carki.firebaseapp.com",databaseURL:"https://bulmaca-carki-default-rtdb.firebaseio.com",projectId:"bulmaca-carki",storageBucket:"bulmaca-carki.firebasestorage.app",messagingSenderId:"132070576740",appId:"1:132070576740:web:4ddae27e51d368591b8571"};
 const IN_ARTIFACT=/claudeusercontent\.com$|claude\.ai$/.test(location.hostname);
 function loadScript(src){ return new Promise((ok,no)=>{ const s=document.createElement("script"); s.src=src; s.onload=ok; s.onerror=no; document.head.appendChild(s); }); }
