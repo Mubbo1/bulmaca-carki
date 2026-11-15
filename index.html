@@ -986,11 +986,17 @@ document.querySelectorAll("[data-gem]").forEach(b=>b.onclick=()=>{ const n=+b.da
 
 // ---------- ANA EKRAN / AYARLAR / SES ----------
 let soundOn=store.get("sound",true), vibOn=store.get("vib",true), menuFromHome=false, actx=null;
-function beep(notes){ if(!soundOn) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); let t=actx.currentTime;
+// ses motoru: iPhone'da ilk dokunuşta kilidi aç, sessiz modda da çalsın, askıya alınırsa devam ettir
+try{ if(navigator.audioSession) navigator.audioSession.type="playback"; }catch(e){}
+function AC(){ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); if(actx.state!=="running") try{ actx.resume(); }catch(e){} return actx; }
+function unlockAudio(){ try{ const c=AC(), b=c.createBuffer(1,1,22050), src=c.createBufferSource(); src.buffer=b; src.connect(c.destination); src.start(0); }catch(e){} }
+["pointerdown","touchend","click","keydown"].forEach(ev=>document.addEventListener(ev,unlockAudio,{capture:true,passive:true}));
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden && actx) try{ actx.resume(); }catch(e){} });
+function beep(notes){ if(!soundOn) return; try{ AC(); let t=actx.currentTime;
   notes.forEach(([f,d])=>{ const o=actx.createOscillator(), g=actx.createGain(); o.type="triangle"; o.frequency.value=f; g.gain.setValueAtTime(.15,t); g.gain.exponentialRampToValueAtTime(.001,t+d); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+d); t+=d*.8; }); }catch(e){} }
 function buzz(ms){ if(vibOn && navigator.vibrate) try{ navigator.vibrate(ms); }catch(e){} }
 // alkış (gürültü patlamaları) + zafer fanfarı
-function applause(){ if(!soundOn) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); const t0=actx.currentTime, sr=actx.sampleRate;
+function applause(){ if(!soundOn) return; try{ AC(); const t0=actx.currentTime+.05, sr=actx.sampleRate;
   const nb=actx.createBuffer(1,Math.floor(sr*.06),sr), d=nb.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,3);
   const out=actx.createGain(); out.gain.value=.5; out.connect(actx.destination);
   for(let k=0;k<70;k++){ const t=t0+Math.random()*2.6, src=actx.createBufferSource(); src.buffer=nb; src.playbackRate.value=.8+Math.random()*.6;
@@ -1001,7 +1007,7 @@ function applause(){ if(!soundOn) return; try{ actx=actx||new (window.AudioConte
     const t=t0+dt, len=i===3?.6:.14; g.gain.setValueAtTime(.12,t); g.gain.exponentialRampToValueAtTime(.001,t+len); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+len); });
 }catch(e){} }
 // kaybetme: inen "vah vah vaaah" trombon sesi
-function sadTrombone(){ if(!soundOn) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); const t0=actx.currentTime;
+function sadTrombone(){ if(!soundOn) return; try{ AC(); const t0=actx.currentTime+.05;
   const lp=actx.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=900; lp.connect(actx.destination);
   [[311,0,.38],[294,.42,.38],[277,.84,.38],[262,1.26,1.1]].forEach(([f,dt,len],i)=>{ const o=actx.createOscillator(), g=actx.createGain(), t=t0+dt; o.type="sawtooth";
     o.frequency.setValueAtTime(f,t); if(i===3){ const l=actx.createOscillator(), lg=actx.createGain(); l.frequency.value=6; lg.gain.value=7; l.connect(lg); lg.connect(o.frequency); l.start(t+.2); l.stop(t+len); o.frequency.linearRampToValueAtTime(f*.94,t+len); }
@@ -1126,7 +1132,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="20";
+const APP_VER="21";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
