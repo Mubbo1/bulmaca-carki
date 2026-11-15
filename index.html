@@ -76,6 +76,23 @@
   .hbtn.sec{background:#ffffff26;color:#fff}
   #home .cont{text-align:center;color:#cfe3ff;font-size:14px;margin-top:-4px}
   .setbox{max-height:88vh;overflow-y:auto;position:relative}
+  .spinbox{background:linear-gradient(180deg,#2b1055,#14082e);color:#fff;text-align:center}
+  .spinbox h2{color:#ffd166}.spinbox .note{color:#cdb8ff}
+  .spinsub{font-size:14px;color:#e0d4ff;margin-bottom:6px}
+  .swrap{position:relative;width:min(74vw,280px);height:min(74vw,280px);margin:6px auto 4px;touch-action:none}
+  #spinSvg{width:100%;height:100%;display:block;filter:drop-shadow(0 8px 16px #000a)}
+  #spinSvg .rot{transition:transform 4.6s cubic-bezier(.12,.75,.14,1)}
+  .spointer{position:absolute;left:50%;top:-6px;transform:translateX(-50%);width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:30px solid #ff3b5c;z-index:3;filter:drop-shadow(0 3px 3px #0008)}
+  .shub{position:absolute;left:50%;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff8,#ffb703 45%,#c77d00);border:4px solid #fff3;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;color:#3a2500;cursor:pointer;z-index:2;box-shadow:0 4px 0 #0006}
+  .sres{min-height:30px;font-size:20px;font-weight:900;color:#ffd166;margin:4px 0}
+  .sres.pop{animation:pulse .6s ease-in-out 2}
+  .spinbox button.gold{background:linear-gradient(135deg,#ffd166,#f4a261);color:#3a2500}
+  .spinbox button:disabled{opacity:.45}
+  #spinAdBtn{background:#7b2cbf;color:#fff}
+  .dailybtn{position:absolute!important;top:calc(10px + env(safe-area-inset-top));left:10px;z-index:3!important;width:54px;height:54px;border-radius:50%;border:2px solid #ffd166;background:radial-gradient(circle at 35% 30%,#ffffff55,#7b2cbf 60%);font-size:26px;cursor:pointer;box-shadow:0 0 16px #ffd16699;animation:dpulse 2s ease-in-out infinite}
+  .dailybtn span{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;border-radius:9px;background:#ff3b5c;color:#fff;font-size:11px;font-weight:900;display:none;align-items:center;justify-content:center;padding:0 4px}
+  .dailybtn.has span{display:flex}
+  @keyframes dpulse{50%{transform:scale(1.08)}}
   .xbox{position:relative}
   .box button.xclose{position:absolute;top:12px;right:12px;width:38px;height:38px;padding:0;margin:0;border-radius:50%;background:#eef0f4;color:#555;font-size:20px;line-height:38px;font-weight:900}
   .ssec{text-align:left;font-size:12px;font-weight:800;color:#7b2cbf;text-transform:uppercase;letter-spacing:1px;margin:14px 4px 2px}
@@ -386,6 +403,7 @@
 </svg>
     <h1>Bulmaca <span>Çarkı</span></h1>
     <div class="tag">Harfleri kaydır, soruları çöz, dünyayı gez!</div>
+    <button class="dailybtn" id="hDaily">🎁<span id="hDailyDot"></span></button>
     <div class="hstats"><span id="hsCoinBtn" class="tap">🪙 <b id="hsCoins">0</b> <i class="plus">+</i></span><span id="hsGemBtn" class="tap">💎 <b id="hsGems">0</b> <i class="plus">+</i></span><span>⭐ <b id="hsStars">0</b></span></div>
     <div class="btns">
       <button class="hbtn main" id="hStart">BAŞLA</button>
@@ -433,6 +451,16 @@
     <div class="row"><span>⚠️ Hile / diğer</span><button data-rep="diger">Seç</button></div>
     <div class="note">3 farklı oyuncudan şikayet alan kişinin fotoğrafı veya ismi otomatik kaldırılır. 15 hile şikayeti alan sıralama tablosundan çıkarılır.</div>
     <button id="repClose" style="background:#dee2e6">Vazgeç</button>
+  </div></div>
+
+  <div class="overlay hidden" id="ovSpin"><div class="box spinbox xbox"><button class="xclose" id="spinClose" aria-label="Kapat">✕</button>
+    <h2>🎁 Günlük Şans Çarkı</h2>
+    <div class="spinsub" id="spinSub">Her gün 1 bedava çevirme hakkın var!</div>
+    <div class="swrap"><div class="spointer"></div><svg id="spinSvg" viewBox="-110 -110 220 220"></svg><div class="shub" id="spinHub">ÇEVİR</div></div>
+    <div class="sres" id="spinRes"></div>
+    <button class="gold" id="spinBtn">🎡 Çarkı Çevir</button>
+    <button id="spinAdBtn" class="hidden">📺 Reklam izle → +1 çevirme</button>
+    <div class="note">Parmağınla çarkı kaydırarak da çevirebilirsin. Elmaslar daha zor çıkar!</div>
   </div></div>
 
   <div class="overlay hidden" id="ovLife"><div class="box shop xbox"><button class="xclose" id="lifeClose" aria-label="Kapat">✕</button>
@@ -1325,7 +1353,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="45";
+const APP_VER="46";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1386,7 +1414,7 @@ async function fbInit(){
 // ================= DÜELLO =================
 const D={ room:null, db:null, user:null, uid:null, g:null, mode:null, timer:null, tick:null, rebro:null, offs:[], lastTurn:-1, endAt:0, stat:{w:0,l:0,d:0} };
 const LIFE_MAX=3;
-let lives=Math.min(store.get("lives",LIFE_MAX),LIFE_MAX);
+let lives=Math.min(store.get("lives",LIFE_MAX),LIFE_MAX+3); // çarktan gelen bonusla 3'ü geçebilir
 let unlimited=!!store.get("unlimLives",0);
 const hasLife=()=>unlimited||lives>0;
 // can yenilenmesi: 3'ün altındayken her 15 dakikada +1 can (en fazla 3)
@@ -1406,7 +1434,7 @@ function lifeLeftTxt(){ const t=store.get("lifeT",0); if(unlimited||lives>=LIFE_
 setInterval(()=>{ try{ regenLives(); const x=lifeLeftTxt(); $("dLifeTimer").textContent= x?`⏳ ${x} sonra +1 ❤️`:""; if(!$("ovLife").classList.contains("hidden")) $("lifeTimer").textContent= x?`⏳ Sonraki can ${x} içinde kendiliğinden dolacak`:""; }catch(e){} },1000);
 function renderLives(){
   $("dLives").textContent= unlimited?"∞":lives;
-  $("dHearts").innerHTML= unlimited? '<span>❤️</span> <b style="font-size:20px">♾️ Sınırsız</b>' : [0,1,2].map(i=>`<span class="${i<lives?"":"off"}">❤️</span>`).join("");
+  $("dHearts").innerHTML= unlimited? '<span>❤️</span> <b style="font-size:20px">♾️ Sınırsız</b>' : [...Array(Math.max(LIFE_MAX,lives)).keys()].map(i=>`<span class="${i<lives?"":"off"}">${i>=LIFE_MAX?"💖":"❤️"}</span>`).join("");
   $("dAdLife").style.display = !unlimited&&lives<LIFE_MAX ? "" : "none";
   $("dLivesPill").querySelector(".plus").style.display= unlimited?"none":"";
 }
@@ -1430,7 +1458,7 @@ function showInterstitial(){ if(noAds) return; adReward=()=>{};
   $("ovAd").classList.remove("hidden"); let n=5; $("adCount").textContent=n; const b=$("btnAdDone"); b.disabled=true; b.style.opacity=.4;
   clearInterval(adTimer); adTimer=setInterval(()=>{ n--; $("adCount").textContent=Math.max(n,0); if(n<=0){ clearInterval(adTimer); b.disabled=false; b.style.opacity=1; } },1000); }
 function showAd(onDone,icon){ if(noAds){ setTimeout(()=>{ try{ onDone&&onDone(); }catch(e){} },150); return; }
-  icon=icon||"💎"; const amt= icon==="🪙"?100:1, w= icon==="❤️"?"can ":icon==="🪙"?"altın ":"";
+  icon=icon||"💎"; const amt= icon==="🪙"?100:1, w= icon==="❤️"?"can ":icon==="🪙"?"altın ":icon==="🎡"?"çevirme hakkı ":"";
   $("adNote").textContent=`Reklam bitince ${amt} ${icon} ${w}kazanacaksın`; $("btnAdDone").textContent=`Kapat ve ${amt} ${icon} ${w}al`;
   adReward=onDone; $("ovAd").classList.remove("hidden");
   let n=5; $("adCount").textContent=n; const b=$("btnAdDone"); b.disabled=true; b.style.opacity=.4;
@@ -1918,7 +1946,69 @@ window.addEventListener("message",e=>{
 
 $("coins").textContent=coins; $("gems").textContent=gems;
 startLevel(lv);
+// ================= GÜNLÜK ŞANS ÇARKI =================
+const SPIN_PRIZES=[ // w: ağırlık (yüksek = kolay çıkar). Elmaslar en zor.
+  {t:"coin",n:25,lbl:"25",ic:"🪙",c:"#2a9d8f",w:28},
+  {t:"gem", n:1, lbl:"1", ic:"💎",c:"#7b2cbf",w:9},
+  {t:"coin",n:50,lbl:"50",ic:"🪙",c:"#e76f51",w:22},
+  {t:"gem", n:3, lbl:"3", ic:"💎",c:"#3a86ff",w:5},
+  {t:"coin",n:75,lbl:"75",ic:"🪙",c:"#f4a261",w:15},
+  {t:"life",n:1, lbl:"1", ic:"❤️",c:"#e63946",w:16},
+  {t:"gem", n:5, lbl:"5", ic:"💎",c:"#06d6a0",w:3},
+  {t:"gem", n:10,lbl:"10",ic:"💎",c:"#ffb703",w:2}];
+const SEG=360/SPIN_PRIZES.length;
+const todayKey=()=>{ const d=new Date(); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); };
+function spinState(){ const k=todayKey(); if(store.get("spinDay","")!==k){ store.set("spinDay",k); store.set("spinFree",1); store.set("spinAd",1); store.set("spinShown",0); }
+  return {free:store.get("spinFree",0), ad:store.get("spinAd",0)}; }
+let spinRot=0, spinning=false;
+function drawSpin(){ const svg=$("spinSvg"); let h='<g class="rot" id="spinRot">';
+  h+='<circle r="108" fill="#ffd166"/><circle r="100" fill="#3a2500"/>';
+  SPIN_PRIZES.forEach((p,i)=>{ const a0=(i*SEG-90-SEG/2)*Math.PI/180, a1=((i+1)*SEG-90-SEG/2)*Math.PI/180, R=96;
+    h+=`<path d="M0 0 L${R*Math.cos(a0)} ${R*Math.sin(a0)} A${R} ${R} 0 0 1 ${R*Math.cos(a1)} ${R*Math.sin(a1)} Z" fill="${p.c}" stroke="#fff6" stroke-width="1.5"/>`;
+    h+=`<g transform="rotate(${i*SEG})"><text y="-66" text-anchor="middle" font-size="20">${p.ic}</text><text y="-40" text-anchor="middle" font-size="19" font-weight="900" fill="#fff" stroke="#0006" stroke-width=".6" font-family="inherit">${p.lbl}</text></g>`; });
+  for(let i=0;i<16;i++){ const a=i*22.5*Math.PI/180; h+=`<circle cx="${104*Math.cos(a)}" cy="${104*Math.sin(a)}" r="3" fill="${i%2?"#fff":"#fff6c8"}"/>`; }
+  h+='</g>'; svg.innerHTML=h; setRot(spinRot,false); }
+function setRot(deg,anim){ const g=$("spinRot"); if(!g) return; g.style.transition=anim?"":"none"; g.style.transformOrigin="0 0"; g.style.transform=`rotate(${deg}deg)`; }
+function pickPrize(){ const tot=SPIN_PRIZES.reduce((a,p)=>a+p.w,0); let r=Math.random()*tot; for(let i=0;i<SPIN_PRIZES.length;i++){ r-=SPIN_PRIZES[i].w; if(r<0) return i; } return 0; }
+function renderSpin(){ const st=spinState(); const can=st.free>0;
+  $("spinBtn").disabled=spinning||!can; $("spinBtn").textContent= can?"🎡 Çarkı Çevir":"✅ Bugünkü bedava hakkını kullandın";
+  $("spinAdBtn").classList.toggle("hidden", can||st.ad<=0); $("spinAdBtn").disabled=spinning;
+  $("spinSub").textContent= can?"Her gün 1 bedava çevirme hakkın var!": st.ad>0?"Reklam izleyerek 1 kez daha çevirebilirsin.":"Yarın yeni çevirme hakkın gelecek 🌙";
+  $("hDaily").classList.toggle("has", st.free>0||st.ad>0); $("hDailyDot").textContent= st.free+st.ad; }
+function openSpin(){ spinState(); drawSpin(); $("spinRes").textContent=""; renderSpin(); $("ovSpin").classList.remove("hidden"); }
+function doSpin(dir){ if(spinning) return; const st=spinState(); if(st.free<=0) return;
+  store.set("spinFree",0); spinning=true; renderSpin(); $("spinRes").textContent=""; $("spinRes").classList.remove("pop");
+  const i=pickPrize(); const target= -i*SEG + (Math.random()-.5)*SEG*.6;
+  const base=spinRot - (((spinRot%360)+360)%360); const turns=(dir<0?-1:1)*360*6;
+  let end=base+turns+target; if(dir>=0 && end<spinRot+360*5) end+=360; if(dir<0 && end>spinRot-360*5) end-=360;
+  spinRot=end; setRot(spinRot,true);
+  // dilim geçtikçe tık sesi
+  let lastSeg=null; const t0=performance.now(); const tk=()=>{ const g=$("spinRot"); if(!g) return; const m=getComputedStyle(g).transform; if(m&&m!=="none"){ const v=m.match(/matrix\(([^)]+)\)/); if(v){ const [a,b]=v[1].split(",").map(Number); const ang=Math.atan2(b,a)*180/Math.PI; const sg=Math.floor((ang+360+SEG/2)/SEG); if(lastSeg!==null&&sg!==lastSeg) tick(2,true); lastSeg=sg; } }
+    if(performance.now()-t0<4700) requestAnimationFrame(tk); }; requestAnimationFrame(tk);
+  setTimeout(()=>{ spinning=false; givePrize(SPIN_PRIZES[i]); renderSpin(); },4750); }
+function givePrize(p){ let msg="";
+  if(p.t==="coin"){ addCoins(p.n); msg=`+${p.n} 🪙 altın!`; }
+  else if(p.t==="gem"){ setGems(gems+p.n); try{ $("hsGems").textContent=gems; }catch(e){} msg=`+${p.n} 💎 elmas!`; }
+  else { if(unlimited){ addCoins(50); msg="Sınırsız canın var → +50 🪙"; } else { lives=lives+1; store.set("lives",lives); if(lives>=LIFE_MAX) store.set("lifeT",0); try{ renderLives(); }catch(e){} msg=`+1 ❤️ can! (${lives} can)`; } }
+  $("spinRes").textContent="🎉 "+msg; $("spinRes").classList.add("pop"); try{ (p.t==="gem"&&p.n>=5)?applause():SFX.win(); }catch(e){} buzz&&buzz([60,40,60]); }
+$("spinBtn").onclick=()=>doSpin(1);
+$("spinHub").onclick=()=>doSpin(1);
+$("spinAdBtn").onclick=()=>{ const st=spinState(); if(st.ad<=0) return; showAd(()=>{ store.set("spinAd",0); store.set("spinFree",1); renderSpin(); toast("🎡 +1 çevirme hakkı kazandın!"); },"🎡"); };
+$("spinClose").onclick=()=>{ if(!spinning) $("ovSpin").classList.add("hidden"); };
+$("hDaily").onclick=openSpin;
+try{ document.querySelector("#home .logo").style.cursor="pointer"; document.querySelector("#home .logo").addEventListener("click",openSpin); }catch(e){}
+// parmakla çevirme
+(function(){ const w=document.querySelector(".swrap"); let sx=0,sy=0,down=false,ang0=0;
+  const angOf=(x,y)=>{ const r=w.getBoundingClientRect(); return Math.atan2(y-(r.top+r.height/2),x-(r.left+r.width/2))*180/Math.PI; };
+  w.addEventListener("pointerdown",e=>{ if(spinning||e.target.id==="spinHub") return; down=true; sx=e.clientX; sy=e.clientY; ang0=angOf(e.clientX,e.clientY); try{w.setPointerCapture(e.pointerId);}catch(_){} });
+  w.addEventListener("pointermove",e=>{ if(!down||spinning) return; const d=((angOf(e.clientX,e.clientY)-ang0+540)%360)-180; setRot(spinRot+d,false); });
+  w.addEventListener("pointerup",e=>{ if(!down) return; down=false; const d=((angOf(e.clientX,e.clientY)-ang0+540)%360)-180; const moved=Math.hypot(e.clientX-sx,e.clientY-sy);
+    if(moved>25 && spinState().free>0){ spinRot+=d; setRot(spinRot,false); requestAnimationFrame(()=>requestAnimationFrame(()=>doSpin(d<0?-1:1))); } else setRot(spinRot,false); });
+})();
+renderSpin();
 showHome();
+// oyuna her gün ilk girişte çark kendiliğinden açılır
+setTimeout(()=>{ const st=spinState(); if(st.free>0 && !store.get("spinShown",0)){ store.set("spinShown",1); openSpin(); } },900);
 </script>
 </body>
 </html>
