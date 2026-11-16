@@ -1423,7 +1423,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="52";
+const APP_VER="53";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1916,7 +1916,12 @@ function dSubmit(w){
 
 // ---------- düğmeler ----------
 $("hDuel").onclick=openDuel;
-$("duelBack").onclick=()=>{ if(D.g&&D.g.status==="play"){ finish(D.host?1-myIdx():myIdx()===0?1:0,"left"); } leaveDuel(); $("duel").classList.add("hidden"); showHome(); };
+$("duelBack").onclick=()=>{
+  // rakip ararken, oda beklerken, maç içinde ya da sonunda: önce düello lobisine dön; lobideyken ana menüye
+  if($("dLobby").classList.contains("hidden")){
+    if(D.g&&(D.g.status==="play"||D.g.status==="intro")){ finish(D.host?1-myIdx():myIdx()===0?1:0,"left"); }
+    D.quick=false; D.retries=0; leaveDuel(); dShow("dLobby"); try{ renderStats(); renderLives(); }catch(e){} return; }
+  leaveDuel(); $("duel").classList.add("hidden"); showHome(); };
 document.querySelectorAll(".dtabs button").forEach(b=>b.onclick=()=>{ document.querySelectorAll(".dtabs button").forEach(x=>x.classList.toggle("on",x===b)); $("dTabPlay").classList.toggle("hidden",b.dataset.tab!=="play"); $("dTabRank").classList.toggle("hidden",b.dataset.tab!=="rank"); if(b.dataset.tab==="rank") loadRank(); });
 $("dName").addEventListener("change",saveProfile);
 $("dName").addEventListener("change",()=>{ if(nameOk()) saveProfile(); });
