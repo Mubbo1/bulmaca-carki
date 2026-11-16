@@ -374,6 +374,57 @@
 #musVol{-webkit-appearance:none;appearance:none;width:100%;height:10px;border-radius:6px;margin:10px 0 4px;background:linear-gradient(90deg,#9d4edd var(--p,50%),#e3e0ea var(--p,50%));outline:none}
 #musVol::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#fff;border:3px solid #7b2cbf;box-shadow:0 2px 6px rgba(0,0,0,.25)}
 #musVol::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid #7b2cbf}
+
+  /* ---- Düello: sade ve şık görünüm ---- */
+  #duel{background:linear-gradient(180deg,#141a33 0%,#0d1222 55%,#0a0e1a 100%)}
+  #duel .mprogTxt{font-weight:800;letter-spacing:.2px}
+  #duel .dtabs{background:#ffffff0d;border:1px solid #ffffff14;border-radius:14px;padding:4px}
+  #duel .dtabs button{font-size:15px;font-weight:700;color:#9aa3c7;padding:9px}
+  #duel .dtabs button.on{background:#ffffff1a;color:#fff;box-shadow:inset 0 0 0 1px #ffffff22}
+  #duel .dcard{background:#ffffff0a;border:1px solid #ffffff14;border-radius:20px;padding:16px;backdrop-filter:none}
+  #dTabPlay{display:flex;flex-direction:column;gap:12px}
+  .dhero .dprof{display:flex;gap:14px;align-items:center}
+  .dhero .avatar{width:68px;height:68px;font-size:28px;border:2px solid #ffffff30;box-shadow:0 6px 18px #0006}
+  .dhero .camb{background:#8b5cf6;border-color:#141a33}
+  .dpinfo{flex:1;min-width:0}
+  #duel #dName{background:transparent;border:0;border-bottom:1px solid #ffffff26;border-radius:0;padding:4px 0 6px;font-size:20px;font-weight:800;color:#fff}
+  #duel #dName::placeholder{color:#7f88ad;font-weight:700}
+  #duel #dName:focus{border-bottom-color:#8b5cf6}
+  .dhero .lvrow{margin-top:10px;gap:10px}
+  .dhero .lvinfo b{font-size:13px;color:#e8ebff}
+  .dhero .lvinfo small{color:#8a93b8}
+  .dhero .lvbar{height:5px;background:#ffffff14}
+  .dhero .lvbar div{background:linear-gradient(90deg,#8b5cf6,#c084fc)}
+  .dstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+  .dstats>div{background:#ffffff08;border:1px solid #ffffff10;border-radius:14px;padding:10px 6px;text-align:center;display:flex;flex-direction:column;gap:2px}
+  .dstats b{font-size:20px;font-weight:800;color:#fff}
+  .dstats span{font-size:11px;color:#8a93b8;font-weight:600;letter-spacing:.3px;text-transform:uppercase}
+  .dstats .pbar{height:4px;margin-top:5px;background:#ff6b8a40}
+  .dhero .pbadges{margin-top:10px;justify-content:center;min-height:0}
+  .dhero .pbadges .dnote{color:#6f789c!important}
+  #duel .dcard.lives{padding:12px 16px}
+  .lives .lvl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .lives .lbl{font-size:13px;font-weight:700;color:#8a93b8;text-transform:uppercase;letter-spacing:.4px}
+  #duel .hearts{font-size:20px;letter-spacing:1px}
+  #dLifeTimer{color:#fda4af;font-weight:700;font-size:12px}
+  #duel .dcard.lives .dbtn{font-size:14px;padding:7px 14px;border-radius:12px;line-height:1.15}
+  #duel .dbtn{font-size:16px;font-weight:700;border-radius:16px;padding:14px;background:#ffffff0f;border:1px solid #ffffff1c;color:#eef0ff;box-shadow:none;transition:transform .1s,background .2s}
+  #duel .dbtn:active{transform:scale(.98)}
+  #duel .dbtn small{font-size:12px;font-weight:600;opacity:.75}
+  #duel .dbtn.gold{background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;border:0;box-shadow:0 10px 24px #6366f155}
+  .dcta{display:flex;flex-direction:column;align-items:center;gap:2px;padding:18px!important}
+  .dcta span{font-size:21px;font-weight:800;letter-spacing:.3px}
+  .dgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .djoin input{font-size:16px!important;letter-spacing:3px!important;border-radius:16px!important;background:#ffffff08!important;border:1px solid #ffffff1c!important}
+  .djoin input::placeholder{letter-spacing:1px;color:#6f789c;font-weight:700;text-transform:none}
+  .djoin .dbtn{padding:12px 20px}
+  .dbadges{padding:12px 16px!important}
+  .dbadges .bdhead b{font-size:14px;color:#c9cfee}
+  #duel .bdhead button{background:#ffffff12;font-weight:700;font-size:13px}
+  #duel .dnote{color:#7f88ad}
+  .dhero .avatar:not(.ph){background:linear-gradient(135deg,#8b5cf6,#4f46e5);color:#fff}
+  .dhero .pbadges:has(.dnote){display:none}
+  #duel .dcard.lives .dbtn small{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -550,26 +601,30 @@
     <div id="dLobby" class="dpage">
       <div class="dtabs"><button class="on" data-tab="play">Oyna</button><button data-tab="rank">🏆 Sıralama</button></div>
       <div id="dTabPlay">
-        <div class="dcard prof">
-          <div class="avwrap"><div class="avatar" id="dAvatar">?</div><div class="camb">📷</div><input type="file" id="dPhoto" accept="image/*" hidden></div>
-          <div style="flex:1;min-width:0">
-            <input id="dName" maxlength="16" placeholder="Adını yaz">
-            <div class="pstats"><span>🏆 <b id="pW">0</b> galibiyet</span><span>💔 <b id="pL">0</b> mağlubiyet</span></div>
-            <div class="pratio"><div class="pbar"><div id="pBar"></div></div><b id="pR">%0</b></div>
-            <div class="lvrow"><span id="pLvBox"></span><div class="lvinfo"><b id="pLvName">Seviye 1</b><div class="lvbar"><div id="pLvBar"></div></div><small id="pLvTxt"></small></div></div>
-            <div class="pbadges" id="pBadges"></div>
+        <div class="dcard dhero">
+          <div class="dprof">
+            <div class="avwrap"><div class="avatar" id="dAvatar">?</div><div class="camb">📷</div><input type="file" id="dPhoto" accept="image/*" hidden></div>
+            <div class="dpinfo">
+              <input id="dName" maxlength="16" placeholder="Oyuncu adın">
+              <div class="lvrow"><span id="pLvBox"></span><div class="lvinfo"><b id="pLvName">Seviye 1</b><div class="lvbar"><div id="pLvBar"></div></div><small id="pLvTxt"></small></div></div>
+            </div>
           </div>
+          <div class="dstats">
+            <div><b id="pW">0</b><span>Galibiyet</span></div>
+            <div><b id="pL">0</b><span>Mağlubiyet</span></div>
+            <div><b id="pR">%0</b><span>Kazanma</span><div class="pbar"><div id="pBar"></div></div></div>
+          </div>
+          <div class="pbadges" id="pBadges"></div>
         </div>
-        <div class="dcard">
-          <div class="bdhead"><b>🎖️ Rozetlerim <span id="bdCount" style="opacity:.75;font-weight:600"></span></b><button id="bdToggle">Tümü ▾</button></div>
+        <div class="dcard lives"><div class="lvl"><span class="lbl">Canlar</span><div class="hearts" id="dHearts">❤️❤️❤️</div><small id="dLifeTimer"></small></div><button class="dbtn" id="dAdLife">+1 ❤️<br><small>Reklam izle</small></button></div>
+        <div class="hidden"><div id="dCats"></div><div id="dCatStat"></div></div>
+        <button class="dbtn gold dcta" id="dQuick"><span>Rakip Bul</span><small>Rastgele bir oyuncuyla eşleş</small></button>
+        <div class="dgrid"><button class="dbtn" id="dCreate">👥 Oda Kur</button><button class="dbtn" id="dBot">🤖 Antrenman</button></div>
+        <div class="drow djoin"><input id="dCode" maxlength="5" placeholder="Oda kodu"><button class="dbtn" id="dJoin">Katıl</button></div>
+        <div class="dcard dbadges">
+          <div class="bdhead"><b>Rozetler <span id="bdCount" style="opacity:.75;font-weight:600"></span></b><button id="bdToggle">Tümü ▾</button></div>
           <div id="bdBox" class="hidden"><div class="dnote" style="margin-top:6px">Kazandığın rozetlere dokun, profilinde en fazla <b>3 tanesi</b> görünsün. Rakiplerin de bunları görecek!</div><div class="bdstreak" id="bdStreak"></div><div class="bdgrid" id="bdGrid"></div><div class="bdinfo" id="bdInfo"></div></div>
         </div>
-        <div class="dcard lives"><div><b>Canların</b><div class="hearts" id="dHearts">❤️❤️❤️</div><small id="dLifeTimer" style="color:#ffb3c1;font-weight:700"></small></div><button class="dbtn" id="dAdLife">📺 Reklam izle<br><small>+1 ❤️</small></button></div>
-        <div class="hidden"><div id="dCats"></div><div id="dCatStat"></div></div>
-        <button class="dbtn gold" id="dQuick">🎲 Rastgele Rakip Bul</button>
-        <button class="dbtn" id="dCreate">⚔️ Arkadaşınla Oyna (Oda Kur)</button>
-        <div class="drow"><input id="dCode" maxlength="5" placeholder="ODA KODU"><button class="dbtn" id="dJoin">Katıl</button></div>
-        <button class="dbtn ghost" id="dBot">🤖 Bota karşı antrenman <small>(altınsız)</small></button>
         <div class="dnote" id="dNet">Bağlantı kontrol ediliyor…</div>
       </div>
       <div id="dTabRank" class="hidden">
@@ -1425,7 +1480,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="57";
+const APP_VER="58";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
