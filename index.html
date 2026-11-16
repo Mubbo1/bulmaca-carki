@@ -504,6 +504,9 @@
     <div class="set"><span>🗑️ Hesabımı Sil<small>Profilin ve tüm oyun verilerin silinir</small></span><button id="btnDelAcc" class="mini" style="background:#e63946;color:#fff">Sil</button></div>
     <div id="delAsk" class="hidden" style="margin-top:8px;font-size:15px">Profilin, düello istatistiklerin, bölümlerin, altın ve elmasların kalıcı olarak silinecek. Bu işlem geri alınamaz. Emin misin?
       <div style="display:flex;gap:8px;margin-top:6px"><button class="danger" id="btnDelYes">Evet, sil</button><button id="btnDelNo" style="background:#dee2e6">Vazgeç</button></div></div>
+    <div class="set"><span>🚫 Engellenen Oyuncular <small id="blkCount"></small></span><button id="btnBlk" class="mini">Aç</button></div>
+    <div id="blkBox" class="hidden" style="margin:4px 0 8px"><div id="blkList"></div></div>
+    <div class="set"><span>📜 Kullanım Şartları</span><button class="mini" onclick="window.open('https://mubbo1.github.io/bulmaca-carki/kullanim.html','_blank')">Aç</button></div>
     <div class="set"><span>📄 Gizlilik Politikası</span><button class="mini" onclick="window.open('https://mubbo1.github.io/bulmaca-carki/gizlilik.html','_blank')">Aç</button></div>
     <div class="set"><span>ℹ️ Sürüm</span><span style="color:#888;font-size:15px">1.0</span></div>
     <div class="hidden"><button id="btnReset"></button></div>
@@ -523,13 +526,27 @@
   </div></div>
 
   <div class="overlay hidden" id="ovReport"><div class="box shop">
-    <h2>🚩 Şikayet Et</h2>
-    <div style="font-size:15px"><b id="repName"></b> adlı oyuncuyu neden şikayet ediyorsun?</div>
+    <h2>🚩 Şikayet Et / Engelle</h2>
+    <div style="font-size:15px"><b id="repName"></b> adlı oyuncuyu neden şikayet ediyorsun? <span id="repDone" class="hidden" style="color:#2a9d8f;font-weight:700">(Şikayetin alındı)</span></div>
     <div class="row"><span>🖼️ Uygunsuz fotoğraf</span><button data-rep="foto">Seç</button></div>
     <div class="row"><span>🤬 Uygunsuz isim</span><button data-rep="isim">Seç</button></div>
     <div class="row"><span>⚠️ Hile / diğer</span><button data-rep="diger">Seç</button></div>
-    <div class="note">3 farklı oyuncudan şikayet alan kişinin fotoğrafı veya ismi otomatik kaldırılır. 15 hile şikayeti alan sıralama tablosundan çıkarılır.</div>
+    <div class="row"><span>🚫 <b>Engelle</b><br><small>Bu oyuncu bir daha karşına çıkmaz</small></span><button id="repBlock" style="background:#e63946;color:#fff">Engelle</button></div>
+    <div class="note">3 farklı oyuncudan şikayet alan kişinin fotoğrafı veya ismi otomatik kaldırılır. 15 hile şikayeti alan sıralama tablosundan çıkarılır. Tüm şikayetler ekibimizce 24 saat içinde incelenir.</div>
     <button id="repClose" style="background:#dee2e6">Vazgeç</button>
+  </div></div>
+
+  <div class="overlay hidden" id="ovEula"><div class="box shop">
+    <h2>⚔️ Düello Kuralları</h2>
+    <div style="font-size:15px;text-align:left;line-height:1.45">Online düelloda diğer oyuncular adını ve profil fotoğrafını görür. Oynamadan önce lütfen kabul et:
+      <ul style="margin:8px 0 0 18px;padding:0">
+        <li>Küfürlü, hakaret içeren veya uygunsuz <b>isim ve fotoğraf kullanmak yasaktır</b>; bunlara hiçbir şekilde tolerans gösterilmez.</li>
+        <li>Rahatsız eden oyuncuyu <b>🚩 Şikayet et / Engelle</b> ile bildirebilir ya da engelleyebilirsin.</li>
+        <li>Şikayetler 24 saat içinde incelenir; kuralları çiğneyenlerin ismi/fotoğrafı kaldırılır, gerekirse düellodan çıkarılır.</li>
+      </ul></div>
+    <div style="font-size:13px;margin-top:8px"><a href="#" id="eulaLink" style="color:#7b2cbf;font-weight:700">Kullanım Şartları'nın tamamını oku</a></div>
+    <button class="gold" id="eulaYes">Kabul ediyorum</button>
+    <button id="eulaNo" style="background:#dee2e6">Vazgeç</button>
   </div></div>
 
   <div class="overlay hidden" id="ovSpin"><div class="box spinbox xbox"><button class="xclose" id="spinClose" aria-label="Kapat">✕</button>
@@ -654,7 +671,7 @@
           <div class="ivs">VS</div>
           <div class="icard b"><div class="avatar b" id="iaB">?</div><div class="nm" id="inB"></div><div id="ilB"></div><div class="vbd" id="ibB"></div><div class="st" id="isB"></div></div>
         </div>
-        <button class="repmini" id="iReport">🚩 Şikayet et</button>
+        <button class="repmini" id="iReport">🚩 Şikayet et / Engelle</button>
         <div class="icount">Birazdan oyun başlıyor… <b id="iCount">3</b></div>
         <div id="dIntroLogo"></div>
       </div>
@@ -684,7 +701,7 @@
         <div class="wreward" style="margin-top:12px"><span id="dEndLives">❤️❤️❤️</span></div>
       </div>
       <button class="dbtn gold" id="dAgain">Lobiye Dön</button>
-      <button class="dbtn ghost repbtn" id="dReport">🚩 Rakibi şikayet et</button>
+      <button class="dbtn ghost repbtn" id="dReport">🚩 Şikayet et / Engelle</button>
     </div>
   </div>
   <div id="map" class="hidden">
@@ -1480,7 +1497,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="58";
+const APP_VER="59";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1507,7 +1524,7 @@ async function fbInit(){
   let queue={}; rdb.ref("queue").on("value",s=>{ queue=s.val()||{}; });
   let myQueueRef=null;
   const lobby={
-    peers(){ return Object.entries(queue).map(([code,v])=>({isMe:!!(myQueueRef&&myQueueRef.key===code), presence:{seek:{code,ts:v&&v.ts,cat:(v&&v.cat)||"genel"}}})); },
+    peers(){ return Object.entries(queue).map(([code,v])=>({isMe:!!(myQueueRef&&myQueueRef.key===code), presence:{seek:{code,ts:v&&v.ts,cat:(v&&v.cat)||"genel",uid:v&&v.uid}}})); },
     async presence(p){
       if(p&&p.seek){ myQueueRef=rdb.ref("queue/"+p.seek.code); await myQueueRef.set({uid,ts:Date.now(),cat:p.seek.cat||"genel"}); myQueueRef.onDisconnect().remove(); }
       else if(p&&p.seek===null&&myQueueRef){ const r=myQueueRef; myQueueRef=null; try{ await r.onDisconnect().cancel(); await r.remove(); }catch(e){} }
@@ -1905,8 +1922,22 @@ async function checkMine(){ if(!D.uid) return; const c=await repCount(D.uid);
   if(c.isim>=REP_LIMIT && $("dName").value){ $("dName").value=""; store.set("pname",""); saveProfile(); toast("🚩 İsmin şikayetler nedeniyle kaldırıldı, yeni bir isim seç"); } }
 function opp(){ const g=D.g; if(!g) return null; const me=myIdx(); return g.players[1-me]; }
 function openReport(){ const p=opp(); if(D.mode!=="online"||!p||!p.uid){ toast("Bu oyuncu şikayet edilemiyor"); return; }
-  if(store.get("rep_"+p.uid,0)){ toast("Bu oyuncuyu zaten şikayet ettin"); return; }
+  const done=!!store.get("rep_"+p.uid,0); $("repDone").classList.toggle("hidden",!done);
+  document.querySelectorAll("[data-rep]").forEach(b=>{ b.disabled=done; b.style.opacity=done?.4:1; });
+  $("repBlock").disabled=isBlocked(p.uid); $("repBlock").textContent=isBlocked(p.uid)?"Engellendi":"Engelle";
   $("repName").textContent=vis(p).name; $("ovReport").classList.remove("hidden"); }
+// ---------- ENGELLEME ----------
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function blockedMap(){ return store.get("blocked",{})||{}; }
+function isBlocked(uid){ return !!(uid && blockedMap()[uid]); }
+function blockUser(uid,name){ const m=blockedMap(); m[uid]={n:name||"Oyuncu",t:Date.now()}; store.set("blocked",m); }
+function unblockUser(uid){ const m=blockedMap(); delete m[uid]; store.set("blocked",m); renderBlocked(); }
+function renderBlocked(){ const m=blockedMap(), ks=Object.keys(m); $("blkCount").textContent=ks.length?ks.length+" kişi":"";
+  $("blkList").innerHTML= ks.length? ks.map(k=>`<div class="row"><span>🚫 ${esc(m[k].n)}</span><button data-unb="${k}" style="background:#dee2e6">Kaldır</button></div>`).join("") : '<div class="note">Engellediğin oyuncu yok.</div>';
+  document.querySelectorAll("[data-unb]").forEach(b=>b.onclick=()=>unblockUser(b.dataset.unb)); }
+$("repBlock").onclick=()=>{ const p=opp(); if(!p||!p.uid) return; blockUser(p.uid,vis(p).name); $("ovReport").classList.add("hidden");
+  toast("🚫 Oyuncu engellendi, bir daha karşına çıkmayacak");
+  if(D.g&&(D.g.status==="intro"||D.g.status==="play")){ $("duelBack").click(); } };
 $("dReport").onclick=openReport; $("iReport").onclick=openReport;
 $("repClose").onclick=()=>$("ovReport").classList.add("hidden");
 document.querySelectorAll("[data-rep]").forEach(b=>b.onclick=async()=>{ const p=opp(); $("ovReport").classList.add("hidden"); if(!p||!p.uid||!D.db||p.uid===D.uid) return;
@@ -1914,6 +1945,7 @@ document.querySelectorAll("[data-rep]").forEach(b=>b.onclick=async()=>{ const p=
   catch(e){ toast("Şikayet gönderilemedi, tekrar dene"); } });
 function renderIntro(s){
   const g=D.g, me=myIdx(), op=1-me, A=g.players[me]||{}, B0=g.players[op]||{}, B={...B0,...vis(B0)};
+  if(D.mode==="online" && isBlocked(B0.uid) && !D.blkLeft){ D.blkLeft=true; toast("🚫 Engellediğin bir oyuncuyla eşleştin, yeni rakip aranıyor"); setTimeout(()=>{ leaveDuel(); dShow("dLobby"); D.blkLeft=false; quickMatch(); },300); return; }
   if(D.mode==="online") checkOpp(B0); $("iReport").style.display= D.mode==="online"&&B0.uid&&!store.get("rep_"+B0.uid,0) ? "" : "none";
   if(!D.introShown){ D.introShown=true; D.introEnd=Date.now()+((s&&s.left)||4000); SFX.win&&beep([[523,.1],[659,.1],[784,.18]]); }
   dShow("dIntro");
@@ -2136,9 +2168,15 @@ async function quickMatch(){ D.quick=true; if(!nameOk()) return;
     },1500);
   }
 }
-function seekers(){ const now=Date.now(); return (D.room&&D.room.peers?D.room.peers():[]).filter(p=>!p.isMe && p.presence && p.presence.seek && p.presence.seek.code && (p.presence.seek.cat||"genel")===D.cat && now-(p.presence.seek.ts||0)<120000); }
+function seekers(){ const now=Date.now(); return (D.room&&D.room.peers?D.room.peers():[]).filter(p=>!p.isMe && !(p.presence&&p.presence.seek&&isBlocked(p.presence.seek.uid)) && p.presence && p.presence.seek && p.presence.seek.code && (p.presence.seek.cat||"genel")===D.cat && now-(p.presence.seek.ts||0)<120000); }
 function stopSeek(){ try{ D.room&&D.room.presence({seek:null}); }catch(e){} }
-$("dQuick").onclick=quickMatch;
+function needEula(cb){ if(store.get("eulaOk",0)) return cb(); D.eulaCb=cb; $("ovEula").classList.remove("hidden"); }
+$("eulaYes").onclick=()=>{ store.set("eulaOk",1); $("ovEula").classList.add("hidden"); const cb=D.eulaCb; D.eulaCb=null; cb&&cb(); };
+$("eulaNo").onclick=()=>{ D.eulaCb=null; $("ovEula").classList.add("hidden"); };
+$("eulaLink").onclick=e=>{ e.preventDefault(); window.open("https://mubbo1.github.io/bulmaca-carki/kullanim.html","_blank"); };
+$("btnBlk").onclick=()=>{ renderBlocked(); $("blkBox").classList.toggle("hidden"); };
+$("dQuick").onclick=()=>needEula(quickMatch);
+{ const c0=$("dCreate").onclick, j0=$("dJoin").onclick; $("dCreate").onclick=()=>needEula(c0); $("dJoin").onclick=()=>needEula(j0); }
 $("dAdLife").onclick=()=>showAd(()=>{ setLives(lives+1); toast("+1 ❤️ kazandın"); },"❤️");
 
 // ---------- İZLEME MODU (Claude'un oynaması için) ----------
