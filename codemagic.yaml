@@ -46,7 +46,7 @@ workflows:
           cd ios/App && pod install
           grep -m1 IPHONEOS_DEPLOYMENT_TARGET App.xcodeproj/project.pbxproj
       - name: İkon ve açılış ekranı
-        script: npx @capacitor/assets generate --ios --iconBackgroundColor '#14082e' --splashBackgroundColor '#14082e' --splashBackgroundColorDark '#14082e'
+        script: npx @capacitor/assets generate --ios --iconBackgroundColor '#5a189a' --splashBackgroundColor '#3c096c' --splashBackgroundColorDark '#3c096c'
       - name: Info.plist (AdMob, takip izni, dikey ekran)
         script: |
           PL=ios/App/App/Info.plist
@@ -118,7 +118,7 @@ workflows:
           cd ios/App && pod install
           grep -m1 IPHONEOS_DEPLOYMENT_TARGET App.xcodeproj/project.pbxproj
       - name: İkon ve açılış ekranı
-        script: npx @capacitor/assets generate --ios --iconBackgroundColor '#14082e' --splashBackgroundColor '#14082e' --splashBackgroundColorDark '#14082e'
+        script: npx @capacitor/assets generate --ios --iconBackgroundColor '#5a189a' --splashBackgroundColor '#3c096c' --splashBackgroundColorDark '#3c096c'
       - name: Info.plist (AdMob, takip izni, dikey ekran)
         script: |
           PL=ios/App/App/Info.plist
@@ -165,7 +165,7 @@ workflows:
           [ -d android ] || npx cap add android
           npx cap sync android
       - name: İkon ve açılış ekranı
-        script: npx @capacitor/assets generate --android --iconBackgroundColor '#14082e' --splashBackgroundColor '#14082e' --splashBackgroundColorDark '#14082e'
+        script: npx @capacitor/assets generate --android --iconBackgroundColor '#5a189a' --splashBackgroundColor '#3c096c' --splashBackgroundColorDark '#3c096c'
       - name: AdMob kimliği ve dikey ekran
         script: |
           AID="${ADMOB_ANDROID_APP_ID:-ca-app-pub-3940256099942544~3347511713}"
@@ -206,7 +206,7 @@ workflows:
           [ -d android ] || npx cap add android
           npx cap sync android
       - name: İkon ve açılış ekranı
-        script: npx @capacitor/assets generate --android --iconBackgroundColor '#14082e' --splashBackgroundColor '#14082e' --splashBackgroundColorDark '#14082e'
+        script: npx @capacitor/assets generate --android --iconBackgroundColor '#5a189a' --splashBackgroundColor '#3c096c' --splashBackgroundColorDark '#3c096c'
       - name: AdMob kimliği ve dikey ekran
         script: |
           AID="${ADMOB_ANDROID_APP_ID:-ca-app-pub-3940256099942544~3347511713}"
