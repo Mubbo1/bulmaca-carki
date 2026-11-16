@@ -1497,7 +1497,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="59";
+const APP_VER="60";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1615,8 +1615,8 @@ function showAd(onDone,icon){ if(noAds){ setTimeout(()=>{ try{ onDone&&onDone();
 //  >>> AdMob'da Bulmaca Çarkı uygulaması açılınca sadece CFG içindeki kimlikler değişir <<<
 // =====================================================================
 const CFG={
-  testAds:true,   // gerçek kimlikler girilince false yapılır
-  ads:{ios:{reward:'ca-app-pub-3940256099942544/1712485313',inter:'ca-app-pub-3940256099942544/4411468910'},
+  testAds:false,  // iOS: gerçek AdMob (Cube Traffic hesabı, Bulmaca Çarkı iOS ~5579802063). Android: henüz Google deneme kimlikleri
+  ads:{ios:{reward:'ca-app-pub-4184102551865093/4614863892',inter:'ca-app-pub-4184102551865093/1672346645'},
        android:{reward:'ca-app-pub-3940256099942544/5224354917',inter:'ca-app-pub-3940256099942544/1033173712'}},
   products:{gem10:'bulmacacarki.gem10',gem20:'bulmacacarki.gem20',gem50:'bulmacacarki.gem50',noads:'bulmacacarki.noads',unlim:'bulmacacarki.unlimited'},
   consumable:{gem10:10,gem20:20,gem50:50}

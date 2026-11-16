@@ -50,7 +50,7 @@ workflows:
       - name: Info.plist (AdMob, takip izni, dikey ekran)
         script: |
           PL=ios/App/App/Info.plist
-          AID="${ADMOB_IOS_APP_ID:-ca-app-pub-3940256099942544~1458002511}"
+          AID="${ADMOB_IOS_APP_ID:-ca-app-pub-4184102551865093~5579802063}"
           pb(){ /usr/libexec/PlistBuddy -c "$1" "$PL" 2>/dev/null || true; }
           pb "Delete :GADApplicationIdentifier"; pb "Add :GADApplicationIdentifier string $AID"
           pb "Delete :NSUserTrackingUsageDescription"
@@ -122,7 +122,7 @@ workflows:
       - name: Info.plist (AdMob, takip izni, dikey ekran)
         script: |
           PL=ios/App/App/Info.plist
-          AID="${ADMOB_IOS_APP_ID:-ca-app-pub-3940256099942544~1458002511}"
+          AID="${ADMOB_IOS_APP_ID:-ca-app-pub-4184102551865093~5579802063}"
           pb(){ /usr/libexec/PlistBuddy -c "$1" "$PL" 2>/dev/null || true; }
           pb "Delete :GADApplicationIdentifier"; pb "Add :GADApplicationIdentifier string $AID"
           pb "Delete :NSUserTrackingUsageDescription"

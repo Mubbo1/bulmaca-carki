@@ -22,7 +22,12 @@ Mac gerekmez: iPhone sürümünü **Codemagic** bulutta paketleyip App Store Con
 | `bulmacacarki.noads` | Tüketilmeyen (Non-Consumable) | Reklamları Kaldır | 199,99 ₺ |
 | `bulmacacarki.unlimited` | Tüketilmeyen (Non-Consumable) | Sınırsız Can | 149,99 ₺ |
 
-## 1) AdMob
+## 1) AdMob (TAMAM: Cube Traffic hesabı, Bulmaca Çarkı iOS)
+- Uygulama: `ca-app-pub-4184102551865093~5579802063`
+- Ödüllü: `ca-app-pub-4184102551865093/4614863892`
+- Geçiş: `ca-app-pub-4184102551865093/1672346645`
+
+### Eski not
 admob.google.com → Uygulamalar → **Uygulama ekle** → iOS → "Bulmaca Çarkı" (henüz mağazada değil) → iki reklam birimi:
 **Ödüllü** ve **Geçiş (Interstitial)**. Uygulama kimliği (`~` içeren) ve iki birim kimliği (`/` içeren) Claude'a verilir;
 `index.html` içindeki `CFG` ve Codemagic'teki `ADMOB_IOS_APP_ID` güncellenir, `testAds:false` yapılır.
