@@ -1071,7 +1071,7 @@ function autoFound(){ let any=false;
   L.words.forEach(x=>{ if(!x.found && wordCells(x).every(c=>cellShown(c.x+","+c.y))){ x.found=true; any=true;
     wordCells(x).forEach((c,k)=>{ const el=cellMap.get(c.x+","+c.y).el; setTimeout(()=>{ el.classList.add("pop"); setTimeout(()=>el.classList.remove("pop"),400); },k*70); }); } });
   return any; }
-function win(){
+function win(){ { const c=store.get("lvCount",0)+1; store.set("lvCount",c); if(c%3===0) store.set("adDue",1); }
   SFX.win();
   coins+=25; store.set("coins",coins); $("coins").textContent=coins;
   if(lv+1>unlocked){ unlocked=Math.min(lv+1,LEVELS.length-1); store.set(K("unlocked"),unlocked); }
@@ -1103,7 +1103,9 @@ $("btnHint").onclick=()=>{
     selWord=next; }
   saveProg(); refreshGrid(); setQuestion();
 };
-$("btnNext").onclick=()=>{ $("ovWin").classList.add("hidden"); const n = lv>=LEVELS.length-1 ? 0 : lv+1; if(n===0){ LEVELS.forEach((_,i)=>store.set(K("prog_"+i),null)); } startLevel(n); };
+$("btnNext").onclick=()=>{ $("ovWin").classList.add("hidden"); const n = lv>=LEVELS.length-1 ? 0 : lv+1; if(n===0){ LEVELS.forEach((_,i)=>store.set(K("prog_"+i),null)); }
+  // her 3 bölümde bir geçiş reklamı
+  if(store.get("adDue",0)){ store.set("adDue",0); showInterstitial(()=>startLevel(n)); } else startLevel(n); };
 const ZONES=[
  {ad:"Çırak Yolu",emoji:"🌱",alt:"Kolay sorular",img:"orman.jpg",renk:"#2a9d8f",bg:["#1d5e4a","#0f3b30"],deco:["🌳","🌲","🍃","🌼","🐦"]},
  {ad:"Kalfa Tepesi",emoji:"🔥",alt:"Orta zorlukta sorular",img:"z_kalfa.jpg",renk:"#f4a261",bg:["#7a4a1e","#4a2a10"],deco:["⛰️","🏜️","🌵","🦅","🔥"]},
@@ -1421,7 +1423,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="51";
+const APP_VER="52";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1521,7 +1523,7 @@ let adReward=null;
 let noAds=!!store.get("noAds",0);
 function renderNoAds(){ const on=noAds; $("btnNoAds").textContent= on?"✅ Aktif":"199,99 ₺"; $("btnNoAds").disabled=on; $("noAdsTxt").textContent= on?"Reklamsızsın: ödüller anında geliyor":"Reklam izlemeden ödülleri anında al"; document.querySelector(".set.noads").classList.toggle("on",on); }
 // düello sonu geçiş reklamı (ödülsüz). Reklamları kaldıranlara gösterilmez.
-function showInterstitial(){ if(noAds) return; adReward=()=>{};
+function showInterstitial(cb){ if(noAds){ cb&&cb(); return; } adReward=cb||(()=>{});
   $("adNote").textContent="Reklam bitince devam edebilirsin · Reklamsız oynamak için: Ayarlar → Reklamları Kaldır"; $("btnAdDone").textContent="Kapat";
   $("ovAd").classList.remove("hidden"); let n=5; $("adCount").textContent=n; const b=$("btnAdDone"); b.disabled=true; b.style.opacity=.4;
   clearInterval(adTimer); adTimer=setInterval(()=>{ n--; $("adCount").textContent=Math.max(n,0); if(n<=0){ clearInterval(adTimer); b.disabled=false; b.style.opacity=1; } },1000); }
