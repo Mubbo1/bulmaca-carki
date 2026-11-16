@@ -8,6 +8,7 @@ Mac gerekmez: iPhone sürümünü **Codemagic** bulutta paketleyip App Store Con
 |---|---|
 | Uygulama adı | Bulmaca Çarkı |
 | Paket kimliği (Bundle ID / Package) | `com.bulmacacarki.game` |
+| Destek e-postası | bulmacacarki.destek@gmail.com |
 | Gizlilik politikası | https://mubbo1.github.io/bulmaca-carki/gizlilik.html |
 | Destek / pazarlama sayfası | https://mubbo1.github.io/bulmaca-carki/ |
 | Kategori | Oyunlar → Kelime (ikincil: Bulmaca) |

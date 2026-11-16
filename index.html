@@ -1311,11 +1311,11 @@ $("tVib").onclick=()=>{ vibOn=!vibOn; store.set("vib",vibOn); syncToggles(); buz
 $("btnSetClose").onclick=()=>$("ovSet").classList.add("hidden");
 $("btnNoAds").onclick=()=>{ if(noAds) return; noAds=true; store.set("noAds",1); renderNoAds(); toast("Deneme: 🚫 Reklamlar kaldırıldı (ödeme alınmadı)"); };
 // ---------- Yardım & Destek ----------
-const SUPPORT_EMAIL=""; // destek e-posta adresi buraya yazılacak
+const SUPPORT_EMAIL="bulmacacarki.destek@gmail.com"; // destek e-posta adresi buraya yazılacak
 function helpMail(subject,extra){ const info=`\n\n---\nSürüm: ${APP_VER}\nCihaz: ${navigator.userAgent}\nKategori: ${typeof pack!=="undefined"?pack:""} · Bölüm: ${typeof lv!=="undefined"?lv+1:""}`;
   if(!SUPPORT_EMAIL){ toast("Destek e-postası yakında eklenecek 🙏"); return; }
   location.href=`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent((extra||"")+info)}`; }
-$("btnHelp").onclick=()=>{ $("ovSet").classList.add("hidden"); $("helpInfo").textContent=`Bulmaca Çarkı · Sürüm ${APP_VER}`; $("ovHelp").classList.remove("hidden"); };
+$("btnHelp").onclick=()=>{ $("ovSet").classList.add("hidden"); $("helpInfo").textContent=`Bulmaca Çarkı · Sürüm ${APP_VER} · ${SUPPORT_EMAIL}`; $("ovHelp").classList.remove("hidden"); };
 $("helpClose").onclick=()=>$("ovHelp").classList.add("hidden");
 $("helpMail").onclick=()=>helpMail("Bulmaca Çarkı – Destek","Merhaba,\n\n");
 $("helpBug").onclick=()=>helpMail("Bulmaca Çarkı – Hata bildirimi","Ne oldu?\n\nNe olmasını bekliyordun?\n\n");
@@ -1428,7 +1428,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="54";
+const APP_VER="55";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
