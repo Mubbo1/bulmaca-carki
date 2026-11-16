@@ -1,0 +1,13 @@
+{
+  "appId": "com.bulmacacarki.game",
+  "appName": "Bulmaca Çarkı",
+  "webDir": "www",
+  "backgroundColor": "#14082e",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#14082e"
+  },
+  "android": {
+    "backgroundColor": "#14082e"
+  }
+}

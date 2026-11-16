@@ -1,0 +1,244 @@
+# Bulmaca Çarkı — Codemagic bulut derleme ayarları
+# Uygulama projesi "app" klasöründe; oyunun kendisi depo kökündeki index.html (GitHub Pages ile aynı dosya).
+# iOS: Mac gerekmez, Codemagic'in Mac'inde paketlenir ve App Store Connect'e (TestFlight) yüklenir.
+# Android: imzalı .aab dosyası üretir (Google Play'e yüklenir).
+#
+# Codemagic panelinde bir kez yapılacaklar (app/README-TR.md):
+#  1) App Store Connect entegrasyonu: Cube Traffic için açılan "CubeTrafficASC" aynen kullanılır
+#  2) Code signing identities: aynı Apple Distribution sertifikası kullanılır
+#  3) (Android) Android keystores: "bulmaca_keystore" adıyla keystore ekle
+#  4) AdMob uygulama kimlikleri: ADMOB_IOS_APP_ID / ADMOB_ANDROID_APP_ID ortam değişkenleri
+#     (boşsa Google'ın deneme kimlikleri kullanılır)
+
+workflows:
+  ios-release:
+    name: iOS → TestFlight
+    working_directory: app
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: CubeTrafficASC
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.bulmacacarki.game
+      vars:
+        XCODE_WORKSPACE: ios/App/App.xcworkspace
+        XCODE_SCHEME: App
+      node: 22
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Paketleri kur
+        script: npm install
+      - name: Oyunu uygulamaya koy
+        script: npm run build:web
+      - name: iOS projesini oluştur
+        script: |
+          [ -d ios ] || npx cap add ios
+          npx cap sync ios
+      - name: Sadece iPhone (iPad ekran görüntüsü gerekmesin)
+        script: sed -i '' 's/TARGETED_DEVICE_FAMILY = "1,2"/TARGETED_DEVICE_FAMILY = 1/g' ios/App/App.xcodeproj/project.pbxproj && grep -m2 TARGETED_DEVICE_FAMILY ios/App/App.xcodeproj/project.pbxproj
+      - name: En az iOS 15 (Apple ITMS-90068)
+        script: |
+          sed -i '' -E 's/IPHONEOS_DEPLOYMENT_TARGET = 1[0-4]\.[0-9]+/IPHONEOS_DEPLOYMENT_TARGET = 15.0/g' ios/App/App.xcodeproj/project.pbxproj
+          sed -i '' -E "s/platform :ios, '1[0-4]\.[0-9]+'/platform :ios, '15.0'/" ios/App/Podfile
+          cd ios/App && pod install
+          grep -m1 IPHONEOS_DEPLOYMENT_TARGET App.xcodeproj/project.pbxproj
+      - name: İkon ve açılış ekranı
+        script: npx @capacitor/assets generate --ios --iconBackgroundColor '#14082e' --splashBackgroundColor '#14082e' --splashBackgroundColorDark '#14082e'
+      - name: Info.plist (AdMob, takip izni, dikey ekran)
+        script: |
+          PL=ios/App/App/Info.plist
+          AID="${ADMOB_IOS_APP_ID:-ca-app-pub-3940256099942544~1458002511}"
+          pb(){ /usr/libexec/PlistBuddy -c "$1" "$PL" 2>/dev/null || true; }
+          pb "Delete :GADApplicationIdentifier"; pb "Add :GADApplicationIdentifier string $AID"
+          pb "Delete :NSUserTrackingUsageDescription"
+          pb "Add :NSUserTrackingUsageDescription string This lets us show you more relevant ads. Bu izin daha ilgili reklamlar göstermemizi sağlar."
+          pb "Delete :ITSAppUsesNonExemptEncryption"; pb "Add :ITSAppUsesNonExemptEncryption bool false"
+          pb "Delete :UISupportedInterfaceOrientations"; pb "Add :UISupportedInterfaceOrientations array"; pb "Add :UISupportedInterfaceOrientations:0 string UIInterfaceOrientationPortrait"
+          pb "Delete :UISupportedInterfaceOrientations~ipad"; pb "Add :UISupportedInterfaceOrientations~ipad array"; pb "Add :UISupportedInterfaceOrientations~ipad:0 string UIInterfaceOrientationPortrait"; pb "Add :UISupportedInterfaceOrientations~ipad:1 string UIInterfaceOrientationPortraitUpsideDown"
+          pb "Delete :UIRequiresFullScreen"; pb "Add :UIRequiresFullScreen bool true"
+          pb "Delete :SKAdNetworkItems"; pb "Add :SKAdNetworkItems array"
+          i=0; for n in cstr6suwn9 4fzdc2evr5 2fnua5tdw4 ydx93a7ass p78axxw29g v72qych5uu ludvb6z3bs cp8zw746q7 3sh42y64q3 c6k4g5qg8m s39g8k73mm 3qy4746246 hs6bdukanm mlmmfzh3r3 v4nxqhlyqp wzmmz9fp6w su67r6k2v3 yclnxrl5pm 7ug5zh24hu gta9lk7p23 vutu7akeur y5ghdn5j9k v9wttpbfk9 n38lu8286q 47vhws6wlr kbd757ywx3 9t245vhmpl a2p9lx4jpn 22mmun2rn5 44jx6755aq k674qkevps 4468km3ulz 2u9pt9hc89 8s468mfl3y klf5c3l5u5 ppxm28t8ap kbmxgpxpgc uw77j35x4d 578prtvx9j 4dzt52r2t5 tl55sbb4fm c3frkrj4fj e5fvkxwrpn 8c4e2ghe7u 3rd42ekr43 97r2b46745 3qcr597p9d; do
+            pb "Add :SKAdNetworkItems:$i dict"; pb "Add :SKAdNetworkItems:$i:SKAdNetworkIdentifier string $n.skadnetwork"; i=$((i+1)); done
+          echo "Info.plist hazır"
+      - name: İmza profilleri
+        script: xcode-project use-profiles
+      - name: Sürüm numarası
+        script: |
+          cd ios/App
+          agvtool new-version -all ${BUILD_NUMBER:-1}
+          agvtool new-marketing-version 1.0.0
+      - name: iOS uygulamasını paketle
+        script: xcode-project build-ipa --workspace "$XCODE_WORKSPACE" --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - app/build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+
+  ios-adhoc:
+    name: iOS → Telefona deneme kurulumu (Ad Hoc)
+    working_directory: app
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: CubeTrafficASC
+    environment:
+      ios_signing:
+        distribution_type: ad_hoc
+        bundle_identifier: com.bulmacacarki.game
+      vars:
+        XCODE_WORKSPACE: ios/App/App.xcworkspace
+        XCODE_SCHEME: App
+      node: 22
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Paketleri kur
+        script: npm install
+      - name: Oyunu uygulamaya koy
+        script: npm run build:web
+      - name: iOS projesini oluştur
+        script: |
+          [ -d ios ] || npx cap add ios
+          npx cap sync ios
+      - name: Sadece iPhone (iPad ekran görüntüsü gerekmesin)
+        script: sed -i '' 's/TARGETED_DEVICE_FAMILY = "1,2"/TARGETED_DEVICE_FAMILY = 1/g' ios/App/App.xcodeproj/project.pbxproj && grep -m2 TARGETED_DEVICE_FAMILY ios/App/App.xcodeproj/project.pbxproj
+      - name: En az iOS 15 (Apple ITMS-90068)
+        script: |
+          sed -i '' -E 's/IPHONEOS_DEPLOYMENT_TARGET = 1[0-4]\.[0-9]+/IPHONEOS_DEPLOYMENT_TARGET = 15.0/g' ios/App/App.xcodeproj/project.pbxproj
+          sed -i '' -E "s/platform :ios, '1[0-4]\.[0-9]+'/platform :ios, '15.0'/" ios/App/Podfile
+          cd ios/App && pod install
+          grep -m1 IPHONEOS_DEPLOYMENT_TARGET App.xcodeproj/project.pbxproj
+      - name: İkon ve açılış ekranı
+        script: npx @capacitor/assets generate --ios --iconBackgroundColor '#14082e' --splashBackgroundColor '#14082e' --splashBackgroundColorDark '#14082e'
+      - name: Info.plist (AdMob, takip izni, dikey ekran)
+        script: |
+          PL=ios/App/App/Info.plist
+          AID="${ADMOB_IOS_APP_ID:-ca-app-pub-3940256099942544~1458002511}"
+          pb(){ /usr/libexec/PlistBuddy -c "$1" "$PL" 2>/dev/null || true; }
+          pb "Delete :GADApplicationIdentifier"; pb "Add :GADApplicationIdentifier string $AID"
+          pb "Delete :NSUserTrackingUsageDescription"
+          pb "Add :NSUserTrackingUsageDescription string This lets us show you more relevant ads. Bu izin daha ilgili reklamlar göstermemizi sağlar."
+          pb "Delete :ITSAppUsesNonExemptEncryption"; pb "Add :ITSAppUsesNonExemptEncryption bool false"
+          pb "Delete :UISupportedInterfaceOrientations"; pb "Add :UISupportedInterfaceOrientations array"; pb "Add :UISupportedInterfaceOrientations:0 string UIInterfaceOrientationPortrait"
+          pb "Delete :UISupportedInterfaceOrientations~ipad"; pb "Add :UISupportedInterfaceOrientations~ipad array"; pb "Add :UISupportedInterfaceOrientations~ipad:0 string UIInterfaceOrientationPortrait"; pb "Add :UISupportedInterfaceOrientations~ipad:1 string UIInterfaceOrientationPortraitUpsideDown"
+          pb "Delete :UIRequiresFullScreen"; pb "Add :UIRequiresFullScreen bool true"
+          pb "Delete :SKAdNetworkItems"; pb "Add :SKAdNetworkItems array"
+          i=0; for n in cstr6suwn9 4fzdc2evr5 2fnua5tdw4 ydx93a7ass p78axxw29g v72qych5uu ludvb6z3bs cp8zw746q7 3sh42y64q3 c6k4g5qg8m s39g8k73mm 3qy4746246 hs6bdukanm mlmmfzh3r3 v4nxqhlyqp wzmmz9fp6w su67r6k2v3 yclnxrl5pm 7ug5zh24hu gta9lk7p23 vutu7akeur y5ghdn5j9k v9wttpbfk9 n38lu8286q 47vhws6wlr kbd757ywx3 9t245vhmpl a2p9lx4jpn 22mmun2rn5 44jx6755aq k674qkevps 4468km3ulz 2u9pt9hc89 8s468mfl3y klf5c3l5u5 ppxm28t8ap kbmxgpxpgc uw77j35x4d 578prtvx9j 4dzt52r2t5 tl55sbb4fm c3frkrj4fj e5fvkxwrpn 8c4e2ghe7u 3rd42ekr43 97r2b46745 3qcr597p9d; do
+            pb "Add :SKAdNetworkItems:$i dict"; pb "Add :SKAdNetworkItems:$i:SKAdNetworkIdentifier string $n.skadnetwork"; i=$((i+1)); done
+          echo "Info.plist hazır"
+      - name: İmza profilleri
+        script: xcode-project use-profiles
+      - name: Sürüm numarası
+        script: |
+          cd ios/App
+          agvtool new-version -all ${BUILD_NUMBER:-1}
+          agvtool new-marketing-version 1.0.0
+      - name: iOS uygulamasını paketle
+        script: xcode-project build-ipa --workspace "$XCODE_WORKSPACE" --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - app/build/ios/ipa/*.ipa
+  android-test:
+    name: Android → deneme APK (imzasız, test için)
+    working_directory: app
+    max_build_duration: 45
+    instance_type: mac_mini_m2
+    environment:
+      node: 22
+      java: 21
+    scripts:
+      - name: Paketleri kur
+        script: npm install
+      - name: Oyunu uygulamaya koy
+        script: npm run build:web
+      - name: Android projesini oluştur
+        script: |
+          [ -d android ] || npx cap add android
+          npx cap sync android
+      - name: İkon ve açılış ekranı
+        script: npx @capacitor/assets generate --android --iconBackgroundColor '#14082e' --splashBackgroundColor '#14082e' --splashBackgroundColorDark '#14082e'
+      - name: AdMob kimliği ve dikey ekran
+        script: |
+          AID="${ADMOB_ANDROID_APP_ID:-ca-app-pub-3940256099942544~3347511713}"
+          python3 - "$AID" <<'PY2'
+          import sys,re
+          aid=sys.argv[1]; p='android/app/src/main/AndroidManifest.xml'; s=open(p).read()
+          if 'com.google.android.gms.ads.APPLICATION_ID' not in s:
+              s=re.sub(r'(<application[^>]*>)',r'\1\n        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="'+aid+'"/>',s,1)
+          s=re.sub(r'<activity\b(?![^>]*screenOrientation)',r'<activity android:screenOrientation="portrait"',s,1)
+          open(p,'w').write(s); print('manifest hazır')
+          PY2
+      - name: Deneme APK oluştur
+        script: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+    artifacts:
+      - android/app/build/outputs/**/*.apk
+      - app/android/app/build/outputs/**/*.apk
+
+  android-release:
+    name: Android → .aab
+    working_directory: app
+    max_build_duration: 45
+    instance_type: mac_mini_m2
+    environment:
+      android_signing:
+        - bulmaca_keystore
+      node: 22
+      java: 21
+    scripts:
+      - name: Paketleri kur
+        script: npm install
+      - name: Oyunu uygulamaya koy
+        script: npm run build:web
+      - name: Android projesini oluştur
+        script: |
+          [ -d android ] || npx cap add android
+          npx cap sync android
+      - name: İkon ve açılış ekranı
+        script: npx @capacitor/assets generate --android --iconBackgroundColor '#14082e' --splashBackgroundColor '#14082e' --splashBackgroundColorDark '#14082e'
+      - name: AdMob kimliği ve dikey ekran
+        script: |
+          AID="${ADMOB_ANDROID_APP_ID:-ca-app-pub-3940256099942544~3347511713}"
+          python3 - "$AID" <<'PY'
+          import sys,re
+          aid=sys.argv[1]; p='android/app/src/main/AndroidManifest.xml'; s=open(p).read()
+          if 'com.google.android.gms.ads.APPLICATION_ID' not in s:
+              s=s.replace('<application','<application',1)
+              s=re.sub(r'(<application[^>]*>)',r'\1\n        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="'+aid+'"/>',s,1)
+          s=re.sub(r'<activity\b(?![^>]*screenOrientation)',r'<activity android:screenOrientation="portrait"',s,1)
+          open(p,'w').write(s); print('manifest hazır')
+          PY
+      - name: İmza ayarı (Codemagic keystore)
+        script: |
+          python3 - <<'PY'
+          p='android/app/build.gradle'; s=open(p).read()
+          if 'signingConfigs' not in s:
+              s=s.replace('buildTypes {','''signingConfigs {
+                  release {
+                      storeFile file(System.getenv("CM_KEYSTORE_PATH"))
+                      storePassword System.getenv("CM_KEYSTORE_PASSWORD")
+                      keyAlias System.getenv("CM_KEY_ALIAS")
+                      keyPassword System.getenv("CM_KEY_PASSWORD")
+                  }
+              }
+              buildTypes {''',1)
+              s=s.replace('release {\n            minifyEnabled','release {\n            signingConfig signingConfigs.release\n            minifyEnabled',1)
+          s=s.replace('versionCode 1','versionCode '+__import__('os').environ.get('BUILD_NUMBER','1'))
+          open(p,'w').write(s); print('imza hazır')
+          PY
+      - name: Android paketini oluştur
+        script: |
+          cd android
+          chmod +x gradlew
+          ./gradlew bundleRelease
+    artifacts:
+      - android/app/build/outputs/**/*.aab
+      - app/android/app/build/outputs/**/*.aab

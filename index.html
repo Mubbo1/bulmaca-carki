@@ -443,13 +443,18 @@
     <div class="ssec">Premium</div>
     <div class="set noads"><span>🚫 Reklamları Kaldır<small id="noAdsTxt">Reklam izlemeden ödülleri anında al</small></span><button id="btnNoAds">199,99 ₺</button></div>
     <div class="set"><span>💎 Elmas Mağazası</span><button id="btnSetShop" class="mini">Aç</button></div>
+    <div class="set"><span>♻️ Satın Alımları Geri Yükle<small>Telefon değiştirdiysen</small></span><button id="btnRestore" class="mini">Yükle</button></div>
     <div class="ssec">Diğer</div>
     <div class="set"><span>❓ Yardım & Destek<small>Sık sorulan sorular, bize yaz</small></span><button id="btnHelp" class="mini">Aç</button></div>
+    <div class="set"><span>🗑️ Hesabımı Sil<small>Profilin ve tüm oyun verilerin silinir</small></span><button id="btnDelAcc" class="mini" style="background:#e63946;color:#fff">Sil</button></div>
+    <div id="delAsk" class="hidden" style="margin-top:8px;font-size:15px">Profilin, düello istatistiklerin, bölümlerin, altın ve elmasların kalıcı olarak silinecek. Bu işlem geri alınamaz. Emin misin?
+      <div style="display:flex;gap:8px;margin-top:6px"><button class="danger" id="btnDelYes">Evet, sil</button><button id="btnDelNo" style="background:#dee2e6">Vazgeç</button></div></div>
+    <div class="set"><span>📄 Gizlilik Politikası</span><button class="mini" onclick="window.open('https://mubbo1.github.io/bulmaca-carki/gizlilik.html','_blank')">Aç</button></div>
     <div class="set"><span>ℹ️ Sürüm</span><span style="color:#888;font-size:15px">1.0</span></div>
     <div class="hidden"><button id="btnReset"></button></div>
     <div id="resetAsk" class="hidden" style="margin-top:8px;font-size:15px">Tüm bölümler, altın ve elmaslar sıfırlanacak. Emin misin?
       <div style="display:flex;gap:8px"><button class="danger" id="btnResetYes">Evet, sıfırla</button><button id="btnResetNo" style="background:#dee2e6">Vazgeç</button></div></div>
-    <div class="snote">Deneme sürümü: ödeme alınmaz. Mağazalara çıkınca gerçek satın alma bağlanacak.<br>Fotoğraflar: Unsplash — Meriç Dağlı, Anthony Delanoix, Tomáš Malík, Alex Azabache, Tim Umphreys, Chloé Lefleur, Johny Goerend, Mirjam Schuinder, Jon. Araba fotoğrafları: Roger Starnes Sr, Meritt Thomas, Jakob Owens. Coğrafya ve bilim: Kyle Glenn, Mark Koch, Wolfgang Hasselmann, Blake Verdoorn, Julia Koblitz, Jeremy Thomas, Logan Gutierrez, Anirudh. Alkış sesi: qubodup (CC0).</div>
+    <div class="snote"><span id="demoNote">Deneme sürümü: ödeme alınmaz. Mağazalara çıkınca gerçek satın alma bağlanacak.<br></span>Fotoğraflar: Unsplash — Meriç Dağlı, Anthony Delanoix, Tomáš Malík, Alex Azabache, Tim Umphreys, Chloé Lefleur, Johny Goerend, Mirjam Schuinder, Jon. Araba fotoğrafları: Roger Starnes Sr, Meritt Thomas, Jakob Owens. Coğrafya ve bilim: Kyle Glenn, Mark Koch, Wolfgang Hasselmann, Blake Verdoorn, Julia Koblitz, Jeremy Thomas, Logan Gutierrez, Anirudh. Alkış sesi: qubodup (CC0).</div>
   </div></div>
 
   <div class="overlay hidden" id="ovWin"><div class="box winbox">
@@ -1423,7 +1428,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="53";
+const APP_VER="54";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1534,6 +1539,90 @@ function showAd(onDone,icon){ if(noAds){ setTimeout(()=>{ try{ onDone&&onDone();
   let n=5; $("adCount").textContent=n; const b=$("btnAdDone"); b.disabled=true; b.style.opacity=.4;
   clearInterval(adTimer); adTimer=setInterval(()=>{ n--; $("adCount").textContent=Math.max(n,0); if(n<=0){ clearInterval(adTimer); b.disabled=false; b.style.opacity=1; } },1000);
 }
+
+// =====================================================================
+//  MAĞAZA SÜRÜMÜ: gerçek reklam (AdMob) + uygulama içi satın alma + telefon bildirimleri
+//  Telefonda (Capacitor) çalışır; tarayıcıda deneme davranışı aynen devam eder.
+//  >>> AdMob'da Bulmaca Çarkı uygulaması açılınca sadece CFG içindeki kimlikler değişir <<<
+// =====================================================================
+const CFG={
+  testAds:true,   // gerçek kimlikler girilince false yapılır
+  ads:{ios:{reward:'ca-app-pub-3940256099942544/1712485313',inter:'ca-app-pub-3940256099942544/4411468910'},
+       android:{reward:'ca-app-pub-3940256099942544/5224354917',inter:'ca-app-pub-3940256099942544/1033173712'}},
+  products:{gem10:'bulmacacarki.gem10',gem20:'bulmacacarki.gem20',gem50:'bulmacacarki.gem50',noads:'bulmacacarki.noads',unlim:'bulmacacarki.unlimited'},
+  consumable:{gem10:10,gem20:20,gem50:50}
+};
+const NAT=(()=>{
+  const C=window.Capacitor, native=!!(C&&C.isNativePlatform&&C.isNativePlatform()), plat=native?C.getPlatform():'web';
+  const P=native&&C.Plugins||{}, AdMob=P.AdMob, LN=P.LocalNotifications; let st=null, ready=false; const ids=CFG.ads[plat]||{};
+  const npa=()=>store.get('adConsent','')!=='personal';
+  const N={native,plat,LN,
+    async initAds(){ if(!AdMob) return;
+      try{ await AdMob.initialize({initializeForTesting:CFG.testAds}); }catch(e){}
+      try{ const ci=await AdMob.requestConsentInfo(); if(ci&&ci.isConsentFormAvailable&&ci.status==='REQUIRED') await AdMob.showConsentForm(); }catch(e){}
+      if(plat==='ios'){ try{ const s=await AdMob.trackingAuthorizationStatus(); if(s&&s.status==='notDetermined') await AdMob.requestTrackingAuthorization();
+        const s2=await AdMob.trackingAuthorizationStatus(); store.set('adConsent',s2&&s2.status==='authorized'?'personal':'basic'); }catch(e){} }
+      else if(store.get('adConsent','')==='') store.set('adConsent','personal');
+      ready=true; N.preload(); },
+    preload(){ if(!AdMob||!ready) return;
+      AdMob.prepareRewardVideoAd({adId:ids.reward,isTesting:CFG.testAds,npa:npa()}).catch(()=>{});
+      if(!noAds) AdMob.prepareInterstitial({adId:ids.inter,isTesting:CFG.testAds,npa:npa()}).catch(()=>{}); },
+    showReward(done){ // izlenirse done(); reklam yüklenemezse oyuncuyu bekletmeden ödülü verir
+      if(!AdMob){ done(); return; } let got=false,fin=false; const hs=[];
+      const end=()=>{ if(fin) return; fin=true; hs.forEach(h=>{try{h.remove();}catch(e){}}); if(got) done(); N.preload(); };
+      Promise.all([AdMob.addListener('onRewardedVideoAdReward',()=>{got=true;}),AdMob.addListener('onRewardedVideoAdDismissed',end),
+        AdMob.addListener('onRewardedVideoAdFailedToShow',()=>{got=true;end();})]).then(a=>hs.push(...a));
+      AdMob.showRewardVideoAd().then(r=>{ if(r) got=true; }).catch(()=>{ got=true; end(); }); },
+    showInter(done){ if(!AdMob||noAds){ done(); return; } let fin=false,h=null; const end=()=>{ if(fin) return; fin=true; try{h&&h.remove();}catch(e){} done(); N.preload(); };
+      AdMob.addListener('interstitialAdDismissed',end).then(x=>h=x); AdMob.showInterstitial().catch(end); },
+    price(key){ try{ const p=st&&st.get(CFG.products[key]); return p&&p.pricing&&p.pricing.price||''; }catch(e){ return ''; } },
+    initStore(){ const CP=window.CdvPurchase; if(!CP||st) return; st=CP.store;
+      const pf=plat==='ios'?CP.Platform.APPLE_APPSTORE:CP.Platform.GOOGLE_PLAY;
+      st.register(Object.keys(CFG.products).map(k=>({id:CFG.products[k],type:CFG.consumable[k]?CP.ProductType.CONSUMABLE:CP.ProductType.NON_CONSUMABLE,platform:pf})));
+      st.when().approved(tx=>{ const seen=store.get('txSeen',[]); const tid=tx.transactionId||'';
+          if(!tid||!seen.includes(tid)){ tx.products.forEach(p=>N.grant(p.id,true)); if(tid){ seen.push(tid); store.set('txSeen',seen.slice(-200)); } }
+          tx.finish(); })
+        .productUpdated(p=>{ if(p.owned&&!CFG.consumable[N.key(p.id)]) N.grant(p.id,false); N.prices(); });
+      st.initialize([pf]).then(()=>N.prices()).catch(()=>{}); },
+    key(pid){ return Object.keys(CFG.products).find(k=>CFG.products[k]===pid); },
+    grant(pid,fresh){ const k=N.key(pid); if(!k) return;
+      if(CFG.consumable[k]){ if(fresh){ setGems(gems+CFG.consumable[k]); $("ovShop").classList.add("hidden"); toast(`+${CFG.consumable[k]} 💎 hesabına eklendi`); } return; }
+      if(k==='noads'&&!noAds){ noAds=true; store.set("noAds",1); renderNoAds(); fresh&&toast("🚫 Reklamlar kaldırıldı, teşekkürler!"); }
+      if(k==='unlim'&&!unlimited){ unlimited=true; store.set("unlimLives",1); $("ovLife").classList.add("hidden"); renderLives(); fresh&&toast("♾️ Sınırsız can açıldı!"); } },
+    async buy(key){ if(!st){ toast("Mağazaya bağlanılamadı, birazdan tekrar dene."); return; }
+      try{ const p=st.get(CFG.products[key]); const o=p&&p.getOffer(); if(!o){ toast("Bu ürün şu an alınamıyor."); return; }
+        const err=await o.order(); if(err&&err.code!==window.CdvPurchase.ErrorCode.PAYMENT_CANCELLED) toast("Satın alma tamamlanamadı."); }catch(e){ toast("Satın alma tamamlanamadı."); } },
+    async restore(){ if(!st){ toast("Mağazaya bağlanılamadı."); return; } try{ await st.restorePurchases(); toast("✅ Satın alımların geri yüklendi"); }catch(e){ toast("Geri yükleme başarısız oldu."); } },
+    prices(){ const set=(sel,k)=>{ const v=N.price(k); const b=document.querySelector(sel); if(v&&b&&!b.disabled) b.textContent=v; };
+      set('[data-gem="10"]','gem10'); set('[data-gem="20"]','gem20'); set('[data-gem="50"]','gem50'); if(!noAds) set('#btnNoAds','noads');
+      const u=N.price('unlim'), l=$("lifeUnl"); if(u&&l) l.dataset.price=u; }
+  };
+  if(native){ document.addEventListener('deviceready',()=>N.initStore(),false); setTimeout(()=>N.initStore(),4000); setTimeout(()=>N.initAds(),1200); }
+  return N;
+})();
+// reklam ve satın alma düğmeleri: telefonda gerçek, tarayıcıda deneme
+{ const demoAd=showAd, demoInter=showInterstitial;
+  showAd=function(onDone,icon){ if(noAds||!NAT.native) return demoAd(onDone,icon); NAT.showReward(()=>{ try{ onDone&&onDone(); }catch(e){} }); };
+  showInterstitial=function(cb){ if(noAds||!NAT.native) return demoInter(cb); NAT.showInter(()=>{ try{ cb&&cb(); }catch(e){} }); };
+  if(NAT.native){
+    document.querySelectorAll("[data-gem]").forEach(b=>b.onclick=()=>NAT.buy("gem"+b.dataset.gem));
+    $("btnNoAds").onclick=()=>{ if(!noAds) NAT.buy("noads"); };
+    $("lifeUnl").onclick=()=>{ if(!unlimited) NAT.buy("unlim"); };
+  }
+  $("btnRestore").onclick=()=>{ if(NAT.native) NAT.restore(); else toast("Geri yükleme telefondaki uygulamada çalışır."); };
+}
+// ---------- hesabı sil (App Store kuralı) ----------
+$("btnDelAcc").onclick=()=>$("delAsk").classList.remove("hidden");
+$("btnDelNo").onclick=()=>$("delAsk").classList.add("hidden");
+$("btnDelYes").onclick=async()=>{ $("btnDelYes").disabled=true; $("btnDelYes").textContent="Siliniyor…";
+  try{ if(!D.db){ if(!D.inited){ D.inited=true; try{ await initNet(); }catch(e){} } }
+    if(D.db&&D.uid){ try{ await D.db.doc("profiles/"+D.uid).set(null); }catch(e){} }
+    try{ const u=window.firebase&&firebase.auth&&firebase.auth().currentUser; if(u) await u.delete(); }catch(e){}
+  }catch(e){}
+  try{ if(NAT.LN){ const p=await NAT.LN.getPending(); if(p&&p.notifications&&p.notifications.length) await NAT.LN.cancel({notifications:p.notifications.map(n=>({id:n.id}))}); } }catch(e){}
+  const keep=["noAds","unlimLives"].map(k=>[k,store.get(k,0)]); // satın alımlar hesaba değil cihaza/mağazaya bağlı
+  try{ localStorage.clear(); }catch(e){} keep.forEach(([k,v])=>{ if(v) store.set(k,v); });
+  alert("Hesabın ve tüm oyun verilerin silindi."); location.reload(); };
 
 // soru havuzu: tüm paketlerden 3-7 harfli kelimeler
 const DCATS=[["genel","🧠","Genel"],["spor","⚽","Spor"],["sanat","🎨","Sanat"],["tarih","🏛️","Tarih"]];
@@ -2104,17 +2193,31 @@ const NOTIFS=[
  ["😴 Seni özledik!","Bulmacalar seni bekliyor, hemen bir bölüm çöz."],
  ["🧩 Takıldın mı?","İpucu kullan, harfleri aç ve kaldığın yerden devam et!"],
  ["🎉 Hafta sonu keyfi","Hafta sonu düello zamanı! Arkadaşına oda kodu gönder."]];
-const nfSupported=()=>("Notification" in window) && ("serviceWorker" in navigator);
+const nfSupported=()=>NAT.native ? !!NAT.LN : ("Notification" in window) && ("serviceWorker" in navigator);
+if(NAT.native){ try{ $("demoNote").classList.add("hidden"); }catch(e){}
+  if(NAT.LN) NAT.LN.checkPermissions().then(r=>{ store.set("nfPerm",r.display==="granted"?"granted":r.display==="denied"?"denied":"default"); renderNfSet(); }).catch(()=>{}); }
 const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent);
 const isStandalone=()=>window.matchMedia("(display-mode: standalone)").matches || navigator.standalone===true;
 let swReg=null;
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)){ navigator.serviceWorker.register("sw.js").then(r=>{ swReg=r; }).catch(()=>{}); }
-function nfPerm(){ return nfSupported()? Notification.permission : "unsupported"; }
+function nfPerm(){ if(NAT.native) return NAT.LN? store.get("nfPerm","default") : "unsupported"; return nfSupported()? Notification.permission : "unsupported"; }
+// telefonda: oyun kapanınca önümüzdeki 7 gün, oyuncunun her zamanki oynama saatinde günde 1 bildirim + canlar dolunca haber
+async function nativeSchedule(){ if(!NAT.LN||nfPerm()!=="granted") return;
+  try{ const pend=await NAT.LN.getPending(); if(pend&&pend.notifications&&pend.notifications.length) await NAT.LN.cancel({notifications:pend.notifications.map(n=>({id:n.id}))});
+    const now=new Date(), list=[]; let k=store.get("nfIdx",Math.floor(Math.random()*NOTIFS.length));
+    for(let d=1; d<=7; d++){ const at=new Date(now); at.setDate(at.getDate()+d); at.setHours(Math.min(Math.max(now.getHours(),10),21),now.getMinutes(),0,0);
+      k=(k+1)%NOTIFS.length; if(k===1) k=2; const [t,b]=NOTIFS[k]; list.push({id:d,title:t,body:b,schedule:{at,allowWhileIdle:true}}); }
+    store.set("nfIdx",k);
+    const lt=store.get("lifeT",0); if(!unlimited&&lives<LIFE_MAX&&lt){ const ms=lt+LIFE_REGEN*(LIFE_MAX-lives)-Date.now(); if(ms>60e3) list.push({id:50,title:NOTIFS[1][0],body:NOTIFS[1][1],schedule:{at:new Date(Date.now()+ms),allowWhileIdle:true}}); }
+    await NAT.LN.schedule({notifications:list}); }catch(e){} }
+if(NAT.native) document.addEventListener("visibilitychange",()=>{ if(document.hidden) nativeSchedule(); });
 function renderNfSet(){ const p=nfPerm(), b=$("nfSetBtn");
   b.textContent= p==="granted"?"✅ Açık": p==="denied"?"Kapalı":"İzin ver"; b.disabled= p==="granted";
   $("nfSetTxt").textContent= p==="denied"?"Telefon ayarlarından açabilirsin": p==="unsupported"&&isIOS&&!isStandalone()?"Önce ana ekrana ekle":"Ödüller ve canlar dolunca haber al"; }
-async function showNotif(title,body,tag){ try{ const r=swReg||await navigator.serviceWorker.ready; await r.showNotification(title,{body,icon:"icons/icon-192.png",badge:"icons/icon-192.png",tag:tag||"bc"}); }catch(e){ try{ new Notification(title,{body,icon:"icons/icon-192.png"}); }catch(_){} } }
+async function showNotif(title,body,tag){ if(NAT.native){ try{ await NAT.LN.schedule({notifications:[{id:90,title,body,schedule:{at:new Date(Date.now()+1500)}}]}); }catch(e){} return; } try{ const r=swReg||await navigator.serviceWorker.ready; await r.showNotification(title,{body,icon:"icons/icon-192.png",badge:"icons/icon-192.png",tag:tag||"bc"}); }catch(e){ try{ new Notification(title,{body,icon:"icons/icon-192.png"}); }catch(_){} } }
 async function askNotif(){ store.set("nfAsked",1);
+  if(NAT.native&&NAT.LN){ try{ const r=await NAT.LN.requestPermissions(); const p=r.display==="granted"?"granted":"denied"; store.set("nfPerm",p); $("ovNotif").classList.add("hidden");
+      toast(p==="granted"?"🔔 Bildirimler açıldı!":"Bildirimlere izin verilmedi. Telefon ayarlarından açabilirsin."); }catch(e){ $("ovNotif").classList.add("hidden"); } renderNfSet(); return; }
   if(!nfSupported()){ $("nfIos").classList.remove("hidden"); $("ovNotif").classList.remove("hidden"); return; }
   try{ const p=await Notification.requestPermission(); store.set("nfPerm",p);
     if(p==="granted"){ $("ovNotif").classList.add("hidden"); toast("🔔 Bildirimler açıldı!"); showNotif("🎉 Bildirimler açık!","Ödüllerin hazır olduğunda sana haber vereceğiz.","hello"); }
