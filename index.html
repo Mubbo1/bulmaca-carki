@@ -801,6 +801,13 @@
         <div class="dcodebig" id="dWaitCode">----</div>
         <div id="dWaitLogo"></div>
         <div style="font-weight:700" id="dWaitTitle">Rakip bekleniyor…</div>
+        <div id="dNoOpp" class="hidden" style="margin-top:14px;padding:14px;border-radius:16px;background:#ffffff0d;border:1px solid #ffffff1c">
+          <div style="font-size:30px">😴</div>
+          <div style="font-weight:800;margin:4px 0">Şu an online rakip bulunamadı</div>
+          <div class="dnote" style="margin-bottom:10px">Beklemeye devam edebilir ya da şimdilik botla oynayabilirsin. Botla oynarken can gitmez.</div>
+          <button class="dbtn gold" id="dNoOppBot" style="width:100%">🤖 Botla Oyna</button>
+          <button class="dbtn ghost" id="dNoOppWait" style="width:100%;margin-top:8px">⏳ Beklemeye devam et</button>
+        </div>
       </div>
       <button class="dbtn ghost" id="dCancel">Vazgeç</button>
     </div>
@@ -1661,7 +1668,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="63";
+const APP_VER="64";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2276,7 +2283,7 @@ function showEnd(){
   if(D.lvUp){ const L=D.lvUp; D.lvUp=0; $("dEndLvUp").innerHTML=`<div class="lvup"><span class="t">🎉 SEVİYE ATLADIN!</span>${lvHTML(D.stat.w,"lg")}<small>Seviye ${L} · ${LV_TIERS[tierOf2(L)][1]}</small></div>`; setTimeout(()=>{ try{ applause(); }catch(e){} },1200); }
   dShow("dEnd");
 }
-function leaveDuel(){ stopSeek(); clearInterval(D.seekTimer);
+function leaveDuel(){ stopSeek(); clearInterval(D.seekTimer); clearTimeout(D.noOppT); try{ $("dNoOpp").classList.add("hidden"); }catch(e){}
   clearTimeout(D.timer); clearInterval(D.tick); clearInterval(D.rebro);
   D.offs.forEach(f=>{try{f();}catch(e){}}); D.offs=[];
   try{ D.r&&D.r.leave(); }catch(e){} D.r=null; D.g=null; D.lastTurn=-1; D.counted=false; D.mode=null; D.introShown=false; D.ansTurn=-1; D.ansGame=null; D.endSfx=false; D.endAd=false; D.endMsg=null; D.endConf=false; clearTimeout(D.adT);
@@ -2384,6 +2391,7 @@ async function quickMatch(){ D.quick=true; if(!nameOk()) return;
     const c=rcode(); await joinRoom(c,true);
     try{ await D.room.presence({seek:{code:c,ts:Date.now(),cat:D.cat}}); }catch(e){}
     $("dWaitNote").textContent=""; $("dWaitCode").style.display="none"; $("dWaitTitle").textContent="🎲 Rakip aranıyor…";
+    armNoOpp(20000);
     // aynı anda basan iki kişi ikisi de oda açabilir: beklerken sırayı tara, kodu büyük olan küçüğün odasına geçer
     clearInterval(D.seekTimer); D.seekTimer=setInterval(async()=>{
       if(!D.quick||D.mode!=="online"||!D.host||!D.g||D.g.status!=="wait"||D.g.code!==c){ clearInterval(D.seekTimer); return; }
@@ -2396,6 +2404,11 @@ async function quickMatch(){ D.quick=true; if(!nameOk()) return;
   }
 }
 function seekers(){ const now=Date.now(); return (D.room&&D.room.peers?D.room.peers():[]).filter(p=>!p.isMe && !(p.presence&&p.presence.seek&&isBlocked(p.presence.seek.uid)) && p.presence && p.presence.seek && p.presence.seek.code && (p.presence.seek.cat||"genel")===D.cat && now-(p.presence.seek.ts||0)<120000); }
+// 20 sn içinde rakip yoksa: bekle ya da botla oyna seçeneği
+function armNoOpp(ms){ clearTimeout(D.noOppT); $("dNoOpp").classList.add("hidden");
+  D.noOppT=setTimeout(()=>{ if(D.quick && D.mode==="online" && D.host && D.g && D.g.status==="wait"){ $("dNoOpp").classList.remove("hidden"); try{ haptic("light"); }catch(e){} } },ms); }
+$("dNoOppWait").onclick=()=>armNoOpp(30000);
+$("dNoOppBot").onclick=()=>{ clearTimeout(D.noOppT); $("dNoOpp").classList.add("hidden"); D.quick=false; leaveDuel(); $("dBot").click(); };
 function stopSeek(){ try{ D.room&&D.room.presence({seek:null}); }catch(e){} }
 function needEula(cb){ if(store.get("eulaOk",0)) return cb(); D.eulaCb=cb; $("ovEula").classList.remove("hidden"); }
 $("eulaYes").onclick=()=>{ store.set("eulaOk",1); $("ovEula").classList.add("hidden"); const cb=D.eulaCb; D.eulaCb=null; cb&&cb(); };
