@@ -474,6 +474,73 @@
   /* Üstte tam ekran bir sayfa açıkken alttakileri çizme */
   body[data-top] #bg,body[data-top] #bgShade,body[data-top] .app>.bar,body[data-top] #place,body[data-top] #gridWrap,body[data-top] #q,body[data-top] #cur,body[data-top] .app>.bottom{visibility:hidden}
   body[data-top="map"] #home,body[data-top="cats"] #home,body[data-top="duel"] #home,body[data-top="cats"] #map,body[data-top="duel"] #map,body[data-top="duel"] #cats{visibility:hidden}
+
+  /* ===== 17 Kas: düzeltmeler ===== */
+  .toast{top:calc(64px + env(safe-area-inset-top))!important;max-width:88%;width:max-content;text-align:center;white-space:normal;font-size:16px!important;padding:10px 18px!important;border-radius:16px!important;background:#111a2ef2!important;border:1px solid #ffffff2a;box-shadow:0 10px 30px #000a;line-height:1.3}
+  .gc{display:inline-block;width:1em;height:1em;border-radius:50%;vertical-align:-.14em;background:radial-gradient(circle at 35% 30%,#fff6c4 0 12%,#ffd54a 30%,#f2a900 70%,#b77800 100%);box-shadow:inset 0 0 0 .08em #c98a00,inset 0 0 0 .16em #ffe27a;flex:none}
+  /* yetersiz bakiye */
+  .fundbox{text-align:center;background:linear-gradient(180deg,#232b4d,#141a33)!important;color:#fff;border:1px solid #ffffff22}
+  .fundbox .fi{font-size:64px;line-height:1;margin:6px 0 4px;animation:fundBob 1.6s ease-in-out infinite}
+  @keyframes fundBob{50%{transform:translateY(-6px)}}
+  .fundbox h2{margin:6px 0 4px;color:#ffd166}
+  .fundbox .ft{color:#cfd6f6;font-size:15px;margin:0 0 10px}
+  .fundbox .fbal{display:inline-flex;gap:8px;align-items:center;background:#ffffff12;border-radius:999px;padding:6px 14px;font-weight:800;margin-bottom:12px}
+  .fundbox button{width:100%;margin-top:8px}
+  .fundbox button.gold{background:linear-gradient(135deg,#ffd166,#f4a261);color:#3a2500}
+  .fundbox button.ghost{background:#ffffff14;color:#fff}
+  /* ödül penceresi (çark) */
+  .prizebox{text-align:center;background:radial-gradient(circle at 50% 20%,#4b1d8f,#1a0b38 70%)!important;color:#fff;overflow:hidden;position:relative;border:2px solid #ffd16688}
+  .prizebox .prays{position:absolute;left:50%;top:-90px;width:380px;height:380px;margin-left:-190px;background:repeating-conic-gradient(#ffd16626 0 10deg,transparent 10deg 20deg);border-radius:50%;animation:spin 18s linear infinite;pointer-events:none}
+  .prizebox .pic{position:relative;font-size:86px;line-height:1;margin:14px 0 6px;animation:prizePop .7s cubic-bezier(.3,1.8,.5,1) both}
+  .prizebox .pic .gc{width:1em;height:1em}
+  .prizebox .pamt{position:relative;font-size:40px;font-weight:900;color:#ffd166;text-shadow:0 3px 0 #8a4b00,0 0 22px #ffd16688;animation:prizePop .7s .15s cubic-bezier(.3,1.8,.5,1) both}
+  .prizebox .ptxt{position:relative;color:#e6dcff;font-size:16px;margin:4px 0 14px}
+  .prizebox h2{position:relative;margin:0;color:#fff}
+  .prizebox button{position:relative;width:100%;background:linear-gradient(135deg,#ffd166,#f4a261);color:#3a2500}
+  @keyframes prizePop{0%{transform:scale(.2);opacity:0}100%{transform:scale(1);opacity:1}}
+  .confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+  .confetti i{position:absolute;top:-14px;width:8px;height:14px;border-radius:2px;opacity:.95;animation:cfFall linear forwards}
+  @keyframes cfFall{to{transform:translateY(520px) rotate(720deg);opacity:.9}}
+  /* bölüm kazanma penceresi */
+  .winbox{background:linear-gradient(180deg,#ffffff,#fff6e0)!important}
+  .wstars{height:84px!important;gap:2px!important;font-size:52px!important}
+  .wstars span{display:inline-block;width:62px;height:62px;font-size:0!important;opacity:1!important;filter:none!important;transform:scale(.55) rotate(-30deg)!important;background:radial-gradient(circle at 50% 55%,#d5d9e2,#b8bfcc);clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);transition:transform .45s cubic-bezier(.3,1.8,.5,1)!important}
+  .wstars span:nth-child(2){width:80px!important;height:80px!important;margin-bottom:10px}
+  .wstars span.on{background:radial-gradient(circle at 45% 35%,#fff8c4 0 10%,#ffd23f 35%,#f4a000 75%,#c77700);transform:scale(1) rotate(0)!important;filter:drop-shadow(0 4px 8px #f4a00088)!important}
+  .wstars span.on::after{content:""}
+  .winbox h2{font-size:28px;color:#1b262c}
+  .wlevel{display:inline-block;background:linear-gradient(135deg,#7b2cbf,#5a189a);color:#fff!important;padding:6px 18px;border-radius:999px;font-size:18px!important;box-shadow:0 4px 0 #3c096c}
+  .wreward span{display:inline-flex;align-items:center;gap:6px}
+  /* düello sonucu */
+  .dres{position:relative;overflow:hidden;text-align:center;padding:24px 16px 20px!important}
+  .dres.win{background:radial-gradient(circle at 50% 0%,#5b3a00,#20190b 75%)!important;border-color:#ffd16677!important}
+  .dres.lose{background:radial-gradient(circle at 50% 0%,#33264d,#151a2e 75%)!important}
+  .dres.draw{background:radial-gradient(circle at 50% 0%,#11454a,#121c2a 75%)!important}
+  .dres .rav{position:relative;z-index:2;width:96px;height:96px;margin:0 auto;font-size:40px}
+  .dres.win .rav{box-shadow:0 0 0 4px #ffd166,0 0 30px #ffd166aa}
+  .dres.lose .rav{box-shadow:0 0 0 4px #8b93b5;filter:saturate(.7)}
+  .dres.draw .rav{box-shadow:0 0 0 4px #4fd1c5}
+  .dres .crown{position:absolute;z-index:3;left:50%;top:-30px;transform:translateX(-50%) rotate(-8deg);font-size:40px;animation:prizePop .6s .3s both}
+  .dres .ravw{position:relative;width:96px;margin:18px auto 0}
+  .dres .rbadge{position:absolute;z-index:3;right:-10px;bottom:-6px;font-size:34px;filter:drop-shadow(0 3px 6px #0008)}
+  .dres h2{position:relative;z-index:2;font-size:30px;margin:14px 0 2px}
+  .dres.win h2{color:#ffd166;text-shadow:0 0 18px #ffd16688}
+  .dres .rname{position:relative;z-index:2;font-size:18px;font-weight:800;color:#fff}
+  .dres .rmsg{position:relative;z-index:2;color:#cfd6f6;font-size:15px;margin:6px 4px 0}
+  .dres .rscore{position:relative;z-index:2;display:flex;justify-content:center;align-items:center;gap:14px;margin:14px 0 4px}
+  .dres .rscore div{background:#ffffff10;border:1px solid #ffffff1c;border-radius:14px;padding:8px 14px;min-width:96px}
+  .dres .rscore b{display:block;font-size:24px;color:#fff}
+  .dres .rscore span{font-size:12px;color:#aab3d6}
+  .dres .rscore .vs{background:none;border:0;min-width:0;padding:0;color:#ffd166;font-weight:900}
+  .dres .wreward,.dres #dEndLvUp{position:relative;z-index:2}
+  /* düello: elmasla bilinen soru */
+  .dt.gem{background:linear-gradient(135deg,#7dd3fc,#3b82f6)!important;color:#fff!important;border-color:#bfdbfe!important}
+  .dgemnote{display:block;margin-top:6px;font-size:13px;font-weight:800;color:#7dd3fc}
+  /* arkadaşınla oyna */
+  .dfriend{background:#ffffff0a;border:1px solid #ffffff14;border-radius:18px;padding:12px;margin-top:10px}
+  .dfriend .fh{font-weight:800;margin-bottom:8px}
+  .dfriend .fh small{display:block;font-weight:600;color:#9aa3c7;font-size:12.5px}
+  #dFriendBtn{width:100%}
 </style>
 </head>
 <body>
@@ -529,7 +596,7 @@
     <div class="btns">
       <button class="hbtn main" id="hStart">BAŞLA</button>
       <div class="cont" id="hCont"></div>
-      <button class="hbtn duel" id="hDuel">⚔️ Düello</button>
+      <button class="hbtn duel" id="hDuel">🌐 Online Oyna</button>
       <button class="hbtn cat" id="hCats">🗂️ Kategoriler</button>
       <button class="hbtn sec" id="hMenu">Menü</button>
       <button class="hbtn sec" id="hSet">Ayarlar</button>
@@ -565,11 +632,11 @@
   </div></div>
 
   <div class="overlay hidden" id="ovWin"><div class="box winbox">
-    <div class="wrays"></div>
+    <div class="wrays"></div><div class="confetti" id="winConf"></div>
     <div class="wstars" id="winStars"><span>⭐</span><span>⭐</span><span>⭐</span></div>
     <h2 id="winTitle">Tebrikler! 🎉</h2>
     <div class="wlevel" id="winLevel"></div>
-    <div class="wreward"><span>🪙 +<b id="winCoins">25</b></span></div>
+    <div class="wreward" style="margin-top:10px"><span><i class="gc"></i> +<b id="winCoins">25</b></span></div>
     <div class="wnext" id="winNext"></div>
     <button id="btnNext">Devam Et ▶</button>
   </div></div>
@@ -608,6 +675,21 @@
     <div class="note">Parmağınla çarkı kaydırarak da çevirebilirsin. Elmaslar daha zor çıkar!</div>
   </div></div>
 
+  <div class="overlay hidden" id="ovFund" style="z-index:45"><div class="box xbox fundbox"><button class="xclose" id="fundClose" aria-label="Kapat">✕</button>
+    <div class="fi" id="fundIcon">🪙</div>
+    <h2 id="fundTitle">Altının yetmiyor</h2>
+    <div class="ft" id="fundTxt"></div>
+    <div class="fbal" id="fundBal"></div>
+    <button class="gold" id="fundAd">📺 Reklam izle → +100 🪙</button>
+    <button class="ghost" id="fundShop">💎 Mağazaya git</button>
+  </div></div>
+  <div class="overlay hidden" id="ovPrize" style="z-index:46"><div class="box prizebox"><div class="prays"></div><div class="confetti" id="prizeConf"></div>
+    <h2 id="prizeTitle">🎉 Tebrikler!</h2>
+    <div class="pic" id="prizeIcon">🪙</div>
+    <div class="pamt" id="prizeAmt">+50</div>
+    <div class="ptxt" id="prizeTxt"></div>
+    <button id="prizeOk">Harika! 🎉</button>
+  </div></div>
   <div class="overlay hidden" id="ovNotif"><div class="box xbox" style="text-align:center"><button class="xclose" id="nfClose" aria-label="Kapat">✕</button>
     <div style="font-size:54px;line-height:1">🔔</div>
     <h2>Hiçbir ödülü kaçırma!</h2>
@@ -693,8 +775,12 @@
         <div class="dcard lives"><div class="lvl"><span class="lbl">Canlar</span><div class="hearts" id="dHearts">❤️❤️❤️</div><small id="dLifeTimer"></small></div><button class="dbtn" id="dAdLife">+1 ❤️<br><small>Reklam izle</small></button></div>
         <div class="hidden"><div id="dCats"></div><div id="dCatStat"></div></div>
         <button class="dbtn gold dcta" id="dQuick"><span>Rakip Bul</span><small>Rastgele bir oyuncuyla eşleş</small></button>
-        <div class="dgrid"><button class="dbtn" id="dCreate">👥 Oda Kur</button><button class="dbtn" id="dBot">🤖 Antrenman</button></div>
-        <div class="drow djoin"><input id="dCode" maxlength="5" placeholder="Oda kodu"><button class="dbtn" id="dJoin">Katıl</button></div>
+        <div class="dgrid"><button class="dbtn" id="dFriendBtn">👥 Arkadaşınla Oyna</button><button class="dbtn" id="dBot">🤖 Antrenman</button></div>
+        <div class="dfriend hidden" id="dFriend">
+          <div class="fh">👥 Arkadaşınla Oyna<small>Oda kur ve kodu arkadaşına gönder, ya da arkadaşının kodunu yazıp katıl.</small></div>
+          <button class="dbtn gold" id="dCreate" style="width:100%">➕ Oda Kur</button>
+          <div class="drow djoin" style="margin-top:8px"><input id="dCode" maxlength="5" placeholder="Arkadaşının kodu"><button class="dbtn" id="dJoin">Katıl</button></div>
+        </div>
         <div class="dcard dbadges">
           <div class="bdhead"><b>Rozetler <span id="bdCount" style="opacity:.75;font-weight:600"></span></b><button id="bdToggle">Tümü ▾</button></div>
           <div id="bdBox" class="hidden"><div class="dnote" style="margin-top:6px">Kazandığın rozetlere dokun, profilinde en fazla <b>3 tanesi</b> görünsün. Rakiplerin de bunları görecek!</div><div class="bdstreak" id="bdStreak"></div><div class="bdgrid" id="bdGrid"></div><div class="bdinfo" id="bdInfo"></div></div>
@@ -751,10 +837,13 @@
 
     <!-- SONUÇ -->
     <div id="dEnd" class="dpage hidden">
-      <div class="dcard" style="text-align:center;padding:26px 16px">
-        <div class="dbig" id="dEndIcon">🏆</div>
-        <h2 id="dEndTitle" style="margin:6px 0">Kazandın!</h2>
-        <div id="dEndTxt" class="dnote" style="font-size:15px"></div>
+      <div class="dcard dres" id="dEndCard">
+        <div class="confetti" id="dEndConf"></div>
+        <div class="ravw"><div class="crown" id="dEndCrown">👑</div><div class="avatar rav" id="dEndAv">?</div><div class="rbadge" id="dEndIcon">🏆</div></div>
+        <h2 id="dEndTitle">Kazandın!</h2>
+        <div class="rname" id="dEndName"></div>
+        <div id="dEndTxt" class="rmsg"></div>
+        <div class="rscore" id="dEndScore"></div>
         <div class="wreward" style="margin-top:12px"><span id="dEndLives">❤️❤️❤️</span></div>
         <div id="dEndLvUp"></div>
       </div>
@@ -1225,7 +1314,8 @@ function win(){ { const c=store.get("lvCount",0)+1; store.set("lvCount",c); if(c
   $("winNext").textContent = last ? "" : `📍 Sıradaki durak: ${placeName(lv+1)}`;
   $("btnNext").textContent = last ? "Baştan Oyna" : "Devam Et ▶";
   const sp=[...document.querySelectorAll("#winStars span")]; sp.forEach(x=>x.classList.remove("on"));
-  sp.forEach((x,k)=>{ if(k<st) setTimeout(()=>{ x.classList.add("on"); beep([[700+k*200,.12]]); },450+k*380); });
+  sp.forEach((x,k)=>{ if(k<st) setTimeout(()=>{ x.classList.add("on"); beep([[700+k*200,.12]]); haptic("light"); },450+k*380); });
+  setTimeout(()=>{ try{ applause(); }catch(e){} },450+st*380); confetti($("winConf"),40);
   store.set(K("done_"+lv),true);
   $("ovWin").classList.remove("hidden");
 }
@@ -1233,7 +1323,7 @@ function win(){ { const c=store.get("lvCount",0)+1; store.set("lvCount",c); if(c
 // ---------- BUTONLAR ----------
 $("btnShuffle").onclick=()=>shuffleLetters();
 $("btnHint").onclick=()=>{
-  if(coins<25){ toast("Yeterli altın yok (25 🪙)"); return; }
+  if(coins<25){ needFunds("coin",25,"İpucu almak için"); return; }
   let wi = (selWord>=0 && !L.words[selWord].found) ? selWord : L.words.findIndex(w=>!w.found);
   if(wi<0) return;
   const w=L.words[wi]; const cs=wordCells(w).filter(c=>!cellShown(c.x+","+c.y));
@@ -1345,7 +1435,7 @@ $("btnInfo").onclick=()=>{
   if(wi<0) return;
   const key=lv+":"+L.words[wi].w;
   if(infoOpen[key]){ selectWord(wi); toast("Bu sorunun bilgisi zaten açık"); return; }
-  if(gems<1){ toast("Elmasın kalmadı"); openShop(); return; }
+  if(gems<1){ needFunds("gem",1,"Bilgi açmak için"); return; }
   setGems(gems-1); store.set(K("hintUsed_"+lv),store.get(K("hintUsed_"+lv),0)+1); infoOpen[key]=true; store.set(K("info"),infoOpen);
   selectWord(wi); toast("Bilgi açıldı (-1 💎)");
 };
@@ -1385,13 +1475,22 @@ function setMusVol(v){ musVol=Math.max(0,Math.min(100,Math.round(v))); musicOn=m
 function renderMusVol(){ const r=$("musVol"); if(!r) return; r.value=musVol; $("musVolTxt").textContent=musVol===0?"Kapalı":musVol; r.style.setProperty("--p",musVol+"%"); }
 document.addEventListener("visibilitychange",()=>{ if(document.hidden) musicStop(); else if(musicOn) setTimeout(musicStart,300); });
 ["pointerdown","touchend","click","keydown"].forEach(ev=>document.addEventListener(ev,()=>{ if(musicOn&&(!musEl||musEl.paused)&&!document.hidden) musicStart(); },{capture:true,passive:true}));
+// telefonda (uygulama) müzik dokunmayı beklemeden açılışta başlasın
+if(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform()){ const go=()=>{ if(musicOn&&!document.hidden) musicStart(); }; go(); setTimeout(go,250); setTimeout(go,900); }
 function AC(){ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); if(actx.state!=="running") try{ actx.resume(); }catch(e){} return actx; }
 function unlockAudio(){ try{ const c=AC(), b=c.createBuffer(1,1,22050), src=c.createBufferSource(); src.buffer=b; src.connect(c.destination); src.start(0); }catch(e){} }
 ["pointerdown","touchend","click","keydown"].forEach(ev=>document.addEventListener(ev,unlockAudio,{capture:true,passive:true}));
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden && actx) try{ actx.resume(); }catch(e){} });
 function beep(notes){ if(!soundOn) return; try{ AC(); let t=actx.currentTime;
   notes.forEach(([f,d])=>{ const o=actx.createOscillator(), g=actx.createGain(); o.type="triangle"; o.frequency.value=f; g.gain.setValueAtTime(.15,t); g.gain.exponentialRampToValueAtTime(.001,t+d); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+d); t+=d*.8; }); }catch(e){} }
-function buzz(ms){ if(vibOn && navigator.vibrate) try{ navigator.vibrate(ms); }catch(e){} }
+function hapt(){ try{ const C=window.Capacitor; return C&&C.Plugins&&C.Plugins.Haptics; }catch(e){ return null; } }
+function haptic(kind){ if(!vibOn) return; const H=hapt();
+  if(H){ try{ if(kind==="turn"){ H.impact({style:"MEDIUM"}); setTimeout(()=>{ try{ H.impact({style:"LIGHT"}); }catch(e){} },120); }
+    else if(kind==="success") H.notification({type:"SUCCESS"}); else if(kind==="error") H.notification({type:"ERROR"}); else if(kind==="heavy") H.impact({style:"HEAVY"}); else H.impact({style:"LIGHT"}); }catch(e){} return; }
+  if(navigator.vibrate) try{ navigator.vibrate(kind==="turn"?[40,60,40]:kind==="heavy"?200:kind==="success"?[60,40,60]:kind==="error"?[40,40,40]:25); }catch(e){} }
+function buzz(ms){ if(!vibOn) return; const H=hapt();
+  if(H){ const tot=Array.isArray(ms)?ms.reduce((a,b)=>a+b,0):ms; haptic(Array.isArray(ms)&&ms.length>=3?(tot>200?"success":"error"):tot>=200?"heavy":"light"); return; }
+  if(navigator.vibrate) try{ navigator.vibrate(ms); }catch(e){} }
 // gerçek alkış kaydı (CC0, "Well Done" — qubodup, OpenGameArt). Yüklenemezse sentez alkışa düşer.
 let clapRaw=null, clapBuf=null;
 try{ fetch("snd/alkis.mp3").then(r=>r.ok?r.arrayBuffer():null).then(b=>{ clapRaw=b; }).catch(()=>{}); }catch(e){}
@@ -1399,7 +1498,11 @@ function playClapRec(){ if(!clapRaw&&!clapBuf) return false;
   const go=b=>{ const src=actx.createBufferSource(), g=actx.createGain(); g.gain.value=1; src.buffer=b; src.connect(g); g.connect(actx.destination); src.start(actx.currentTime+.05); };
   AC(); if(clapBuf){ go(clapBuf); return true; }
   try{ actx.decodeAudioData(clapRaw.slice(0),b=>{ clapBuf=b; go(b); },()=>applauseSynth()); return true; }catch(e){ return false; } }
-function applause(){ if(!soundOn) return; if(!playClapRec()) applauseSynth(); }
+let clapEl=null; try{ clapEl=new Audio("snd/alkis.mp3"); clapEl.preload="auto"; clapEl.setAttribute("playsinline",""); }catch(e){}
+let clapUnlocked=false; ["pointerdown","touchend","click"].forEach(ev=>document.addEventListener(ev,()=>{ if(clapUnlocked||!clapEl) return; clapUnlocked=true; try{ clapEl.muted=true; const p=clapEl.play(); if(p&&p.then) p.then(()=>{ clapEl.pause(); clapEl.currentTime=0; clapEl.muted=false; }).catch(()=>{ clapEl.muted=false; }); }catch(e){ clapEl.muted=false; } },{capture:true,passive:true}));
+function applause(){ if(!soundOn) return;
+  if(clapEl){ try{ clapEl.muted=false; clapEl.volume=1; clapEl.currentTime=0; const p=clapEl.play(); if(p&&p.catch) p.catch(()=>{ if(!playClapRec()) applauseSynth(); }); return; }catch(e){} }
+  if(!playClapRec()) applauseSynth(); }
 // yedek: sentez alkış (~22 kişilik kalabalık), her biri kendi ritminde el çırpar + salon yankısı
 function applauseSynth(){ if(!soundOn) return; try{ AC(); const c=actx, sr=c.sampleRate, t0=c.currentTime+.05, DUR=3.4;
   // farklı el çırpma sesleri (keskin başlangıç, hızlı sönüm)
@@ -1558,7 +1661,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="62";
+const APP_VER="63";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1762,7 +1865,8 @@ const dcatName=c=>{ const x=DCATS.find(z=>z[0]===c)||DCATS[0]; return x[1]+" "+x
 function duelPool(){
   const m=new Map();
   // zorluk: bölümün oyundaki sırası (erken = kolay) + kelime uzunluğu
-  const add=(c,N)=>(lv,li)=>lv.words.forEach(([w,q])=>{ const n=[...w].length; if(n>=3&&n<=7&&!m.has(w)) m.set(w,[q,c,0.7*li/Math.max(1,N-1)+0.3*(n-3)/4]); });
+  // zorluk puanı: bölüm sırası (%55) + kelime uzunluğu (%35) + sorunun uzunluğu/ayrıntısı (%10)
+  const add=(c,N)=>(lv,li)=>lv.words.forEach(([w,q])=>{ const n=[...w].length; if(n>=3&&n<=7&&!m.has(w)) m.set(w,[q,c,0.55*li/Math.max(1,N-1)+0.35*(n-3)/4+0.10*Math.min(1,String(q).length/120)]); });
   MAIN_LEVELS.forEach(add("genel",MAIN_LEVELS.length)); Object.entries(CATS).forEach(([c,o])=>o.levels.forEach(add(c,o.levels.length)));
   return [...m.entries()].map(([w,[q,c,d]])=>[w,q,c,d]);
 }
@@ -1770,7 +1874,7 @@ const DECOY=[..."AEİIKLMNRSTUOYBDÜ"];
 let POOL=null; const P=()=>POOL||(POOL=duelPool());
 const QW=q=>P()[q.k][0], QT=q=>P()[q.k][1];
 // 10 tur × 2 soru (biri sana, biri rakibe, aynı zorlukta). İlk 5 tur kolay, sonra yavaşça zorlaşır.
-const DIFF_BANDS=[[0,.3],[0,.3],[0,.3],[0,.3],[0,.3],[.3,.45],[.4,.55],[.5,.7],[.65,.85],[.8,1]];
+const DIFF_BANDS=[[0,.08],[.04,.14],[.1,.2],[.16,.27],[.23,.35],[.32,.45],[.42,.56],[.53,.68],[.65,.82],[.8,1]];
 const diffLabel=t=>t<5?"🟢 Kolay":t<8?"🟡 Orta":"🔴 Zor";
 function makeQuestions(cat){
   let all=P().map((_,i)=>i).filter(i=>!cat||P()[i][2]===cat); if(all.length<40) all=P().map((_,i)=>i);
@@ -1778,6 +1882,8 @@ function makeQuestions(cat){
   DIFF_BANDS.forEach(([a,b])=>{ let band=sorted.slice(Math.floor(a*sorted.length),Math.ceil(b*sorted.length)).filter(k=>!used.has(k));
     if(band.length<2) band=sorted.filter(k=>!used.has(k));
     for(let n=0;n<2;n++){ const k=band.splice(Math.floor(Math.random()*band.length),1)[0]; used.add(k); idx.push(k); } });
+  // her tur bir öncekinden kolay olmasın: seçilenleri zorluğa göre sırala (iki oyuncu aynı turda benzer zorlukta)
+  idx.sort((a,b)=>P()[a][3]-P()[b][3]);
   return idx.map(k=>{ const w=P()[k][0]; const L=[...w]; if(L.length<7) L.push(DECOY[Math.floor(Math.random()*DECOY.length)]);
     for(let i=L.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[L[i],L[j]]=[L[j],L[i]];} return {k,l:L.join("")}; });
 }
@@ -1997,11 +2103,11 @@ function onMsg(d,m){
     if(d.t==="hello" && D.g.status==="wait" && d.id!==D.me){
       D.g.players[1]={id:d.id,name:cleanName(d.name||"Rakip"),bd:String(d.bd||"").slice(0,60),ph:okPh(d.ph)?d.ph:"",w:+d.w||0,l:+d.l||0,uid:String(d.uid||"").replace(/[^A-Za-z0-9_-]/g,"").slice(0,64)}; stopSeek(); startIntro();
     }
-    if(d.t==="ans" && D.g.status==="play" && d.i===D.g.turn && D.g.players[d.i%2].id===d.id) hostAnswer(d.i,d.w);
+    if(d.t==="ans" && D.g.status==="play" && d.i===D.g.turn && D.g.players[d.i%2].id===d.id) hostAnswer(d.i,d.w,d.gm);
     if(d.t==="joker" && D.g.status==="play" && d.i===D.g.turn && D.g.players[d.i%2].id===d.id) hostJoker(d.i);
   }else if(d.t==="state" && d.s && d.s.players && d.s.players[1] && d.s.players[1].id===D.me){
     const arr=o=>Array.isArray(o)?o:Object.keys(o||{}).reduce((r,k)=>{ r[+k]=o[k]; return r; },[]);
-    d.s.done=arr(d.s.done); d.s.jk=arr(d.s.jk); d.s.qs=arr(d.s.qs); d.s.players=arr(d.s.players); d.s.players.forEach(p=>{ if(p) p.name=cleanName(p.name); });
+    d.s.done=arr(d.s.done); d.s.jk=arr(d.s.jk); d.s.gm=arr(d.s.gm); d.s.qs=arr(d.s.qs); d.s.players=arr(d.s.players); d.s.players.forEach(p=>{ if(p) p.name=cleanName(p.name); });
     applyState(d.s);
   }
 }
@@ -2074,10 +2180,10 @@ function hostJoker(i){
   D.timer=setTimeout(()=>{ if(g.status==="play"&&g.turn===i) finish(1-(i%2),"time"); },Math.max(0,D.endAt-Date.now())+300);
   send({t:"state",s:pub()}); applyState(pub());
 }
-function hostAnswer(i,w){
+function hostAnswer(i,w,gm){
   const g=D.g; if(g.status!=="play"||g.turn!==i) return;
   if(w!==QW(g.qs[i])) return;
-  g.done[i]=1; clearTimeout(D.timer);
+  g.done[i]=1; if(gm){ g.gm=g.gm||[]; g.gm[i]=1; } clearTimeout(D.timer);
   if(i>=19){ finish(-1,"draw"); return; }
   startTurn(i+1);
 }
@@ -2105,19 +2211,22 @@ function applyState(s){
   const OV=vis(g.players[op]); if(D.mode==="online") checkOpp(g.players[op]); $("vnB").textContent=OV.name||"Rakip"; $("vbA").innerHTML=bdHTML((g.players[me]||{}).bd,1); $("vlA").innerHTML=lvHTML((g.players[me]||{}).w,"sm"); $("vlB").innerHTML=lvHTML((g.players[op]||{}).w,"sm"); $("vbB").innerHTML=bdHTML((g.players[op]||{}).bd,1); setAv($("vaB"),OV.name,OV.ph);
   $("dMode").textContent= D.mode==="bot"?"ANTRENMAN":"ONLINE";
   g.done=g.done||[]; const cnt=k=>g.done.filter((x,i)=>x&&i%2===k).length;
-  $("vsA").textContent=`${cnt(me)}/10 doğru`; $("vsB").textContent=`${cnt(op)}/10 doğru`;
+  const gcnt=k=>(g.gm||[]).filter((x,i)=>x&&i%2===k).length;
+  $("vsA").textContent=`${cnt(me)}/10 doğru${gcnt(me)?` · ${gcnt(me)}💎`:""}`; $("vsB").textContent=`${cnt(op)}/10 doğru${gcnt(op)?` · ${gcnt(op)}💎`:""}`;
   const mine=g.turn%2===me;
   $("vpA").classList.toggle("act",mine); $("vpB").classList.toggle("act",!mine);
   $("dTurn").textContent= mine ? "🎯 Senin sıran!" : `⏳ ${(g.players[op]||{}).name||"Rakip"} cevaplıyor…`;
   // tahta
   const b=$("dBoard"); b.innerHTML="";
   for(let i=0;i<20;i++){ const t=document.createElement("div"); const own=i%2===me?"a":"b";
-    t.className=`dt ${own}${g.done[i]?" ok":""}${i===g.turn?" cur":""}`; t.textContent=g.done[i]?"✓":i+1; b.appendChild(t); }
+    const gmI=!!(g.gm&&g.gm[i]); t.className=`dt ${own}${g.done[i]?" ok":""}${gmI?" gem":""}${i===g.turn?" cur":""}`; t.textContent=g.done[i]?(gmI?"💎":"✓"):i+1; if(gmI) t.title="Elmasla bilindi"; b.appendChild(t); }
+  // önceki soru elmasla bilindiyse iki tarafa da göster
+  const pv=g.turn-1; if(pv>=0 && g.gm && g.gm[pv] && D.gmShown!==g.code+":"+pv){ D.gmShown=g.code+":"+pv; const who=pv%2===me?"Sen":((g.players[op]||{}).name||"Rakip"); if(pv%2!==me) toast(`💎 ${vis(g.players[op]).name||"Rakip"} bu soruyu elmasla bildi`); }
   const q=g.qs[g.turn];
   $("dQ").innerHTML=`<small>Soru ${g.turn+1} / 20 · ${[...QW(q)].length} harf · ${diffLabel(Math.floor(g.turn/2))}</small>`; $("dQ").appendChild(document.createTextNode(QT(q)));
   const jkNow=!!(g.jk&&g.jk[g.turn]);
   if(!D.host && D.lastTurn===g.turn && jkNow && !D.jkSeen){ D.endAt=Date.now()+(s.left||0); }
-  if(D.lastTurn!==g.turn){ D.jkSeen=false; D.lastTurn=g.turn; D.turnAt=Date.now(); if(!D.host) D.endAt=Date.now()+(s.left||15000); buildDWheel(q.l); $("dCur").textContent=""; if(mine) beep([[660,.1]]); }
+  if(D.lastTurn!==g.turn){ D.jkSeen=false; D.lastTurn=g.turn; D.turnAt=Date.now(); if(!D.host) D.endAt=Date.now()+(s.left||15000); buildDWheel(q.l); $("dCur").textContent=""; if(mine){ beep([[660,.1]]); haptic("turn"); } }
   const answered = D.ansTurn===g.turn && D.ansGame===g.code; // cevabı gönderdim, sunucu onayı bekleniyor
   $("dWheel").classList.toggle("off",!mine||answered); D.myTurn=mine&&!answered;
   $("dJoker").disabled = !mine || jkNow; $("dSolve").disabled = !mine;
@@ -2135,6 +2244,18 @@ function showEnd(){
   const opName=vis(g.players[1-me]).name||"Rakip"; const OP=g.players[1-me]||{};
   $("dReport").style.display= D.mode==="online"&&OP.uid&&!store.get("rep_"+OP.uid,0) ? "" : "none";
   $("dEndIcon").textContent= draw?"🤝":won?"🏆":"💔";
+  { const MEp=g.players[me]||{}; const nm=myName(); $("dEndCard").className="dcard dres "+(draw?"draw":won?"win":"lose");
+    setAv($("dEndAv"),nm,myPh()); $("dEndCrown").style.display=won?"":"none";
+    const WIN=[`Tebrikler ${nm}! 🎉`,`Harikasın ${nm}! 🔥`,`Muhteşem oyun ${nm}! 👏`,`Şampiyon sensin ${nm}! 🏆`];
+    const LOSE=[`Bir dahaki sefere ${nm}! 💪`,`Pes etmek yok ${nm}, rövanş zamanı! 🔁`,`Az kaldı ${nm}! Bir sonrakinde sen kazanacaksın 🍀`,`Her maç bir ders ${nm}, devam! ✨`];
+    const DRAW=[`Ne maçtı ${nm}! 🤝`,`İkiniz de çok iyiydiniz ${nm}! 🌟`];
+    const pick=a=>a[(g.code||"").length%a.length+Math.floor(Math.random()*0)];
+    if(!D.endMsg) D.endMsg=(draw?DRAW:won?WIN:LOSE)[Math.floor(Math.random()*(draw?DRAW:won?WIN:LOSE).length)];
+    $("dEndName").textContent=D.endMsg;
+    const dn=g.done||[], gmA=g.gm||[]; const c=k=>dn.filter((x,i)=>x&&i%2===k).length, gq=k=>gmA.filter((x,i)=>x&&i%2===k).length;
+    const opN=vis(g.players[1-me]).name||"Rakip";
+    $("dEndScore").innerHTML=`<div><b>${c(me)}</b><span>Sen${gq(me)?` · ${gq(me)}💎`:""}</span></div><div class="vs">VS</div><div><b>${c(1-me)}</b><span>${esc(opN)}${gq(1-me)?` · ${gq(1-me)}💎`:""}</span></div>`;
+    if(won||draw){ if(!D.endConf){ D.endConf=true; confetti($("dEndConf"),won?70:35); } } else $("dEndConf").innerHTML=""; }
   if(!D.endAd){ D.endAd=true; clearTimeout(D.adT); D.adT=setTimeout(()=>{ if(!$("dEnd").classList.contains("hidden")) showInterstitial(); },3500); }
   if(!D.endSfx){ D.endSfx=true; if(won||draw){ applause(); buzz([100,60,100]); } else { sadTrombone(); buzz(400); } }
   $("dEndTitle").textContent= draw?"Berabere!":won?"Kazandın!":"Kaybettin";
@@ -2158,7 +2279,7 @@ function showEnd(){
 function leaveDuel(){ stopSeek(); clearInterval(D.seekTimer);
   clearTimeout(D.timer); clearInterval(D.tick); clearInterval(D.rebro);
   D.offs.forEach(f=>{try{f();}catch(e){}}); D.offs=[];
-  try{ D.r&&D.r.leave(); }catch(e){} D.r=null; D.g=null; D.lastTurn=-1; D.counted=false; D.mode=null; D.introShown=false; D.ansTurn=-1; D.ansGame=null; D.endSfx=false; D.endAd=false; clearTimeout(D.adT);
+  try{ D.r&&D.r.leave(); }catch(e){} D.r=null; D.g=null; D.lastTurn=-1; D.counted=false; D.mode=null; D.introShown=false; D.ansTurn=-1; D.ansGame=null; D.endSfx=false; D.endAd=false; D.endMsg=null; D.endConf=false; clearTimeout(D.adT);
 }
 
 // ---------- düello çarkı ----------
@@ -2183,13 +2304,13 @@ function dLines(){
   const end=()=>{ if(!dDraw) return; dDraw=false; const w=dPath.map(i=>dPos[i].ch).join(""); dPath=[]; dPtr=null; dLines(); dSubmit(w); };
   wh.addEventListener("pointerup",end); wh.addEventListener("pointercancel",end);
 })();
-function dSubmit(w){
+function dSubmit(w,gm){
   if(!D.g||D.g.status!=="play"||!D.myTurn||[...w].length<2) return;
   const i=D.g.turn;
   if(w!==QW(D.g.qs[i])){ const c=$("dCur").parentElement; $("dCur").textContent=w; c.className="dcur bad"; SFX.bad(); setTimeout(()=>{c.className="dcur";$("dCur").textContent="";},600); return; }
   SFX.ok(); D.myTurn=false; D.ansTurn=i; D.ansGame=D.g.code; $("dWheel").classList.add("off");
   if(D.mode==="online" && D.turnAt && Date.now()-D.turnAt<=3000 && !store.get("bFast",0)){ store.set("bFast",1); try{ checkBadges(); saveProfile(); }catch(e){} }
-  if(D.host) hostAnswer(i,w); else send({t:"ans",i,w,id:D.me});
+  if(D.host) hostAnswer(i,w,gm); else send({t:"ans",i,w,id:D.me,gm:gm?1:0});
 }
 
 // ---------- düğmeler ----------
@@ -2225,6 +2346,7 @@ $("dPhoto").onchange=e=>{ const f=e.target.files&&e.target.files[0]; if(!f) retu
     c.getContext("2d").drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,S,S); const d=c.toDataURL("image/jpeg",.7);
     if(!okPh(d)){ toast("Fotoğraf yüklenemedi"); return; } store.set("pphoto",d); setAv($("dAvatar"),myName(),d); saveProfile(); toast("📷 Profil fotoğrafın güncellendi"); };
     im.src=fr.result; }; fr.readAsDataURL(f); e.target.value=""; };
+$("dFriendBtn").onclick=()=>{ const f=$("dFriend"); f.classList.toggle("hidden"); if(!f.classList.contains("hidden")) setTimeout(()=>{ try{ f.scrollIntoView({behavior:"smooth",block:"center"}); }catch(e){} },50); };
 $("dCreate").onclick=()=>{ D.quick=false; D.retries=0; if(!nameOk()) return; if(!$("dName").value.trim()){ toast("Önce adını yaz"); $("dName").focus(); return; } joinRoom(rcode(),true).then(()=>{ $("dWaitNote").textContent="Oda kodunu arkadaşına gönder"; $("dWaitCode").style.display=""; $("dWaitTitle").textContent="Arkadaşın bekleniyor…"; }); };
 $("dJoin").onclick=()=>{ D.quick=false; D.retries=0; if(!nameOk()) return; const c=$("dCode").value.trim().toUpperCase(); if(c.length<4){ toast("4 haneli oda kodunu gir"); return; } if(!$("dName").value.trim()){ toast("Önce adını yaz"); return; } joinRoom(c,false).then(()=>{ $("dWaitCode").style.display=""; $("dWaitTitle").textContent="Odaya bağlanılıyor…"; }); };
 $("dCancel").onclick=()=>{ D.quick=false; D.retries=0; leaveDuel(); dShow("dLobby"); };
@@ -2235,14 +2357,14 @@ $("dBot").onclick=()=>{ leaveDuel(); D.mode="bot"; D.host=true; D.me="me";
   startIntro(); };
 $("dSolve").onclick=()=>{
   if(!D.g||D.g.status!=="play"||!D.myTurn) return;
-  if(gems<5){ toast("5 💎 gerekiyor — mağazadan alabilirsin"); openShop(); return; }
-  const q=D.g.qs[D.g.turn], w=QW(q); setGems(gems-5); toast(`✅ Cevap: ${w} — sıra rakibe geçti`);
-  $("dSolve").disabled=true; $("dCur").textContent=w; dSubmit(w);
+  if(gems<5){ needFunds("gem",5,"Cevabı bilmek için"); return; }
+  const q=D.g.qs[D.g.turn], w=QW(q); setGems(gems-5); toast(`💎 Elmasla bildin: ${w} — sıra rakibe geçti`);
+  $("dSolve").disabled=true; $("dCur").textContent=w; dSubmit(w,1);
 };
 $("dJoker").onclick=()=>{
   if(!D.g||D.g.status!=="play"||!D.myTurn) return;
   if((D.g.jk||[])[D.g.turn]) return;
-  if(coins<200){ toast(`Joker için 200 🪙 gerekiyor (sende ${coins} var) — bölüm çözerek kazan`); return; }
+  if(coins<200){ needFunds("coin",200,"Joker kullanmak için"); return; }
   coins-=200; store.set("coins",coins); try{ $("coins").textContent=coins; $("hsCoins").textContent=coins; }catch(e){} beep([[523,.08],[784,.14]]); toast("🃏 Joker kullanıldı! +5 sn");
   if(D.mode==="online" && !store.get("bJoker",0)){ store.set("bJoker",1); try{ checkBadges(); }catch(e){} }
   if(D.host) hostJoker(D.g.turn); else { $("dJoker").disabled=true; send({t:"joker",i:D.g.turn,id:D.me}); }
@@ -2350,7 +2472,7 @@ function givePrize(p){ let msg="";
   if(p.t==="coin"){ addCoins(p.n); msg=`+${p.n} 🪙 altın!`; }
   else if(p.t==="gem"){ setGems(gems+p.n); try{ $("hsGems").textContent=gems; }catch(e){} msg=`+${p.n} 💎 elmas!`; }
   else { if(unlimited){ addCoins(50); msg="Sınırsız canın var → +50 🪙"; } else { lives=Math.min(LIFE_CAP,lives+1); store.set("lives",lives); if(lives>=LIFE_MAX) store.set("lifeT",0); try{ renderLives(); }catch(e){} msg=`+1 ❤️ can! (${lives} can)`; } }
-  $("spinRes").textContent="🎉 "+msg; $("spinRes").classList.add("pop"); try{ (p.t==="gem"&&p.n>=5)?applause():SFX.win(); }catch(e){} buzz&&buzz([60,40,60]); }
+  $("spinRes").textContent=""; showPrize(p,msg); try{ (p.t==="gem"&&p.n>=5)?applause():SFX.win(); }catch(e){} buzz&&buzz([60,40,60]); }
 $("spinBtn").onclick=()=>doSpin(1);
 $("spinHub").onclick=()=>doSpin(1);
 $("spinAdBtn").onclick=()=>{ const st=spinState(); if(st.ad<=0) return; showAd(()=>{ store.set("spinAd",0); store.set("spinFree",1); renderSpin(); toast("🎡 +1 çevirme hakkı kazandın!"); },"🎡"); };
@@ -2387,7 +2509,31 @@ const NOTIFS=[
  ["🪙 Altın mı lazım?","1 reklam izle, 100 altın kazan!"],
  ["😴 Seni özledik!","Bulmacalar seni bekliyor, hemen bir bölüm çöz."],
  ["🧩 Takıldın mı?","İpucu kullan, harfleri aç ve kaldığın yerden devam et!"],
- ["🎉 Hafta sonu keyfi","Hafta sonu düello zamanı! Arkadaşına oda kodu gönder."]];
+ ["🎉 Hafta sonu keyfi","Hafta sonu düello zamanı! Arkadaşına oda kodu gönder."],
+ ["🧠 Beynini çalıştırma vakti","Bugün kaç soru bileceksin? Hadi bir bölüm çöz!"],
+ ["🔥 Serini bozma!","Dün harikaydın, bugün de devam et."],
+ ["🌍 Dünyayı geziyorsun","Sıradaki durağın seni bekliyor. Hangi şehirdesin?"],
+ ["🔬 Bilim kategorisi","Atomlardan galaksilere… Bilim sorularını denedin mi?"],
+ ["🗺️ Coğrafya turu","Dağlar, nehirler, başkentler. Ne kadar biliyorsun?"],
+ ["🌐 Online rakip arıyor","Gerçek bir oyuncu seninle düello yapmak istiyor!"],
+ ["🏆 Haftalık sıralama","Bu hafta zirvede kim olacak? İlk 3'e ödül var!"],
+ ["💎 Elmas fırsatı","Şans çarkında bugün elmas çıkabilir, bir dene!"],
+ ["⭐ 3 yıldız avı","İpucu kullanmadan çöz, 3 yıldızı kap!"],
+ ["☕ Kahve molası","Kahveni içerken kısa bir bulmaca çözmeye ne dersin?"],
+ ["🌙 Uyumadan önce","Günü bir bulmacayla kapat, zihnin dinlensin."],
+ ["🎯 Bugünün hedefi","Sadece 1 bölüm. 2 dakikanı alır, söz!"],
+ ["👥 Arkadaşına meydan oku","Oda kur, kodu gönder, kim daha çok bilecek görelim!"],
+ ["🚀 Yeni seviye yakın","Birkaç bölüm daha, yeni ünvanın seni bekliyor."],
+ ["📚 Genel kültür testi","Bugünkü sorular biraz zor… Cesaretin var mı?"],
+ ["🎶 Sanat dünyası","Ressamlar, besteciler, filmler. Sanat sorularını çözebilir misin?"],
+ ["🏛️ Tarihte bugün","Tarih kategorisinde seni şaşırtacak sorular var."],
+ ["🤖 Antrenman botu hazır","Düelloya ısınmak için botla bir maç yap."],
+ ["🎡 Çark dönmeyi bekliyor","Bugünkü bedava çevirmeni henüz kullanmadın!"],
+ ["💪 Rövanş zamanı","Son maçın acısını çıkarmaya ne dersin?"],
+ ["🧩 Bir kelime eksik","Kaldığın bulmacada son kelime seni bekliyor."],
+ ["🌟 Harika gidiyorsun","Bu hızla tüm kategorileri bitireceksin!"],
+ ["⏰ 2 dakikan var mı?","Kısa bir bölüm, büyük bir keyif."],
+ ["🎊 Hafta ortası molası","Çarşamba yorgunluğuna birebir: bir bulmaca çöz!"]];
 const nfSupported=()=>NAT.native ? !!NAT.LN : ("Notification" in window) && ("serviceWorker" in navigator);
 if(NAT.native){ try{ $("demoNote").classList.add("hidden"); }catch(e){}
   if(NAT.LN) NAT.LN.checkPermissions().then(r=>{ store.set("nfPerm",r.display==="granted"?"granted":r.display==="denied"?"denied":"default"); renderNfSet(); }).catch(()=>{}); }
@@ -2397,14 +2543,18 @@ let swReg=null;
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)){ navigator.serviceWorker.register("sw.js").then(r=>{ swReg=r; }).catch(()=>{}); }
 function nfPerm(){ if(NAT.native) return NAT.LN? store.get("nfPerm","default") : "unsupported"; return nfSupported()? Notification.permission : "unsupported"; }
 // telefonda: oyun kapanınca önümüzdeki 7 gün, oyuncunun her zamanki oynama saatinde günde 1 bildirim + canlar dolunca haber
-async function nativeSchedule(){ if(!NAT.LN||nfPerm()!=="granted") return;
+let nfBusy=false;
+function nfNext(){ // tekrar etmeyen sırayla bildirim seç (hepsi bitince yeniden karıştır)
+  let bag=store.get("nfBag",[]); if(!Array.isArray(bag)) bag=[]; const last=store.get("nfLast",-1);
+  if(!bag.length){ bag=NOTIFS.map((_,i)=>i).filter(i=>i!==1); for(let i=bag.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [bag[i],bag[j]]=[bag[j],bag[i]]; } if(bag[0]===last) bag.push(bag.shift()); }
+  const k=bag.shift(); store.set("nfBag",bag); store.set("nfLast",k); return k; }
+async function nativeSchedule(){ if(!NAT.LN||nfPerm()!=="granted"||nfBusy) return; nfBusy=true;
   try{ const pend=await NAT.LN.getPending(); if(pend&&pend.notifications&&pend.notifications.length) await NAT.LN.cancel({notifications:pend.notifications.map(n=>({id:n.id}))});
-    const now=new Date(), list=[]; let k=store.get("nfIdx",Math.floor(Math.random()*NOTIFS.length));
+    const now=new Date(), list=[];
     for(let d=1; d<=7; d++){ const at=new Date(now); at.setDate(at.getDate()+d); at.setHours(Math.min(Math.max(now.getHours(),10),21),now.getMinutes(),0,0);
-      k=(k+1)%NOTIFS.length; if(k===1) k=2; const [t,b]=NOTIFS[k]; list.push({id:d,title:t,body:b,schedule:{at,allowWhileIdle:true}}); }
-    store.set("nfIdx",k);
+      const [t,b]=NOTIFS[nfNext()]; list.push({id:d,title:t,body:b,schedule:{at,allowWhileIdle:true}}); }
     const lt=store.get("lifeT",0); if(!unlimited&&lives<LIFE_MAX&&lt){ const ms=lt+LIFE_REGEN*(LIFE_MAX-lives)-Date.now(); if(ms>60e3) list.push({id:50,title:NOTIFS[1][0],body:NOTIFS[1][1],schedule:{at:new Date(Date.now()+ms),allowWhileIdle:true}}); }
-    await NAT.LN.schedule({notifications:list}); }catch(e){} }
+    await NAT.LN.schedule({notifications:list}); }catch(e){} nfBusy=false; }
 if(NAT.native) document.addEventListener("visibilitychange",()=>{ if(document.hidden) nativeSchedule(); });
 function renderNfSet(){ const p=nfPerm(), b=$("nfSetBtn");
   b.textContent= p==="granted"?"✅ Açık": p==="denied"?"Kapalı":"İzin ver"; b.disabled= p==="granted";
@@ -2438,6 +2588,47 @@ setTimeout(()=>{ const st=spinState(); if(st.free>0 && !store.get("spinShown",0)
 // Performans: en üstteki tam ekran sayfayı işaretle, altındakiler çizilmesin
 (function(){ const ids=["duel","cats","map","home"]; const upd=()=>{ let top=""; for(const id of ids){ const e=document.getElementById(id); if(e&&!e.classList.contains("hidden")){ top=id; break; } } if(top) document.body.dataset.top=top; else delete document.body.dataset.top; };
   const mo=new MutationObserver(upd); ids.forEach(id=>{ const e=document.getElementById(id); if(e) mo.observe(e,{attributes:true,attributeFilter:["class"]}); }); upd(); })();
+</script>
+
+<script>
+// ===== yetersiz bakiye penceresi =====
+function needFunds(kind,need,why){ const isC=kind==="coin", have=isC?coins:gems;
+  $("fundIcon").innerHTML= isC?'<i class="gc" style="width:64px;height:64px"></i>':"💎";
+  $("fundTitle").textContent= isC?"Altının yetmiyor":"Elmasın yetmiyor";
+  $("fundTxt").innerHTML= `${why} <b>${need} ${isC?'<i class="gc"></i>':"💎"}</b> gerekiyor.`;
+  $("fundBal").innerHTML= `Sende: <b>${have}</b> ${isC?'<i class="gc"></i>':"💎"} · Eksik: <b>${Math.max(0,need-have)}</b>`;
+  $("fundAd").classList.toggle("hidden",!isC); $("fundShop").textContent= isC?"💎 Mağazaya git":"💎 Elmas al";
+  try{ haptic("error"); }catch(e){}
+  $("ovFund").classList.remove("hidden"); }
+$("fundClose").onclick=()=>$("ovFund").classList.add("hidden");
+$("fundShop").onclick=()=>{ $("ovFund").classList.add("hidden"); openShop(); };
+$("fundAd").onclick=()=>{ $("ovFund").classList.add("hidden"); showAd(()=>{ addCoins(100); showPrize({t:"coin",n:100},"+100 altın kazandın!"); },"🪙"); };
+// ===== konfeti =====
+function confetti(box,n){ if(!box) return; box.innerHTML=""; const C=["#ffd166","#ff6b8a","#7dd3fc","#a78bfa","#4ade80","#fb923c"];
+  for(let i=0;i<(n||40);i++){ const e=document.createElement("i"); e.style.left=Math.random()*100+"%"; e.style.background=C[i%C.length];
+    e.style.animationDuration=(1.6+Math.random()*1.8)+"s"; e.style.animationDelay=(Math.random()*.6)+"s"; e.style.transform=`rotate(${Math.random()*360}deg)`; box.appendChild(e); }
+  setTimeout(()=>{ box.innerHTML=""; },4200); }
+// ===== ödül penceresi =====
+function showPrize(p,msg){ const n=p.n||1;
+  $("prizeIcon").innerHTML= (p.t==="coin"||(p.t==="life"&&unlimited))?'<i class="gc"></i>': p.t==="gem"?"💎":"❤️";
+  $("prizeAmt").textContent= p.t==="life"&&unlimited ? "+50" : "+"+n;
+  $("prizeTxt").textContent= msg||"";
+  $("prizeTitle").textContent= p.t==="gem"&&n>=5 ? "🤩 Büyük ödül!" : "🎉 Tebrikler!";
+  const ov=$("ovPrize"); ov.classList.remove("hidden");
+  // animasyonu yeniden başlat
+  ["prizeIcon","prizeAmt"].forEach(id=>{ const el=$(id); el.style.animation="none"; void el.offsetWidth; el.style.animation=""; });
+  confetti($("prizeConf"),50); try{ haptic("success"); }catch(e){} }
+$("prizeOk").onclick=()=>$("ovPrize").classList.add("hidden");
+// ===== altın simgesi: iPhone'da 🪙 gri/gümüş görünüyor → altın renkli rozetle değiştir =====
+(function(){ const RX=/🪙/; const skip=n=>{ const p=n.parentNode; return !p||/^(SCRIPT|STYLE|TEXTAREA|INPUT|OPTION|TITLE)$/.test(p.nodeName); };
+  function fix(node){ if(node.nodeType===3){ if(!RX.test(node.nodeValue)||skip(node)) return;
+      const parts=node.nodeValue.split("🪙"), fr=document.createDocumentFragment();
+      parts.forEach((t,i)=>{ if(t) fr.appendChild(document.createTextNode(t)); if(i<parts.length-1){ const c=document.createElement("i"); c.className="gc"; fr.appendChild(c); } });
+      node.parentNode.replaceChild(fr,node); return; }
+    if(node.nodeType===1 && !/^(SCRIPT|STYLE)$/.test(node.nodeName)){ if(!RX.test(node.textContent)) return; const w=document.createTreeWalker(node,NodeFilter.SHOW_TEXT); const L=[]; while(w.nextNode()) if(RX.test(w.currentNode.nodeValue)) L.push(w.currentNode); L.forEach(fix); } }
+  fix(document.body);
+  new MutationObserver(ms=>{ for(const m of ms){ if(m.type==="characterData") fix(m.target); else m.addedNodes.forEach(fix); } }).observe(document.body,{childList:true,subtree:true,characterData:true});
+})();
 </script>
 </body>
 </html>
