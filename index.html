@@ -446,6 +446,12 @@
   .dhero .avatar:not(.ph){background:linear-gradient(135deg,#8b5cf6,#4f46e5);color:#fff}
   .dhero .pbadges:has(.dnote){display:none}
   #duel .dcard.lives .dbtn small{white-space:nowrap}
+
+  /* iOS çentik / durum çubuğu güvenli alanı */
+  .app{padding-top:calc(10px + env(safe-area-inset-top))!important;padding-bottom:calc(14px + env(safe-area-inset-bottom))!important}
+  .mtop{padding-top:calc(10px + env(safe-area-inset-top))!important}
+  #home{padding-top:calc(40px + env(safe-area-inset-top))!important;padding-bottom:calc(30px + env(safe-area-inset-bottom))!important}
+  #map,#cats,#duel{padding-bottom:env(safe-area-inset-bottom)}
 </style>
 </head>
 <body>
@@ -1530,7 +1536,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="60";
+const APP_VER="61";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
