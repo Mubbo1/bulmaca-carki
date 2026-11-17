@@ -1294,7 +1294,9 @@ function openMap(){
 }
 $("btnMenu").onclick=openMap;
 let mapFrom=null;
-$("mapBack").onclick=()=>{ $("map").classList.add("hidden"); if(mapFrom==="cats"){ mapFrom=null; openCats(); } };
+// Haritadan geri: kategoriden gelindiyse kategorilere, yoksa ana menüye. (Eskiden hiçbir yere
+// gitmiyordu ve altta açık kalan oyun ekranı görünüyordu.)
+$("mapBack").onclick=()=>{ $("map").classList.add("hidden"); if(mapFrom==="cats"){ mapFrom=null; openCats(); } else showHome(); };
 $("btnHomeBtn").onclick=()=>showHome();
 $("btnLvBack").onclick=()=>{ mapFrom= pack!=="main" ? "cats" : null; openMap(); };
 window.addEventListener("resize",()=>{ if(L){ buildGrid(); drawLines(); } });
@@ -1588,13 +1590,15 @@ async function fbInit(){
 
 // ================= DÜELLO =================
 const D={ room:null, db:null, user:null, uid:null, g:null, mode:null, timer:null, tick:null, rebro:null, offs:[], lastTurn:-1, endAt:0, stat:{w:0,l:0,d:0} };
-const LIFE_MAX=3;
+const LIFE_MAX=3, LIFE_CAP=LIFE_MAX+3;
 let lives=Math.min(store.get("lives",LIFE_MAX),LIFE_MAX+3); // çarktan gelen bonusla 3'ü geçebilir
 let unlimited=!!store.get("unlimLives",0);
 const hasLife=()=>unlimited||lives>0;
 // can yenilenmesi: 3'ün altındayken her 15 dakikada +1 can (en fazla 3)
 const LIFE_REGEN=15*60*1000;
-function setLives(n){ if(unlimited){ renderLives(); return; } lives=Math.max(0,Math.min(LIFE_MAX,n)); store.set("lives",lives);
+// Çarktan gelen bonus canlar 3'ü aşabilir; tavan LIFE_MAX değil LIFE_CAP, yoksa 4 candan
+// kaybedince tek seferde 3'e düşüyor ve "canım gitmedi" gibi görünüyordu.
+function setLives(n){ if(unlimited){ renderLives(); return; } lives=Math.max(0,Math.min(LIFE_CAP,n)); store.set("lives",lives);
   if(lives>=LIFE_MAX) store.set("lifeT",0); else if(!store.get("lifeT",0)) store.set("lifeT",Date.now());
   renderLives(); }
 function regenLives(){ if(unlimited) return; let t=store.get("lifeT",0);
@@ -1916,12 +1920,21 @@ async function loadRank(){
     let rows=snap.docs.map(d=>({id:d.id,...d.data()}));
     rows=rows.map(r=>rc?{...r,sc:r["w_"+rc]||0,wins:r["w_"+rc]||0,losses:r["l_"+rc]||0,draws:0}:{...r,sc:r[wk]||0});
     const ban=await cheaters(); rows=rows.filter(r=>!ban.has(r.id));
+    let wkEmpty=false;
     rows=rows.filter(r=>(r.sc||0)>0).sort((a,b)=>(b.sc||0)-(a.sc||0));
-    if(!rows.length){ box.innerHTML=`<div class="dnote">${rc?dcatName(rc)+" kategorisinde henüz":"Bu hafta henüz"} kimse düello kazanmadı. İlk sen ol! 🏆</div>`; return; }
-    box.innerHTML = rc ? "" : `<div class="wkhead"><b>🏆 Haftanın Sıralaması</b><div>Pazartesi sıfırlanır · bitmesine <b>${wkLeft()}</b><br>1. ve 2. <b>15 💎</b> · 3-4-5. <b>500 🪙</b></div></div>`;
+    // Hafta yeni başladıysa kimsede haftalık galibiyet olmaz; tablo boş kalmasın diye
+    // tüm zamanlar sıralamasını gösteririz.
+    if(!rows.length && !rc){
+      wkEmpty=true;
+      const s2=await D.db.collection("profiles").orderBy("wins","desc").limit(50).get();
+      rows=s2.docs.map(d=>({id:d.id,...d.data()})).map(r=>({...r,sc:r.wins||0}));
+      rows=rows.filter(r=>!ban.has(r.id)&&(r.sc||0)>0).sort((a,b)=>(b.sc||0)-(a.sc||0));
+    }
+    if(!rows.length){ box.innerHTML=`<div class="dnote">${rc?dcatName(rc)+" kategorisinde henüz":"Henüz"} kimse düello kazanmadı. İlk sen ol! 🏆</div>`; return; }
+    box.innerHTML = rc ? "" : `<div class="wkhead"><b>🏆 Haftanın Sıralaması</b><div>Pazartesi sıfırlanır · bitmesine <b>${wkLeft()}</b><br>1. ve 2. <b>15 💎</b> · 3-4-5. <b>500 🪙</b>${wkEmpty?"<br><span style='opacity:.8'>Bu hafta henüz galibiyet yok — tüm zamanlar sıralaması gösteriliyor</span>":""}</div></div>`;
     rows.forEach((r,i)=>{ const t=(r.wins||0)+(r.losses||0), ra=t?Math.round((r.wins||0)/t*100):0;
       const el=document.createElement("div"); el.className="rk"+(r.id===D.uid?" me":"")+(!rc&&i<5?" top top"+(i+1):"");
-      const prize=(!rc&&i<5)?`<span class="prz">${wkPrizeTxt(i)}</span>`:"";
+      const prize=(!rc&&!wkEmpty&&i<5)?`<span class="prz">${wkPrizeTxt(i)}</span>`:"";
       const main=rc?`<b>${r.wins||0}</b> G · ${r.losses||0} M<br>%${ra}`:`<b>${r.sc}</b> G<br><small>toplam ${r.wins||0}</small>`;
       el.innerHTML=`<div class="no">${["🥇","🥈","🥉"][i]||i+1}</div><div class="avatar sm"></div>${lvHTML(r.wins||0,"sm")}<div class="nm"></div>${prize}<div class="wl">${main}</div>`;
       setAv(el.querySelector(".avatar"),r.name,r.ph); el.querySelector(".nm").textContent=cleanName(r.name); if(r.bd){ const sm=document.createElement("small"); sm.textContent=String(r.bd).split(",").filter(id=>BMAP[id]).slice(0,3).map(id=>BMAP[id][1]).join(""); el.querySelector(".nm").appendChild(sm); } box.appendChild(el); });
@@ -2308,7 +2321,7 @@ function doSpin(dir){ if(spinning) return; const st=spinState(); if(st.free<=0) 
 function givePrize(p){ let msg="";
   if(p.t==="coin"){ addCoins(p.n); msg=`+${p.n} 🪙 altın!`; }
   else if(p.t==="gem"){ setGems(gems+p.n); try{ $("hsGems").textContent=gems; }catch(e){} msg=`+${p.n} 💎 elmas!`; }
-  else { if(unlimited){ addCoins(50); msg="Sınırsız canın var → +50 🪙"; } else { lives=lives+1; store.set("lives",lives); if(lives>=LIFE_MAX) store.set("lifeT",0); try{ renderLives(); }catch(e){} msg=`+1 ❤️ can! (${lives} can)`; } }
+  else { if(unlimited){ addCoins(50); msg="Sınırsız canın var → +50 🪙"; } else { lives=Math.min(LIFE_CAP,lives+1); store.set("lives",lives); if(lives>=LIFE_MAX) store.set("lifeT",0); try{ renderLives(); }catch(e){} msg=`+1 ❤️ can! (${lives} can)`; } }
   $("spinRes").textContent="🎉 "+msg; $("spinRes").classList.add("pop"); try{ (p.t==="gem"&&p.n>=5)?applause():SFX.win(); }catch(e){} buzz&&buzz([60,40,60]); }
 $("spinBtn").onclick=()=>doSpin(1);
 $("spinHub").onclick=()=>doSpin(1);
