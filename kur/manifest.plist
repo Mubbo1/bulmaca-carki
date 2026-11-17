@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict><key>items</key><array><dict>
-<key>assets</key><array><dict><key>kind</key><string>software-package</string><key>url</key><string>https://api.codemagic.io/artifacts/.eJwVwdu2QkAAANB_6d1a0SQeDc4k1xgML5Zyy_0Sab6-dfY-lNI_OCU6sRnN5v3QBcdv1nkOkdzaMTADyiKoSyrxaL0bqHcGE-bp5rkGqin8xDw8I1XXpjV1X41vVRCytZHqfQnUYlWI3Ep4gpYmZ8cY04ZhC66Xx26caqBg8qWLSFtfuSFCuXkAn8q3umQVwrPJR2q8u94eX3sTMK90vIin5RKFzCBvrjRw5nuWBeEWzM-I_j2ItMPSuUJWLZJR9Gc1wZEaTuNkO488yKGnj8nyPO3QzjUB3rcUobY7YpA19ls0MWGDat4OPwW3Wbo.lmCobgaEj1qjc46Z2E2IIy2VVks</string></dict>
+<key>assets</key><array><dict><key>kind</key><string>software-package</string><key>url</key><string>https://mubbo1.github.io/bulmaca-carki/kur/BulmacaCarki.ipa</string></dict>
 <dict><key>kind</key><string>display-image</string><key>url</key><string>https://mubbo1.github.io/bulmaca-carki/icons/icon-192.png</string></dict>
 <dict><key>kind</key><string>full-size-image</string><key>url</key><string>https://mubbo1.github.io/bulmaca-carki/icons/icon-512.png</string></dict></array>
 <key>metadata</key><dict><key>bundle-identifier</key><string>com.bulmacacarki.game</string><key>bundle-version</key><string>1.0.0</string><key>kind</key><string>software</string><key>title</key><string>Bulmaca Çarkı</string></dict>
