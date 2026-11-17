@@ -303,15 +303,36 @@
   .lvbar{height:8px;background:#ffffff22;border-radius:6px;overflow:hidden;margin:4px 0 2px}.lvbar div{height:100%;background:linear-gradient(90deg,#ffb703,#fb8500);width:0}
   .vl{margin-top:3px}.vl:empty{display:none}
   #ilA,#ilB{margin-top:2px}
-  .lvup{margin-top:12px;font-weight:900;font-size:18px;color:#ffb703;animation:pulse 1s ease-in-out 3}.lvup div{margin:6px 0}.lvup small{display:block;color:#fff;font-size:13px}
+  /* Seviye atlama kutusu: sonuç ekranındaki can hapından ayrı, kendi kartında durur */
+  .lvup{margin:14px auto 0;max-width:260px;display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 16px;border-radius:18px;background:linear-gradient(160deg,#fff8e1,#ffe3a3);border:2px solid #ffb703;box-shadow:0 8px 20px rgba(255,183,3,.3);animation:pulse 1s ease-in-out 3}
+  .lvup .t{font-weight:900;font-size:16px;color:#b45309;letter-spacing:.2px;line-height:1.2}
+  .lvup small{display:block;color:#8a5a06;font-size:13px;font-weight:800}
   .bdsec{grid-column:1/-1;font-weight:800;font-size:13px;color:#ffe08a;margin-top:6px;text-align:left}
   .bdstreak{font-size:12px;color:#dfe4ff;margin-top:8px;text-align:center}
   .spinner{width:34px;height:34px;border:4px solid #ffffff33;border-top-color:var(--acc);border-radius:50%;margin:10px auto;animation:spin 1s linear infinite}
   .rk{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid #ffffff1a}
   .rk .no{width:28px;font-weight:800;text-align:center;font-size:18px}
   .rk .nm{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .rk .wl{font-size:12px;color:#cfd8ff;text-align:right}
+  .rk .wl{font-size:12px;color:#cfd8ff;text-align:right;white-space:nowrap;flex:none}
   .rk.me{background:#ffb70322;border-radius:10px}
+  /* Haftalık sıralama: ilk 5 için özel çerçeveler */
+  .wkhead{padding:10px 12px;margin-bottom:8px;border-radius:14px;background:linear-gradient(160deg,#ffffff14,#ffffff06);border:1px solid #ffffff22;text-align:center;line-height:1.45}
+  .wkhead b{color:#ffd75e}.wkhead div{font-size:12px;color:#cfd8ff;margin-top:3px}
+  .rk.top{border-bottom:0;margin-bottom:8px;padding:10px 9px;gap:7px;border-radius:14px;border:2px solid;position:relative;overflow:hidden}
+  .rk.top::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,#fff0 35%,#ffffff2e 50%,#fff0 65%);background-size:250% 100%;animation:rkshine 3.2s linear infinite}
+  @keyframes rkshine{from{background-position:140% 0}to{background-position:-40% 0}}
+  .rk.top .no{font-size:21px}
+  .rk.top1{background:linear-gradient(135deg,#6b4e00,#2b1f00);border-color:#ffd75e;box-shadow:0 0 16px #ffd75e66}
+  .rk.top2{background:linear-gradient(135deg,#4a5260,#232a35);border-color:#d9dde3;box-shadow:0 0 12px #d9dde355}
+  .rk.top3{background:linear-gradient(135deg,#5b3717,#2a1909);border-color:#c98a4b;box-shadow:0 0 12px #c98a4b55}
+  .rk.top4,.rk.top5{background:linear-gradient(135deg,#2b3350,#1b2135);border-color:#7b8ac4}
+  .rk .prz{flex:none;background:#0004;border:1px solid #ffffff33;border-radius:999px;padding:2px 7px;font-size:11px;font-weight:800;color:#ffe9a8;white-space:nowrap}
+  .rk .wl small{font-size:11px;opacity:.8}
+  .rk.top .nm{min-width:54px}
+  .wkprize{text-align:center;padding:22px 18px}
+  .wkprize .big{font-size:54px;line-height:1}
+  .wkprize h2{margin:8px 0 4px;color:#ffd75e}
+  .wkprize .amt{font-size:26px;font-weight:900;margin:10px 0;color:#fff}
   .vs{display:flex;align-items:center;justify-content:space-between;gap:6px}
   .vp{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px;border-radius:16px;background:#0004;border:2px solid transparent;transition:all .25s}
   .vp.act{border-color:var(--acc);box-shadow:0 0 18px #ffb70388;background:#ffb7031c}
@@ -568,6 +589,14 @@
     <button id="nfNo" style="background:#dee2e6">Şimdi değil</button>
   </div></div>
 
+  <div class="overlay hidden" id="ovWkPrize"><div class="box xbox wkprize"><button class="xclose" id="wkPrizeClose" aria-label="Kapat">✕</button>
+    <div class="big">🏆</div>
+    <h2>Haftanın ödülü senin!</h2>
+    <div style="font-size:15px;color:#555">Geçen haftanın düello sıralamasında <b><span id="wkPrizeRank">1</span>. sırada</b> bitirdin.</div>
+    <div class="amt" style="color:#3a2500"><span id="wkPrizeWhat">15 💎</span> hesabına eklendi</div>
+    <button class="gold" id="wkPrizeOk" style="background:linear-gradient(135deg,#ffd166,#f4a261);color:#3a2500">Harika!</button>
+  </div></div>
+
   <div class="overlay hidden" id="ovHelp"><div class="box setbox xbox helpbox"><button class="xclose" id="helpClose" aria-label="Kapat">✕</button>
     <h2>❓ Yardım & Destek</h2>
     <div class="ssec">Sık sorulan sorular</div>
@@ -699,6 +728,7 @@
         <h2 id="dEndTitle" style="margin:6px 0">Kazandın!</h2>
         <div id="dEndTxt" class="dnote" style="font-size:15px"></div>
         <div class="wreward" style="margin-top:12px"><span id="dEndLives">❤️❤️❤️</span></div>
+        <div id="dEndLvUp"></div>
       </div>
       <button class="dbtn gold" id="dAgain">Lobiye Dön</button>
       <button class="dbtn ghost repbtn" id="dReport">🚩 Şikayet et / Engelle</button>
@@ -1386,6 +1416,7 @@ function helpMail(subject,extra){ const info=`\n\n---\nSürüm: ${APP_VER}\nCiha
 $("helpCopy").onclick=()=>{ try{ navigator.clipboard.writeText(SUPPORT_EMAIL).then(()=>toast("📋 E-posta adresi kopyalandı")).catch(()=>toast(SUPPORT_EMAIL)); }catch(e){ toast(SUPPORT_EMAIL); } };
 $("btnHelp").onclick=()=>{ $("ovSet").classList.add("hidden"); $("helpInfo").textContent=`Bulmaca Çarkı · Sürüm ${APP_VER} · ${SUPPORT_EMAIL}`; $("ovHelp").classList.remove("hidden"); };
 $("helpClose").onclick=()=>$("ovHelp").classList.add("hidden");
+$("wkPrizeClose").onclick=$("wkPrizeOk").onclick=()=>$("ovWkPrize").classList.add("hidden");
 $("helpMail").onclick=()=>helpMail("Bulmaca Çarkı – Destek","Merhaba,\n\n");
 $("helpBug").onclick=()=>helpMail("Bulmaca Çarkı – Hata bildirimi","Ne oldu?\n\nNe olmasını bekliyordun?\n\n");
 $("btnSetShop").onclick=()=>{ $("ovSet").classList.add("hidden"); openShop(); };
@@ -1764,7 +1795,7 @@ async function initNet(){
   $("dCreate").disabled=$("dJoin").disabled=$("dQuick").disabled=!D.room;
   if(D.db && D.uid){
     try{ const s=await D.db.doc("profiles/"+D.uid).get(); if(s.exists){ const d=s.data(); D.stat={w:d.wins||0,l:d.losses||0,d:d.draws||0,c:{}}; DCATS.forEach(([c])=>{ D.stat.c[c]={w:d["w_"+c]||0,l:d["l_"+c]||0}; }); if(!$("dName").value && d.name){ $("dName").value=d.name; store.set("pname",d.name);} } }catch(e){}
-    renderStats();
+    renderStats(); claimWeekly();
   }
 }
 D.cat="genel"; // düelloda kategori yok: karışık genel kültür
@@ -1840,27 +1871,59 @@ function renderStats(){
   const {w,l}=D.stat, t=w+l, r=t?Math.round(w/t*100):0;
   $("pW").textContent=w; $("pL").textContent=l; $("pR").textContent=`%${r}`; $("pBar").style.width=r+"%";
 }
+// ---------- HAFTALIK SIRALAMA ----------
+// Hafta kimliği = o haftanın pazartesi günü (UTC). Her hafta profilde ayrı bir alanda tutulur: wk_2026_11_16
+function weekMonday(t){ const d=new Date(t||Date.now()); const off=(d.getUTCDay()+6)%7;
+  return new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()-off)); }
+const wkey=t=>"wk_"+weekMonday(t).toISOString().slice(0,10).replace(/-/g,"_");
+const WK_PRIZE=[[0,"gem",15],[1,"gem",15],[2,"coin",500],[3,"coin",500],[4,"coin",500]];
+const wkPrizeTxt=i=>i<2?"15 💎":"500 🪙";
+function wkLeft(){ const end=weekMonday().getTime()+7*864e5, ms=Math.max(0,end-Date.now());
+  const d=Math.floor(ms/864e5), h=Math.floor(ms%864e5/36e5); return d?`${d} gün ${h} saat`:`${h} saat`; }
+let wkWins=store.get("wkWins",{});
+function addWeekWin(){ const k=wkey(); wkWins={[k]:(wkWins[k]||0)+1}; store.set("wkWins",wkWins); } // sadece bu haftayı tut
+const myWeekWins=()=>wkWins[wkey()]||0;
+// Hafta biterse geçen haftanın ilk 5'ine ödül ver (oyuncu başına bir kez)
+async function claimWeekly(){
+  if(!(D.db&&D.uid)) return;
+  const prev=wkey(Date.now()-7*864e5);
+  if(store.get("rwk","")===prev) return;
+  try{
+    const s=await D.db.collection("profiles").orderBy(prev,"desc").limit(12).get();
+    const ban=await cheaters();
+    const top=s.docs.filter(d=>!ban.has(d.id)&&(d.data()[prev]||0)>0).slice(0,5);
+    store.set("rwk",prev);
+    const i=top.findIndex(d=>d.id===D.uid);
+    if(i<0) return;
+    if(i<2) setGems(gems+15); else addCoins(500);
+    $("wkPrizeRank").textContent=i+1; $("wkPrizeWhat").textContent=wkPrizeTxt(i);
+    $("ovWkPrize").classList.remove("hidden");
+    setTimeout(()=>{ try{ applause(); }catch(e){} },300);
+  }catch(e){}
+}
 async function saveProfile(){
   store.set("pname",myName()); setAv($("dAvatar"),myName(),myPh());
   if(!(D.db&&D.uid)) return;
-  try{ await D.db.doc("profiles/"+D.uid).set(Object.assign({name:myName(),bd:myBd(),ph:myPh(),wins:D.stat.w,losses:D.stat.l,draws:D.stat.d,updated:Date.now()}, ...DCATS.map(([c])=>({["w_"+c]:catStat(c).w,["l_"+c]:catStat(c).l})))); }catch(e){}
+  try{ await D.db.doc("profiles/"+D.uid).set(Object.assign({name:myName(),bd:myBd(),ph:myPh(),wins:D.stat.w,losses:D.stat.l,draws:D.stat.d,updated:Date.now(),[wkey()]:myWeekWins()}, ...DCATS.map(([c])=>({["w_"+c]:catStat(c).w,["l_"+c]:catStat(c).l})))); }catch(e){}
 }
 async function loadRank(){
   const box=$("dRank");
   if(!D.db){ box.innerHTML='<div class="dnote">Sıralama tablosu için online bağlantı gerekiyor.</div>'; return; }
   box.innerHTML='<div class="dnote">Yükleniyor…</div>';
   try{
-    const rc=D.rcat&&D.rcat!=="all"?D.rcat:null, wf=rc?"w_"+rc:"wins";
+    const rc=D.rcat&&D.rcat!=="all"?D.rcat:null, wk=wkey(), wf=rc?"w_"+rc:wk;
     const snap=await D.db.collection("profiles").orderBy(wf,"desc").limit(50).get();
     let rows=snap.docs.map(d=>({id:d.id,...d.data()}));
-    if(rc) rows=rows.map(r=>({...r,wins:r["w_"+rc]||0,losses:r["l_"+rc]||0,draws:0}));
+    rows=rows.map(r=>rc?{...r,sc:r["w_"+rc]||0,wins:r["w_"+rc]||0,losses:r["l_"+rc]||0,draws:0}:{...r,sc:r[wk]||0});
     const ban=await cheaters(); rows=rows.filter(r=>!ban.has(r.id));
-    rows=rows.filter(r=>(r.wins||0)+(r.losses||0)+(r.draws||0)>0).sort((a,b)=>(b.wins||0)-(a.wins||0));
-    if(!rows.length){ box.innerHTML='<div class="dnote">${rc?dcatName(rc)+" kategorisinde henüz":"Henüz"} kimse online düello oynamadı. İlk sen ol! 🏆</div>'; return; }
-    box.innerHTML="";
+    rows=rows.filter(r=>(r.sc||0)>0).sort((a,b)=>(b.sc||0)-(a.sc||0));
+    if(!rows.length){ box.innerHTML=`<div class="dnote">${rc?dcatName(rc)+" kategorisinde henüz":"Bu hafta henüz"} kimse düello kazanmadı. İlk sen ol! 🏆</div>`; return; }
+    box.innerHTML = rc ? "" : `<div class="wkhead"><b>🏆 Haftanın Sıralaması</b><div>Pazartesi sıfırlanır · bitmesine <b>${wkLeft()}</b><br>1. ve 2. <b>15 💎</b> · 3-4-5. <b>500 🪙</b></div></div>`;
     rows.forEach((r,i)=>{ const t=(r.wins||0)+(r.losses||0), ra=t?Math.round((r.wins||0)/t*100):0;
-      const el=document.createElement("div"); el.className="rk"+(r.id===D.uid?" me":"");
-      el.innerHTML=`<div class="no">${["🥇","🥈","🥉"][i]||i+1}</div><div class="avatar sm"></div>${lvHTML(r.wins||0,"sm")}<div class="nm"></div><div class="wl"><b>${r.wins||0}</b> G · ${r.losses||0} M<br>%${ra}</div>`;
+      const el=document.createElement("div"); el.className="rk"+(r.id===D.uid?" me":"")+(!rc&&i<5?" top top"+(i+1):"");
+      const prize=(!rc&&i<5)?`<span class="prz">${wkPrizeTxt(i)}</span>`:"";
+      const main=rc?`<b>${r.wins||0}</b> G · ${r.losses||0} M<br>%${ra}`:`<b>${r.sc}</b> G<br><small>toplam ${r.wins||0}</small>`;
+      el.innerHTML=`<div class="no">${["🥇","🥈","🥉"][i]||i+1}</div><div class="avatar sm"></div>${lvHTML(r.wins||0,"sm")}<div class="nm"></div>${prize}<div class="wl">${main}</div>`;
       setAv(el.querySelector(".avatar"),r.name,r.ph); el.querySelector(".nm").textContent=cleanName(r.name); if(r.bd){ const sm=document.createElement("small"); sm.textContent=String(r.bd).split(",").filter(id=>BMAP[id]).slice(0,3).map(id=>BMAP[id][1]).join(""); el.querySelector(".nm").appendChild(sm); } box.appendChild(el); });
   }catch(e){ box.innerHTML='<div class="dnote">Sıralama şu an yüklenemedi.</div>'; }
 }
@@ -2039,7 +2102,7 @@ function showEnd(){
   if(D.mode==="online" && !D.counted){
     D.counted=true;
     const gc=g.cat||"genel";
-    if(draw) D.stat.d++; else if(won){ D.stat.w++; catStat(gc).w++; } else { D.stat.l++; catStat(gc).l++; if(!unlimited) setLives(lives-1); }
+    if(draw) D.stat.d++; else if(won){ D.stat.w++; catStat(gc).w++; addWeekWin(); } else { D.stat.l++; catStat(gc).l++; if(!unlimited) setLives(lives-1); }
     if(won && lvOf(D.stat.w)>lvOf(D.stat.w-1)) D.lvUp=lvOf(D.stat.w);
     if(won){ const st=store.get("streak",0)+1; store.set("streak",st); if(st>store.get("bestStreak",0)) store.set("bestStreak",st); if(store.get("lastLost",0)) store.set("bComeback",1); store.set("lastLost",0); }
     else if(!draw){ store.set("streak",0); store.set("lastLost",1); }
@@ -2047,7 +2110,8 @@ function showEnd(){
     renderStats(); saveProfile();
   }
   $("dEndLives").innerHTML = D.mode==="bot" ? "🤖 Antrenman — can harcanmadı" : unlimited ? "♾️ Sınırsız can — can gitmedi" : (!draw&&!won ? `❤️ −1 · Kalan can: ${lives}` : `Canların: ${"❤️".repeat(lives)||"0"}`);
-  if(D.lvUp){ const L=D.lvUp; D.lvUp=0; $("dEndLives").innerHTML+=`<div class="lvup">🎉 SEVİYE ATLADIN!<div>${lvHTML(D.stat.w,"lg")}</div><small>Seviye ${L} · ${LV_TIERS[tierOf2(L)][1]}</small></div>`; setTimeout(()=>{ try{ applause(); }catch(e){} },1200); }
+  $("dEndLvUp").innerHTML="";
+  if(D.lvUp){ const L=D.lvUp; D.lvUp=0; $("dEndLvUp").innerHTML=`<div class="lvup"><span class="t">🎉 SEVİYE ATLADIN!</span>${lvHTML(D.stat.w,"lg")}<small>Seviye ${L} · ${LV_TIERS[tierOf2(L)][1]}</small></div>`; setTimeout(()=>{ try{ applause(); }catch(e){} },1200); }
   dShow("dEnd");
 }
 function leaveDuel(){ stopSeek(); clearInterval(D.seekTimer);
