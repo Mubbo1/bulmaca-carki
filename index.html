@@ -259,7 +259,7 @@
   .drow input{flex:1;min-width:0;background:#0005;border:1.5px solid #ffffff40;border-radius:16px;color:#fff;font:inherit;font-weight:800;font-size:20px;text-align:center;letter-spacing:4px;text-transform:uppercase;outline:none}
   .dnote{font-size:13px;color:#cfd8ff;text-align:center}
   .dcodebig{font-size:48px;font-weight:800;letter-spacing:10px;color:var(--acc);margin:6px 0}
-  .dlogo{width:150px;height:160px;display:block;margin:4px auto;filter:drop-shadow(0 8px 18px #0008)}
+  .dlogo{width:150px;height:160px;display:block;margin:4px auto}
   .dlogo .spin{transform-origin:100px 100px;animation:dspin 2.4s linear infinite}
   @keyframes dspin{to{transform:rotate(360deg)}}
   .dlogo .bulb{fill:#fff8d6}.dlogo .b0{animation:blink 1s infinite}.dlogo .b1{animation:blink 1s .5s infinite}
@@ -452,6 +452,28 @@
   .mtop{padding-top:calc(10px + env(safe-area-inset-top))!important}
   #home{padding-top:calc(40px + env(safe-area-inset-top))!important;padding-bottom:calc(30px + env(safe-area-inset-bottom))!important}
   #map,#cats,#duel{padding-bottom:env(safe-area-inset-bottom)}
+
+  /* ===== PERFORMANS (iPhone'da kasmayı azaltmak için) ===== */
+  *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  .c:not(.f){background:#1b262ccc!important}
+  #place{background:#000a!important}
+  #wheel .bg{background:#fffffff2!important}
+  .hstats span{background:#000c!important}
+  .hbtn.sec{background:#2a3550e6!important}
+  .dcard{background:#1e2440!important}
+  .node.lock{background:radial-gradient(circle at 35% 30%,#ffffff40,transparent 55%),#1b2a3a!important}
+  #home .logo{filter:none!important}
+  #home .logo .b0,#home .logo .b1,.dlogo .b0,.dlogo .b1{animation:none!important}
+  .node.cur{animation:curpulse 1.6s ease-in-out infinite!important;will-change:transform}
+  @keyframes curpulse{50%{transform:scale(1.07)}}
+  .hbtn.main{animation:btnbreathe 2.4s ease-in-out infinite!important;will-change:transform}
+  @keyframes btnbreathe{50%{transform:scale(1.04)}}
+  .lvbox.t8,.lvbox.t9,.lvbox.t10,.rk.top::after,.zp::after{animation:none!important}
+  .rk.top::after,.zp::after{display:none}
+  .hglow,.wrays{will-change:transform}
+  /* Üstte tam ekran bir sayfa açıkken alttakileri çizme */
+  body[data-top] #bg,body[data-top] #bgShade,body[data-top] .app>.bar,body[data-top] #place,body[data-top] #gridWrap,body[data-top] #q,body[data-top] #cur,body[data-top] .app>.bottom{visibility:hidden}
+  body[data-top="map"] #home,body[data-top="cats"] #home,body[data-top="duel"] #home,body[data-top="cats"] #map,body[data-top="duel"] #map,body[data-top="duel"] #cats{visibility:hidden}
 </style>
 </head>
 <body>
@@ -1536,7 +1558,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="61";
+const APP_VER="62";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2410,6 +2432,12 @@ renderSpin();
 showHome();
 // oyuna her gün ilk girişte çark kendiliğinden açılır
 setTimeout(()=>{ const st=spinState(); if(st.free>0 && !store.get("spinShown",0)){ store.set("spinShown",1); openSpin(); } else setTimeout(maybeAskNotif,1500); },900);
+</script>
+
+<script>
+// Performans: en üstteki tam ekran sayfayı işaretle, altındakiler çizilmesin
+(function(){ const ids=["duel","cats","map","home"]; const upd=()=>{ let top=""; for(const id of ids){ const e=document.getElementById(id); if(e&&!e.classList.contains("hidden")){ top=id; break; } } if(top) document.body.dataset.top=top; else delete document.body.dataset.top; };
+  const mo=new MutationObserver(upd); ids.forEach(id=>{ const e=document.getElementById(id); if(e) mo.observe(e,{attributes:true,attributeFilter:["class"]}); }); upd(); })();
 </script>
 </body>
 </html>
