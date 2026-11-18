@@ -1289,7 +1289,12 @@ function flyLetters(wi,fresh,srcIdx){ const w=L.words[wi], cells=wordCells(w); c
   if(!total) chime(); }
 function submit(w){
   if([...w].length<2){ $("curTxt").textContent=""; return; }
-  const idx=L.words.findIndex(x=>x.w===w);
+  let idx=L.words.findIndex(x=>x.w===w);
+  // Bazı harfleri zaten açık olan kelimede, oyuncu sadece EKSİK harfleri sırayla yazarsa da kabul et
+  // (ör. TAMİR'in "TA"sı açıkken "MİR" yazmak). Önce seçili soru, sonra diğer bulunmamış kelimeler.
+  if(idx<0){ const miss=x=>wordCells(x).filter(c=>!cellShown(c.x+","+c.y)).map(c=>c.ch).join("");
+    const order=[selWord,...L.words.map((_,i)=>i).filter(i=>i!==selWord)].filter(i=>i>=0&&L.words[i]&&!L.words[i].found);
+    for(const i of order){ const m=miss(L.words[i]); if(m.length>=2 && m.length<[...L.words[i].w].length && m===w){ idx=i; w=L.words[i].w; break; } } }
   if(idx<0){ flash("bad",w); SFX.bad(); return; }
   if(L.words[idx].found){ flash("dup",w); toast("Bunu zaten buldun"); return; }
   // sadece seçili sorunun cevabı kabul edilir
@@ -1668,7 +1673,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="65";
+const APP_VER="66";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
