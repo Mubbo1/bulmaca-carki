@@ -1809,15 +1809,15 @@ const NAT=(()=>{
     preload(){ if(!AdMob||!ready) return;
       AdMob.prepareRewardVideoAd({adId:ids.reward,isTesting:CFG.testAds,npa:npa()}).catch(()=>{});
       if(!noAds) AdMob.prepareInterstitial({adId:ids.inter,isTesting:CFG.testAds,npa:npa()}).catch(()=>{}); },
-    showReward(done){ // izlenirse done(); reklam yüklenemezse oyuncuyu bekletmeden ödülü verir
-      if(!AdMob){ done(); return; } let got=false,fin=false; const hs=[];
-      const end=()=>{ if(fin) return; fin=true; hs.forEach(h=>{try{h.remove();}catch(e){}}); if(got) done(); N.preload(); };
-      let shown=false;
+    showReward(done){ // ödül SADECE reklam sonuna kadar izlenirse verilir; reklam açılamazsa ödül yok
+      const fail=()=>{ try{ toast("📺 Reklam şu an yüklenemedi, biraz sonra tekrar dene"); }catch(e){} };
+      if(!AdMob){ fail(); return; } let got=false,fin=false,shown=false; const hs=[];
+      const end=()=>{ if(fin) return; fin=true; clearTimeout(t1); hs.forEach(h=>{try{h.remove();}catch(e){}}); if(got) done(); else if(!shown) fail(); N.preload(); };
       Promise.all([AdMob.addListener('onRewardedVideoAdReward',()=>{got=true;}),AdMob.addListener('onRewardedVideoAdDismissed',end),
-        AdMob.addListener('onRewardedVideoAdFailedToShow',()=>{got=true;end();}),AdMob.addListener('onRewardedVideoAdFailedToLoad',()=>{got=true;end();}),
+        AdMob.addListener('onRewardedVideoAdFailedToShow',end),AdMob.addListener('onRewardedVideoAdFailedToLoad',end),
         AdMob.addListener('onRewardedVideoAdShowed',()=>{shown=true;})]).then(a=>hs.push(...a)).catch(()=>{});
-      setTimeout(()=>{ if(!shown&&!fin){ got=true; end(); } },5000); // reklam açılamadıysa oyuncuyu bekletme, ödülü ver
-      AdMob.showRewardVideoAd().then(r=>{ if(r) got=true; }).catch(()=>{ got=true; end(); }); },
+      const t1=setTimeout(()=>{ if(!shown) end(); },8000); // 8 sn içinde açılmazsa vazgeç (ödül verilmez)
+      AdMob.showRewardVideoAd().then(r=>{ if(r&&shown) got=true; }).catch(end); },
     showInter(done){ if(!AdMob||noAds){ done(); return; } let fin=false,shown=false; const hs=[];
       const end=()=>{ if(fin) return; fin=true; clearTimeout(t1); clearTimeout(t2); hs.forEach(h=>{try{h.remove();}catch(e){}}); try{ done(); }catch(e){} N.preload(); };
       Promise.all([AdMob.addListener('interstitialAdDismissed',end),AdMob.addListener('interstitialAdFailedToShow',end),AdMob.addListener('interstitialAdFailedToLoad',end),
