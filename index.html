@@ -725,7 +725,7 @@
     <div style="font-size:14px;color:#e63946;font-weight:700;min-height:18px" id="lifeTimer"></div><div style="font-size:15px" id="lifeTxt">Online düelloda kaybedersen 1 can gider. Canın bitince oynayamazsın.</div>
     <div class="row unl"><span><b>♾️ Sınırsız Can</b><br><small>Bir kere al, can derdi bitsin!</small></span><button id="lifeUnl">149,99 ₺</button></div>
     <div class="row" id="lifeAdRow"><span><b>📺 1 reklam izle = 1 ❤️ can kazan</b><br><small id="lifeAdSub">Her reklam +1 can</small></span><button class="ad" id="lifeAd">İzle</button></div>
-    <div class="note">Can 3'ün altındayken her 15 dakikada 1 can kendiliğinden dolar. Deneme sürümü: ödeme alınmaz.</div>
+    <div class="note">Can 3'ün altındayken her 15 dakikada 1 can kendiliğinden dolar.<span class="demoOnly"> Deneme sürümü: ödeme alınmaz.</span></div>
   </div></div>
 
   <div class="overlay hidden" id="ovShop"><div class="box shop xbox"><button class="xclose" id="btnShopClose" aria-label="Kapat">✕</button>
@@ -735,7 +735,7 @@
     <div class="row"><span><b>10 💎</b></span><button data-gem="10">49,99 ₺</button></div>
     <div class="row"><span><b>20 💎</b> <small>en çok tercih edilen</small></span><button data-gem="20">89,99 ₺</button></div>
     <div class="row"><span><b>50 💎</b> <small>en avantajlı</small></span><button data-gem="50">149,99 ₺</button></div>
-    <div class="note">Deneme sürümü: gerçek reklam ve ödeme yok. Mağazalara çıkınca gerçek reklam ve uygulama içi satın alma bağlanacak.</div>
+    <div class="note demoOnly">Deneme sürümü: gerçek reklam ve ödeme yok. Mağazalara çıkınca gerçek reklam ve uygulama içi satın alma bağlanacak.</div>
   </div></div>
 
   <div class="overlay hidden" id="ovAd"><div class="box" id="adBox">
@@ -1673,7 +1673,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="67";
+const APP_VER="68";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2561,7 +2561,7 @@ const NOTIFS=[
  ["⏰ 2 dakikan var mı?","Kısa bir bölüm, büyük bir keyif."],
  ["🎊 Hafta ortası molası","Çarşamba yorgunluğuna birebir: bir bulmaca çöz!"]];
 const nfSupported=()=>NAT.native ? !!NAT.LN : ("Notification" in window) && ("serviceWorker" in navigator);
-if(NAT.native){ try{ $("demoNote").classList.add("hidden"); }catch(e){}
+if(NAT.native){ try{ $("demoNote").classList.add("hidden"); document.querySelectorAll(".demoOnly").forEach(e=>e.style.display="none"); }catch(e){}
   if(NAT.LN) NAT.LN.checkPermissions().then(r=>{ store.set("nfPerm",r.display==="granted"?"granted":r.display==="denied"?"denied":"default"); renderNfSet(); }).catch(()=>{}); }
 const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent);
 const isStandalone=()=>window.matchMedia("(display-mode: standalone)").matches || navigator.standalone===true;
