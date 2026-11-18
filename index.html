@@ -1343,7 +1343,7 @@ $("btnHint").onclick=()=>{
 };
 $("btnNext").onclick=()=>{ $("ovWin").classList.add("hidden"); const n = lv>=LEVELS.length-1 ? 0 : lv+1; if(n===0){ LEVELS.forEach((_,i)=>store.set(K("prog_"+i),null)); }
   // her 3 bölümde bir geçiş reklamı
-  if(store.get("adDue",0)){ store.set("adDue",0); showInterstitial(()=>startLevel(n)); } else startLevel(n); };
+  startLevel(n); if(store.get("adDue",0)){ store.set("adDue",0); setTimeout(()=>{ try{ showInterstitial(()=>{}); }catch(e){} },350); } };
 const ZONES=[
  {ad:"Çırak Yolu",emoji:"🌱",alt:"Kolay sorular",img:"orman.jpg",renk:"#2a9d8f",bg:["#1d5e4a","#0f3b30"],deco:["🌳","🌲","🍃","🌼","🐦"]},
  {ad:"Kalfa Tepesi",emoji:"🔥",alt:"Orta zorlukta sorular",img:"z_kalfa.jpg",renk:"#f4a261",bg:["#7a4a1e","#4a2a10"],deco:["⛰️","🏜️","🌵","🦅","🔥"]},
@@ -1668,7 +1668,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="64";
+const APP_VER="65";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -1812,11 +1812,19 @@ const NAT=(()=>{
     showReward(done){ // izlenirse done(); reklam yüklenemezse oyuncuyu bekletmeden ödülü verir
       if(!AdMob){ done(); return; } let got=false,fin=false; const hs=[];
       const end=()=>{ if(fin) return; fin=true; hs.forEach(h=>{try{h.remove();}catch(e){}}); if(got) done(); N.preload(); };
+      let shown=false;
       Promise.all([AdMob.addListener('onRewardedVideoAdReward',()=>{got=true;}),AdMob.addListener('onRewardedVideoAdDismissed',end),
-        AdMob.addListener('onRewardedVideoAdFailedToShow',()=>{got=true;end();})]).then(a=>hs.push(...a));
+        AdMob.addListener('onRewardedVideoAdFailedToShow',()=>{got=true;end();}),AdMob.addListener('onRewardedVideoAdFailedToLoad',()=>{got=true;end();}),
+        AdMob.addListener('onRewardedVideoAdShowed',()=>{shown=true;})]).then(a=>hs.push(...a)).catch(()=>{});
+      setTimeout(()=>{ if(!shown&&!fin){ got=true; end(); } },5000); // reklam açılamadıysa oyuncuyu bekletme, ödülü ver
       AdMob.showRewardVideoAd().then(r=>{ if(r) got=true; }).catch(()=>{ got=true; end(); }); },
-    showInter(done){ if(!AdMob||noAds){ done(); return; } let fin=false,h=null; const end=()=>{ if(fin) return; fin=true; try{h&&h.remove();}catch(e){} done(); N.preload(); };
-      AdMob.addListener('interstitialAdDismissed',end).then(x=>h=x); AdMob.showInterstitial().catch(end); },
+    showInter(done){ if(!AdMob||noAds){ done(); return; } let fin=false,shown=false; const hs=[];
+      const end=()=>{ if(fin) return; fin=true; clearTimeout(t1); clearTimeout(t2); hs.forEach(h=>{try{h.remove();}catch(e){}}); try{ done(); }catch(e){} N.preload(); };
+      Promise.all([AdMob.addListener('interstitialAdDismissed',end),AdMob.addListener('interstitialAdFailedToShow',end),AdMob.addListener('interstitialAdFailedToLoad',end),
+        AdMob.addListener('interstitialAdShowed',()=>{shown=true;})]).then(a=>hs.push(...a)).catch(()=>{});
+      const t1=setTimeout(()=>{ if(!shown) end(); },4000);   // reklam 4 sn içinde açılmazsa bekleme
+      const t2=setTimeout(end,90000);                          // her ihtimale karşı üst sınır
+      AdMob.showInterstitial().catch(end); },
     price(key){ try{ const p=st&&st.get(CFG.products[key]); return p&&p.pricing&&p.pricing.price||''; }catch(e){ return ''; } },
     initStore(){ const CP=window.CdvPurchase; if(!CP||st) return; st=CP.store;
       const pf=plat==='ios'?CP.Platform.APPLE_APPSTORE:CP.Platform.GOOGLE_PLAY;
