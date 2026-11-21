@@ -1834,7 +1834,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="83";
+const APP_VER="84";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2242,8 +2242,9 @@ async function loadRank(){
   box.innerHTML='<div class="dnote">Yükleniyor…</div>';
   try{
     const rc=D.rcat&&D.rcat!=="all"?D.rcat:null, wk=wkey(), wf=rc?"w_"+rc:wk;
-    const snap=await D.db.collection("profiles").orderBy(wf,"desc").limit(50).get();
-    let rows=snap.docs.map(d=>({id:d.id,...d.data()}));
+    // haftalık/kategori alanları için sunucuda dizin yok: tüm profilleri alıp cihazda sıralıyoruz
+    let snap; try{ snap=await D.db.collection("profiles").orderBy(wf,"desc").limit(50).get(); }catch(e){ snap=await D.db.collection("profiles").get(); }
+    let rows=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b[wf]||0)-(a[wf]||0)).slice(0,50);
     rows=rows.map(r=>rc?{...r,sc:r["w_"+rc]||0,wins:r["w_"+rc]||0,losses:r["l_"+rc]||0,draws:0}:{...r,sc:r[wk]||0});
     const ban=await cheaters(); rows=rows.filter(r=>!ban.has(r.id));
     let wkEmpty=false;
