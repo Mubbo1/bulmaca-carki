@@ -1674,7 +1674,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="70";
+const APP_VER="71";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2474,7 +2474,7 @@ function drawSpin(){ const svg=$("spinSvg"); let h='<g class="rot" id="spinRot">
   h+='<circle r="108" fill="#ffd166"/><circle r="100" fill="#3a2500"/>';
   SPIN_PRIZES.forEach((p,i)=>{ const a0=(i*SEG-90-SEG/2)*Math.PI/180, a1=((i+1)*SEG-90-SEG/2)*Math.PI/180, R=96;
     h+=`<path d="M0 0 L${R*Math.cos(a0)} ${R*Math.sin(a0)} A${R} ${R} 0 0 1 ${R*Math.cos(a1)} ${R*Math.sin(a1)} Z" fill="${p.c}" stroke="#fff6" stroke-width="1.5"/>`;
-    h+=`<g transform="rotate(${i*SEG})"><text y="-66" text-anchor="middle" font-size="20">${p.ic}</text><text y="-40" text-anchor="middle" font-size="19" font-weight="900" fill="#fff" stroke="#0006" stroke-width=".6" font-family="inherit">${p.lbl}</text></g>`; });
+    h+=`<g transform="rotate(${i*SEG})">${p.t==="coin"?'<g transform="translate(0,-73)"><circle r="10" fill="#b8860b"/><circle r="9" fill="#ffd34d"/><circle r="6.5" fill="none" stroke="#c98a00" stroke-width="1.4"/><text y="3.6" text-anchor="middle" font-size="10" font-weight="900" fill="#a86b00" font-family="inherit">₺</text></g>':`<text y="-66" text-anchor="middle" font-size="20">${p.ic}</text>`}<text y="-40" text-anchor="middle" font-size="19" font-weight="900" fill="#fff" stroke="#0006" stroke-width=".6" font-family="inherit">${p.lbl}</text></g>`; });
   for(let i=0;i<16;i++){ const a=i*22.5*Math.PI/180; h+=`<circle cx="${104*Math.cos(a)}" cy="${104*Math.sin(a)}" r="3" fill="${i%2?"#fff":"#fff6c8"}"/>`; }
   h+='</g>'; svg.innerHTML=h; setRot(spinRot,false); }
 function setRot(deg,anim){ const g=$("spinRot"); if(!g) return; g.style.transition=anim?"":"none"; g.style.transformOrigin="0 0"; g.style.transform=`rotate(${deg}deg)`; }
