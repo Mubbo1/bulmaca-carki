@@ -1674,7 +1674,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="71";
+const APP_VER="72";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2480,7 +2480,7 @@ function drawSpin(){ const svg=$("spinSvg"); let h='<g class="rot" id="spinRot">
 function setRot(deg,anim){ const g=$("spinRot"); if(!g) return; g.style.transition=anim?"":"none"; g.style.transformOrigin="0 0"; g.style.transform=`rotate(${deg}deg)`; }
 function pickPrize(){ const tot=SPIN_PRIZES.reduce((a,p)=>a+p.w,0); let r=Math.random()*tot; for(let i=0;i<SPIN_PRIZES.length;i++){ r-=SPIN_PRIZES[i].w; if(r<0) return i; } return 0; }
 function renderSpin(){ const st=spinState(); const can=st.free>0;
-  $("spinBtn").disabled=spinning||!can; $("spinBtn").textContent= can?"🎡 Çarkı Çevir":"✅ Bugünkü bedava hakkını kullandın";
+  $("spinBtn").disabled=spinning||!can; $("spinBtn").textContent= can?"🎡 Çarkı Çevir":"✅ Bugünkü hakkını kullandın";
   $("spinAdBtn").classList.toggle("hidden", can||st.ad<=0); $("spinAdBtn").disabled=spinning;
   $("spinSub").textContent= can?"Her gün 1 bedava çevirme hakkın var!": st.ad>0?"Reklam izleyerek 1 kez daha çevirebilirsin.":"Yarın yeni çevirme hakkın gelecek 🌙";
   $("hDaily").classList.toggle("has", st.free>0||st.ad>0); $("hDailyDot").textContent= st.free+st.ad; }
