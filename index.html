@@ -569,11 +569,32 @@
   @keyframes vscpop{40%{transform:scale(1.45)}}
   #dGame .vsx small{font-size:9px;letter-spacing:.6px;margin-top:4px;color:#ffffff70;font-weight:800}
   .dstat{display:flex;align-items:center;gap:10px;background:#ffffff0d;border-radius:14px;padding:8px 12px}
-  .dstat .dturn{font-size:15px;white-space:nowrap;text-align:left;overflow:hidden;text-overflow:ellipsis;max-width:60%}
-  .dstat .dtimer{flex:1;height:8px;border-radius:6px;background:#ffffff1a}
+  .dstat .dturn{flex:1;min-width:0;font-size:15px;white-space:nowrap;text-align:left;overflow:hidden;text-overflow:ellipsis}
+  .dstat .dtimer{flex:0 0 28%;height:8px;border-radius:6px;background:#ffffff1a}
   .dstat .dtt{font-weight:900;font-size:15px;min-width:42px;text-align:right;font-variant-numeric:tabular-nums}
   .dstat.low .dtt{color:#ff6b8a;animation:vdotp .6s infinite}
   #dGame .dq{border-radius:18px;padding:14px 16px;font-size:17px;box-shadow:0 8px 24px #0005}
+
+  /* ===== Elmasla bilme efekti ===== */
+  #dGame .vp{position:relative;overflow:visible}
+  .vgem{position:absolute;top:-8px;right:-6px;display:flex;align-items:center;gap:3px;background:linear-gradient(135deg,#0ea5e9,#2563eb);color:#fff;font-weight:900;font-size:12px;padding:2px 8px 2px 4px;border-radius:999px;box-shadow:0 0 0 2px #0b1220,0 4px 12px #0ea5e988;z-index:2}
+  .vp.b .vgem{right:auto;left:-6px}
+  .vgem svg{width:16px;height:14px;filter:drop-shadow(0 0 3px #a5f3fc)}
+  .vdot.gem{position:relative;background:linear-gradient(90deg,#22d3ee,#e0f2fe,#3b82f6,#22d3ee);background-size:300% 100%;animation:gemsh 2.2s linear infinite;box-shadow:0 0 6px #22d3eecc}
+  .vdot.gem::after{content:"";position:absolute;left:50%;top:50%;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;background:#fff;transform:rotate(45deg);border-radius:1px;box-shadow:0 0 6px #a5f3fc}
+  @keyframes gemsh{to{background-position:-300% 0}}
+  .gemfx{position:absolute;inset:-14px;pointer-events:none;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .gemfx .rays{position:absolute;width:190px;height:190px;border-radius:50%;background:repeating-conic-gradient(#67e8f955 0 8deg,transparent 8deg 22deg);animation:gemrays 2.3s ease-out forwards;-webkit-mask:radial-gradient(circle,#000 30%,transparent 70%);mask:radial-gradient(circle,#000 30%,transparent 70%)}
+  .gemfx .big{width:84px;height:72px;filter:drop-shadow(0 0 14px #22d3ee) drop-shadow(0 6px 10px #0008);animation:gempop 2.3s cubic-bezier(.2,1.6,.4,1) forwards}
+  .gemfx .lbl{display:flex;flex-direction:column;align-items:center;line-height:1.15;margin-top:4px;background:linear-gradient(135deg,#0ea5e9,#2563eb);color:#fff;font-weight:900;font-size:13px;padding:4px 12px;border-radius:999px;box-shadow:0 4px 14px #0ea5e9aa;white-space:nowrap;animation:gemlbl 2.3s ease forwards}
+  .gemfx i{position:absolute;width:6px;height:6px;background:#e0f2fe;transform:rotate(45deg);border-radius:1px;box-shadow:0 0 8px #67e8f9;animation:gemspark 1.2s ease-out forwards}
+  .gemfx .lbl b{font-size:17px;letter-spacing:2px;color:#fff;text-shadow:0 0 8px #a5f3fc}
+  .gemfx{background:radial-gradient(circle,#0b1220ee 30%,#0b122000 72%)}
+  .vp.gemhit{border-color:#22d3ee!important;box-shadow:0 0 0 1px #22d3ee88,0 0 30px #22d3ee88!important}
+  @keyframes gempop{0%{transform:scale(0) rotate(-25deg);opacity:0}25%{transform:scale(1.25) rotate(8deg);opacity:1}40%{transform:scale(1) rotate(0)}80%{transform:scale(1);opacity:1}100%{transform:scale(.4) translateY(30px);opacity:0}}
+  @keyframes gemrays{0%{transform:scale(.2) rotate(0);opacity:0}25%{opacity:1}100%{transform:scale(1.1) rotate(90deg);opacity:0}}
+  @keyframes gemlbl{0%,20%{transform:translateY(8px) scale(.6);opacity:0}35%{transform:none;opacity:1}80%{opacity:1}100%{opacity:0;transform:translateY(-6px)}}
+  @keyframes gemspark{0%{transform:translate(0,0) rotate(45deg) scale(1);opacity:1}100%{transform:translate(var(--x),var(--y)) rotate(45deg) scale(.2);opacity:0}}
 </style>
 </head>
 <body>
@@ -1706,7 +1727,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="73";
+const APP_VER="74";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2268,16 +2289,17 @@ function applyState(s){
   $("vsA").textContent=`${cnt(me)}/10 doğru${gcnt(me)?` · ${gcnt(me)}💎`:""}`; $("vsB").textContent=`${cnt(op)}/10 doğru${gcnt(op)?` · ${gcnt(op)}💎`:""}`;
   const setSc=(id,v)=>{ const e=$(id); if(e.textContent!==String(v)){ e.textContent=v; e.classList.remove("pop"); void e.offsetWidth; e.classList.add("pop"); } };
   setSc("vscA",cnt(me)); setSc("vscB",cnt(op));
+  [["vpA",me],["vpB",op]].forEach(([id,k])=>{ const c=$(id); let ch=c.querySelector(".vgem"); const n=gcnt(k); if(!n){ if(ch) ch.remove(); return; } if(!ch){ ch=document.createElement("div"); ch.className="vgem"; c.appendChild(ch); } ch.innerHTML=GEM_SVG("gc"+id)+n; });
   [["vdA",me],["vdB",op]].forEach(([id,k])=>{ let h=""; for(let j=0;j<10;j++){ const i=2*j+k; const gm=!!(g.gm&&g.gm[i]); h+=`<i class="vdot${g.done[i]?(gm?" gem":" ok"):(i<g.turn?" no":"")}${i===g.turn?" cur":""}"></i>`; } $(id).innerHTML=h; });
   const mine=g.turn%2===me;
   $("vpA").classList.toggle("act",mine); $("vpB").classList.toggle("act",!mine);
-  $("dTurn").textContent= mine ? "🎯 Senin sıran" : `⏳ ${(g.players[op]||{}).name||"Rakip"} cevaplıyor`;
+  $("dTurn").textContent= mine ? "🎯 Senin sıran" : "⏳ Rakibin sırası";
   // tahta
   const b=$("dBoard"); b.innerHTML="";
   for(let i=0;i<20;i++){ const t=document.createElement("div"); const own=i%2===me?"a":"b";
     const gmI=!!(g.gm&&g.gm[i]); t.className=`dt ${own}${g.done[i]?" ok":""}${gmI?" gem":""}${i===g.turn?" cur":""}`; t.textContent=g.done[i]?(gmI?"💎":"✓"):i+1; if(gmI) t.title="Elmasla bilindi"; b.appendChild(t); }
   // önceki soru elmasla bilindiyse iki tarafa da göster
-  const pv=g.turn-1; if(pv>=0 && g.gm && g.gm[pv] && D.gmShown!==g.code+":"+pv){ D.gmShown=g.code+":"+pv; const who=pv%2===me?"Sen":((g.players[op]||{}).name||"Rakip"); if(pv%2!==me) toast(`💎 ${vis(g.players[op]).name||"Rakip"} bu soruyu elmasla bildi`); }
+  const pv=g.turn-1; if(pv>=0 && g.gm && g.gm[pv] && D.gmShown!==g.code+":"+pv){ D.gmShown=g.code+":"+pv; const mineG=pv%2===me; gemFx(mineG?"vpA":"vpB", mineG?"Elmasla bildin":((vis(g.players[op]).name||"Rakip")+" elmasla bildi"), QW(g.qs[pv])); }
   const q=g.qs[g.turn];
   $("dQ").innerHTML=`<small>Soru ${g.turn+1} / 20 · ${[...QW(q)].length} harf · ${diffLabel(Math.floor(g.turn/2))}</small>`; $("dQ").appendChild(document.createTextNode(QT(q)));
   const jkNow=!!(g.jk&&g.jk[g.turn]);
@@ -2290,6 +2312,14 @@ function applyState(s){
     const h=document.createElement("span"); h.className="dhint"; h.textContent=`🃏 İlk harf: ${W[0]} · Son harf: ${W[W.length-1]} · +5 sn`; $("dQ").appendChild(h); }
   clearInterval(D.tick); D.tick=setInterval(dTick,150); dTick();
 }
+
+const GEM_SVG=(id)=>`<svg viewBox="0 0 64 56" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cffafe"/><stop offset=".45" stop-color="#22d3ee"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient></defs><polygon points="14,3 50,3 61,19 32,53 3,19" fill="url(#${id})" stroke="#e0f2fe" stroke-width="1.5" stroke-linejoin="round"/><polygon points="14,3 22,19 32,3" fill="#f0fdff" opacity=".9"/><polygon points="32,3 42,19 50,3" fill="#a5f3fc" opacity=".85"/><polygon points="3,19 22,19 32,53" fill="#0ea5e9" opacity=".75"/><polygon points="42,19 61,19 32,53" fill="#1e40af" opacity=".55"/><polygon points="22,19 42,19 32,53" fill="#38bdf8"/><polygon points="22,19 32,3 42,19" fill="#67e8f9"/></svg>`;
+function gemFx(cardId,who,word){ const c=$(cardId); if(!c) return; c.querySelectorAll(".gemfx").forEach(e=>e.remove());
+  const fx=document.createElement("div"); fx.className="gemfx"; let sp="";
+  for(let k=0;k<12;k++){ const a=k/12*Math.PI*2, r=60+Math.random()*30; sp+=`<i style="--x:${Math.cos(a)*r}px;--y:${Math.sin(a)*r}px;animation-delay:${.25+Math.random()*.15}s"></i>`; }
+  fx.innerHTML=`<div class="rays"></div>${sp}<div class="big">${GEM_SVG("gfx"+Date.now())}</div><div class="lbl">${who}${word?`<b>${word}</b>`:"!"}</div>`;
+  c.appendChild(fx); c.classList.add("gemhit"); try{ SFX.win(); }catch(e){} try{ haptic("turn"); }catch(e){}
+  setTimeout(()=>{ fx.remove(); c.classList.remove("gemhit"); },2350); }
 function dTick(){
   const left=Math.max(0,D.endAt-Date.now()); $("dTimeBar").style.width=(left/15000*100)+"%"; $("dTimeTxt").textContent=Math.ceil(left/1000)+" sn"; $("dTimeTxt").parentElement.classList.toggle("low",left>0&&left<=5000);
   if(left<=0) clearInterval(D.tick);
@@ -2414,7 +2444,7 @@ $("dBot").onclick=()=>{ leaveDuel(); D.mode="bot"; D.host=true; D.me="me";
 $("dSolve").onclick=()=>{
   if(!D.g||D.g.status!=="play"||!D.myTurn) return;
   if(gems<5){ needFunds("gem",5,"Cevabı bilmek için"); return; }
-  const q=D.g.qs[D.g.turn], w=QW(q); setGems(gems-5); toast(`💎 Elmasla bildin: ${w} — sıra rakibe geçti`);
+  const q=D.g.qs[D.g.turn], w=QW(q); setGems(gems-5); D.gmShown=D.g.code+":"+D.g.turn; gemFx("vpA","Elmasla bildin",w);
   $("dSolve").disabled=true; $("dCur").textContent=w; dSubmit(w,1);
 };
 $("dJoker").onclick=()=>{
