@@ -627,6 +627,20 @@
   @keyframes gctile{0%{transform:translateY(20px) scale(.3) rotate(-12deg);opacity:0}100%{transform:none;opacity:1}}
   @keyframes gcspark{0%{transform:translate(0,0) rotate(45deg) scale(1.2);opacity:1}100%{transform:translate(var(--x),var(--y)) rotate(225deg) scale(.1);opacity:0}}
   @keyframes gctw{0%{transform:scale(0) rotate(0);opacity:0}50%{transform:scale(1.3) rotate(90deg);opacity:1}100%{transform:scale(0) rotate(180deg);opacity:0}}
+
+  .gccv{position:absolute;inset:0;width:100%;height:100%;z-index:3}
+  .gcflash{position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,#fff,#cffafe00 60%);opacity:0;animation:gcflash var(--T) ease-out forwards;z-index:4}
+  .gcprism{position:absolute;left:50%;top:80px;width:300px;height:300px;margin:-150px 0 0 -150px;border-radius:50%;background:conic-gradient(from 0deg,#ff6b8a55,#ffd16655,#43d9ad55,#22d3ee66,#a78bfa66,#ff6b8a55);filter:blur(22px);opacity:0;animation:gcprism var(--T) linear forwards}
+  .gcgem{perspective:600px}
+  .gcfly svg{animation:gcspin3d 1.6s cubic-bezier(.45,0,.55,1) infinite}
+  .gctiles span{transform-origin:50% 100%}
+  .gctiles span::after{content:"";position:absolute}
+  #dGame.gshake{animation:gshake .45s cubic-bezier(.36,.07,.19,.97)}
+  @keyframes gshake{10%,90%{transform:translate(-1px,1px)}20%,80%{transform:translate(3px,-2px)}30%,50%,70%{transform:translate(-5px,2px)}40%,60%{transform:translate(5px,-1px)}}
+  @keyframes gcflash{0%,17%{opacity:0}21%{opacity:.95}40%{opacity:0}100%{opacity:0}}
+  @keyframes gcprism{0%,15%{opacity:0;transform:rotate(0) scale(.5)}30%{opacity:1}75%{opacity:.9}100%{opacity:0;transform:rotate(200deg) scale(1.2)}}
+  @keyframes gcspin3d{0%{transform:rotateY(0) translateY(0)}25%{transform:rotateY(-35deg) translateY(-5px)}50%{transform:rotateY(0) translateY(-8px)}75%{transform:rotateY(35deg) translateY(-5px)}100%{transform:rotateY(0) translateY(0)}}
+  @keyframes gctile{0%{transform:perspective(300px) rotateX(-95deg) scale(.6);opacity:0}60%{transform:perspective(300px) rotateX(15deg) scale(1.12);opacity:1}100%{transform:none;opacity:1}}
 </style>
 </head>
 <body>
@@ -1759,7 +1773,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="75";
+const APP_VER="76";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2346,6 +2360,22 @@ function applyState(s){
 }
 
 const GEM_SVG=(id)=>`<svg viewBox="0 0 64 56" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cffafe"/><stop offset=".45" stop-color="#22d3ee"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient></defs><polygon points="14,3 50,3 61,19 32,53 3,19" fill="url(#${id})" stroke="#e0f2fe" stroke-width="1.5" stroke-linejoin="round"/><polygon points="14,3 22,19 32,3" fill="#f0fdff" opacity=".9"/><polygon points="32,3 42,19 50,3" fill="#a5f3fc" opacity=".85"/><polygon points="3,19 22,19 32,53" fill="#0ea5e9" opacity=".75"/><polygon points="42,19 61,19 32,53" fill="#1e40af" opacity=".55"/><polygon points="22,19 42,19 32,53" fill="#38bdf8"/><polygon points="22,19 32,3 42,19" fill="#67e8f9"/></svg>`;
+
+function gemParticles(cv,T,anchor){ if(!cv) return; const dpr=Math.min(2,window.devicePixelRatio||1), W=innerWidth, H=innerHeight; cv.width=W*dpr; cv.height=H*dpr; const x=cv.getContext("2d"); x.scale(dpr,dpr);
+  const P=[], cols=["#ffffff","#cffafe","#67e8f9","#22d3ee","#60a5fa","#a78bfa","#f0abfc"]; let cx=W/2, cy=H*.4, burst=false, t0=performance.now();
+  const shard=(big)=>{ const a=Math.random()*Math.PI*2, v=(big?5:2.5)+Math.random()*(big?9:5); P.push({x:cx,y:cy,vx:Math.cos(a)*v,vy:Math.sin(a)*v-(big?3:1),r:big?5+Math.random()*7:2+Math.random()*3,rot:Math.random()*6,vr:(Math.random()-.5)*.4,c:cols[(Math.random()*cols.length)|0],life:1,dec:.008+Math.random()*.012,g:.18+Math.random()*.12,tw:Math.random()<.35}); };
+  const drawShard=p=>{ x.save(); x.translate(p.x,p.y); x.rotate(p.rot); x.globalAlpha=Math.max(0,p.life); const r=p.r;
+    const gr=x.createLinearGradient(-r,-r,r,r); gr.addColorStop(0,"#fff"); gr.addColorStop(.5,p.c); gr.addColorStop(1,"#1e3a8a"); x.fillStyle=gr;
+    x.beginPath(); x.moveTo(0,-r*1.2); x.lineTo(r*.8,-r*.2); x.lineTo(0,r*1.3); x.lineTo(-r*.8,-r*.2); x.closePath(); x.fill();
+    if(p.tw && Math.random()<.5){ x.globalAlpha=Math.max(0,p.life); x.strokeStyle="#fff"; x.lineWidth=1.2; x.beginPath(); x.moveTo(-r*2,0); x.lineTo(r*2,0); x.moveTo(0,-r*2); x.lineTo(0,r*2); x.stroke(); }
+    x.restore(); };
+  const loop=now=>{ const el=now-t0; if(el>T+200||!cv.isConnected) return;
+    if(!burst && el>T*.2){ burst=true; try{ const r=anchor.getBoundingClientRect(); cx=r.left+r.width/2; cy=r.top+r.height/2; }catch(e){} for(let k=0;k<70;k++) shard(k<34); }
+    if(burst && el<T*.7 && Math.random()<.5) { const a=Math.random()*Math.PI*2, d=60+Math.random()*40; P.push({x:cx+Math.cos(a)*d,y:cy+Math.sin(a)*d,vx:0,vy:-.3,r:1.5+Math.random()*2.5,rot:0,vr:0,c:"#ffffff",life:1,dec:.03,g:0,tw:true}); }
+    x.clearRect(0,0,W,H);
+    for(let i=P.length-1;i>=0;i--){ const p=P[i]; p.vx*=.985; p.vy=p.vy*.985+p.g; p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; p.life-=p.dec; if(p.life<=0){ P.splice(i,1); continue; } drawShard(p); }
+    requestAnimationFrame(loop); };
+  requestAnimationFrame(loop); }
 function gemFx(cardId,who,word){ const c=$(cardId); if(!c) return; document.querySelectorAll(".gemcine").forEach(e=>e.remove());
   const mineFx=cardId==="vpA", T=mineFx?2600:1700; const W=[...(word||"")];
   const ov=document.createElement("div"); ov.className="gemcine"+(mineFx?"":" quick"); ov.style.setProperty("--T",T+"ms");
@@ -2353,7 +2383,11 @@ function gemFx(cardId,who,word){ const c=$(cardId); if(!c) return; document.quer
   let st=""; for(let k=0;k<7;k++){ st+=`<b class="tw" style="left:${15+Math.random()*70}%;top:${18+Math.random()*50}%;animation-delay:${(.5+Math.random()*.8)*T/2600}s">✦</b>`; }
   const tiles=W.map((ch,k)=>`<span style="animation-delay:${(.55+k*.08)*T/2600}s">${ch}</span>`).join("");
   ov.innerHTML=`<div class="gcbg"></div><div class="gcstage"><div class="gcrays"></div><div class="gcring"></div>${sp}${st}<div class="gcgem"><div class="gcfly">${GEM_SVG("gcx"+Date.now())}<div class="gcshine"></div></div></div><div class="gctitle">${who}</div>${W.length?`<div class="gctiles">${tiles}</div>`:""}</div>`;
+  ov.querySelector(".gcstage").insertAdjacentHTML("afterbegin",'<div class="gcprism"></div>');
+  ov.insertAdjacentHTML("beforeend",'<canvas class="gccv"></canvas><div class="gcflash"></div>');
   document.body.appendChild(ov);
+  gemParticles(ov.querySelector(".gccv"), T, ov.querySelector(".gcgem"));
+  setTimeout(()=>{ const gs=$("dGame"); if(gs){ gs.classList.remove("gshake"); void gs.offsetWidth; gs.classList.add("gshake"); } }, T*.2);
   // elmas sonunda oyuncunun kartına uçsun
   setTimeout(()=>{ const g=ov.querySelector(".gcfly"); if(!g) return; const r1=g.getBoundingClientRect(), r2=c.getBoundingClientRect();
     const dx=(r2.left+r2.width*(mineFx?.85:.15))-(r1.left+r1.width/2), dy=(r2.top+8)-(r1.top+r1.height/2);
