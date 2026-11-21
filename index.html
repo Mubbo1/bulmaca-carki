@@ -672,7 +672,7 @@
   .qno{background:linear-gradient(135deg,#7b2cbf,#5a189a);color:#fff;border-radius:999px;padding:2px 9px;font-weight:900}
   .qdf{background:#ecfdf5;color:#047857;border-radius:999px;padding:2px 8px;font-weight:800}
   .qdf.m{background:#fffbeb;color:#b45309}.qdf.h{background:#fef2f2;color:#b91c1c}
-  .dslots{display:flex;justify-content:center;gap:5px;margin-top:10px;flex-wrap:wrap}
+  .dslots{display:flex;justify-content:center;gap:5px;margin-top:10px;flex-wrap:wrap;min-height:38px}
   .dslots span{width:30px;height:34px;border-radius:8px;background:#e0e7ff;border:2px dashed #a5b4fc;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:#1e1b4b;transition:all .12s}
   .dslots span.f{background:#ffb703;border:2px solid #ffb703;color:#1b262c;transform:translateY(-2px);box-shadow:0 3px 0 #c98a00}
   .dslots.bad span.f{background:#e63946;border-color:#e63946;color:#fff;box-shadow:0 3px 0 #9b1c27}
@@ -1823,7 +1823,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="80";
+const APP_VER="81";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2397,8 +2397,8 @@ function applyState(s){
   // önceki soru elmasla bilindiyse iki tarafa da göster
   const pv=g.turn-1; if(pv>=0 && g.gm && g.gm[pv] && D.gmShown!==g.code+":"+pv){ D.gmShown=g.code+":"+pv; if(pv%2===me) gemFx("vpA","Elmasla bildin",QW(g.qs[pv])); }
   const q=g.qs[g.turn];
-  { const dl=diffLabel(Math.floor(g.turn/2)), dc=/Zor|Uzman/i.test(dl)?" h":/Orta/i.test(dl)?" m":""; $("dQ").innerHTML=`<small><span class="qno">Soru ${g.turn+1}/20</span><span class="qdf${dc}">${dl}</span><span>${[...QW(q)].length} harf</span></small>`; }
-  $("dQ").appendChild(document.createTextNode(QT(q))); { const sl=document.createElement("div"); sl.className="dslots"; sl.id="dSlots"; sl.innerHTML=[...QW(q)].map(()=>"<span></span>").join(""); $("dQ").appendChild(sl); dSyncSlots(); }
+  { const dl=diffLabel(Math.floor(g.turn/2)), dc=/Zor|Uzman/i.test(dl)?" h":/Orta/i.test(dl)?" m":""; $("dQ").innerHTML=`<small><span class="qno">Soru ${g.turn+1}/20</span><span class="qdf${dc}">${dl}</span></small>`; }
+  $("dQ").appendChild(document.createTextNode(QT(q))); { const sl=document.createElement("div"); sl.className="dslots"; sl.id="dSlots"; sl.innerHTML=""; $("dQ").appendChild(sl); dSyncSlots(); }
   const jkNow=!!(g.jk&&g.jk[g.turn]);
   if(!D.host && D.lastTurn===g.turn && jkNow && !D.jkSeen){ D.endAt=Date.now()+(s.left||0); }
   if(D.lastTurn!==g.turn){ D.jkSeen=false; D.lastTurn=g.turn; D.turnAt=Date.now(); if(!D.host) D.endAt=Date.now()+(s.left||15000); buildDWheel(q.l); $("dCur").textContent=""; if(mine){ beep([[660,.1]]); haptic("turn"); } }
@@ -2449,7 +2449,7 @@ function gemFx(cardId,who,word){ const c=$(cardId); if(!c) return; document.quer
   setTimeout(()=>{ beep([[2093,.05],[2637,.05],[3136,.16]]); try{ haptic("win"); }catch(e){} }, T*.5); }
 
 function dSyncSlots(){ const sl=$("dSlots"); if(!sl) return; const w=[...($("dCur").textContent||"")], bad=$("dCur").parentElement.classList.contains("bad");
-  [...sl.children].forEach((sp,i)=>{ sp.textContent=w[i]||""; sp.classList.toggle("f",!!w[i]); }); sl.classList.toggle("bad",bad); }
+  sl.innerHTML=w.map(c=>`<span class="f">${c}</span>`).join(""); sl.classList.toggle("bad",bad); }
 try{ new MutationObserver(dSyncSlots).observe(document.getElementById("dCur").parentElement,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:["class"]}); }catch(e){}
 function dTick(){
   const left=Math.max(0,D.endAt-Date.now()); $("dTimeBar").style.width=(left/15000*100)+"%"; $("dTimeTxt").textContent=Math.ceil(left/1000)+" sn"; $("dTimeTxt").parentElement.classList.toggle("low",left>0&&left<=5000); { const act=$("vpA").classList.contains("act")?"A":"B", ina=act==="A"?"B":"A", fr=Math.min(1,left/15000), lw=left>0&&left<=5000;
