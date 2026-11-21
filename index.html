@@ -1595,7 +1595,7 @@ function openCats(){
   $("cats").classList.remove("hidden");
 }
 $("hCats").onclick=openCats;
-$("catsBack").onclick=()=>$("cats").classList.add("hidden");
+$("catsBack").onclick=()=>{ $("cats").classList.add("hidden"); showHome(); };
 
 // ---------- MANZARALAR ----------
 const SCN=(()=>{
@@ -1674,7 +1674,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="69";
+const APP_VER="70";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
