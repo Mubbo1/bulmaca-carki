@@ -641,6 +641,56 @@
   @keyframes gcprism{0%,15%{opacity:0;transform:rotate(0) scale(.5)}30%{opacity:1}75%{opacity:.9}100%{opacity:0;transform:rotate(200deg) scale(1.2)}}
   @keyframes gcspin3d{0%{transform:rotateY(0) translateY(0)}25%{transform:rotateY(-35deg) translateY(-5px)}50%{transform:rotateY(0) translateY(-8px)}75%{transform:rotateY(35deg) translateY(-5px)}100%{transform:rotateY(0) translateY(0)}}
   @keyframes gctile{0%{transform:perspective(300px) rotateX(-95deg) scale(.6);opacity:0}60%{transform:perspective(300px) rotateX(15deg) scale(1.12);opacity:1}100%{transform:none;opacity:1}}
+
+  /* ===== Düello maç ekranı v2 ===== */
+  #dGame{position:relative;min-height:100%}
+  #dGame::before{content:"";position:absolute;inset:-12px -14px 0;z-index:-1;pointer-events:none;background:
+    radial-gradient(circle at 12% 6%,#ffb70326,transparent 38%),radial-gradient(circle at 88% 6%,#ff6b8a26,transparent 38%),
+    radial-gradient(circle at 50% 78%,#7b2cbf30,transparent 55%),
+    radial-gradient(#ffffff0b 1px,transparent 1.5px) 0 0/18px 18px}
+  .vav{position:relative;width:56px;height:56px;display:flex;align-items:center;justify-content:center}
+  .vring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+  .vring circle{fill:none;stroke-width:3.5}
+  .vring .trk{stroke:#ffffff14}
+  .vring .arc{stroke:#ffb703;stroke-linecap:round;stroke-dasharray:169.6;stroke-dashoffset:169.6;transition:stroke-dashoffset .2s linear,stroke .3s;filter:drop-shadow(0 0 4px #ffb703)}
+  .vp.b .vring .arc{stroke:#ff6b8a;filter:drop-shadow(0 0 4px #ff6b8a)}
+  .vring .arc.low{stroke:#ff3b5c!important;filter:drop-shadow(0 0 6px #ff3b5c)}
+  #dGame .avatar.sm{box-shadow:none!important}
+  .vsec{position:absolute;bottom:-5px;right:-6px;min-width:22px;height:20px;padding:0 5px;border-radius:999px;background:#ffb703;color:#1b262c;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px #0007}
+  .vp.b .vsec{background:#ff6b8a;color:#fff}
+  .vsec:empty{display:none}
+  .vsec.low{background:#ff3b5c;color:#fff;animation:vdotp .6s infinite}
+  #dGame .dstat{display:none}
+  .dturnp{margin-top:7px;font-size:11px;font-weight:900;padding:4px 10px;border-radius:999px;white-space:nowrap;background:#ffb703;color:#1b262c;box-shadow:0 0 14px #ffb70366;animation:turnin .35s cubic-bezier(.2,1.6,.4,1)}
+  .dturnp.op{background:#ff6b8a33;color:#ffc2d0;box-shadow:none;border:1px solid #ff6b8a66}
+  @keyframes turnin{0%{transform:scale(.6);opacity:0}100%{transform:none;opacity:1}}
+  #dGame .vsx small{display:none}
+  .vmode{font-size:9px;letter-spacing:.6px;margin-top:5px;color:#ffffff60;font-weight:800}
+  /* soru kartı */
+  #dGame .dq{position:relative;background:linear-gradient(180deg,#ffffff,#eef2ff);padding:12px 16px 14px;border:0;box-shadow:0 10px 28px #0006,inset 0 -3px 0 #c7d2fe}
+  #dGame .dq small{display:flex;align-items:center;gap:6px;color:#6b7280;font-size:11px;letter-spacing:.3px;margin-bottom:6px}
+  .qno{background:linear-gradient(135deg,#7b2cbf,#5a189a);color:#fff;border-radius:999px;padding:2px 9px;font-weight:900}
+  .qdf{background:#ecfdf5;color:#047857;border-radius:999px;padding:2px 8px;font-weight:800}
+  .qdf.m{background:#fffbeb;color:#b45309}.qdf.h{background:#fef2f2;color:#b91c1c}
+  .dslots{display:flex;justify-content:center;gap:5px;margin-top:10px;flex-wrap:wrap}
+  .dslots span{width:30px;height:34px;border-radius:8px;background:#e0e7ff;border:2px dashed #a5b4fc;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:#1e1b4b;transition:all .12s}
+  .dslots span.f{background:#ffb703;border:2px solid #ffb703;color:#1b262c;transform:translateY(-2px);box-shadow:0 3px 0 #c98a00}
+  .dslots.bad span.f{background:#e63946;border-color:#e63946;color:#fff;box-shadow:0 3px 0 #9b1c27}
+  .dslots.bad{animation:sh .35s}
+  .dslots.ok span{background:#43d9ad;border:2px solid #43d9ad;color:#063;box-shadow:0 3px 0 #1f9e78}
+  #dGame .dcur{display:none}
+  #dGame .dhint{color:#7b2cbf;text-align:center}
+  /* butonlar */
+  #dGame .djrow{gap:10px}
+  #dGame .djoker{flex:1;max-width:170px;padding:9px 10px;font-size:14px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:4px}
+  #dGame .djoker.solve{margin-left:0}
+  /* harf çarkı */
+  #dGame .dwheel{width:min(64vw,250px);height:min(64vw,250px);margin-top:4px}
+  #dGame .dwheel .bg{background:radial-gradient(circle at 50% 35%,#2a2f55,#161a33 70%);box-shadow:0 0 0 3px #ffb70399,0 0 0 9px #ffffff0d,0 14px 34px #000a,inset 0 2px 20px #ffffff14}
+  #dGame .dwheel .L{width:24%;height:24%;margin:-12% 0 0 -12%;background:linear-gradient(180deg,#ffffff,#dfe5ff);color:#1b1f3b;box-shadow:0 4px 0 #9aa6d6,0 6px 14px #0007;font-size:clamp(22px,7vw,30px);transition:transform .1s,background .1s}
+  #dGame .dwheel .L.on{background:linear-gradient(180deg,#ffd166,#ffb703);color:#3a2500;box-shadow:0 4px 0 #b07a00,0 0 16px #ffb703aa;transform:scale(1.08)}
+  #dGame .dwheel.off .bg{box-shadow:0 0 0 3px #ff6b8a66,0 0 0 9px #ffffff08,0 14px 34px #000a}
+  #dGame .dwheel.off{opacity:.55;filter:grayscale(.35)}
 </style>
 </head>
 <body>
@@ -930,9 +980,9 @@
     <!-- OYUN -->
     <div id="dGame" class="dpage hidden">
       <div class="vs">
-        <div class="vp" id="vpA"><div class="avatar sm" id="vaA">?</div><div class="vn" id="vnA">Sen</div><div class="vsub"><span class="vl" id="vlA"></span><span class="vbd" id="vbA"></span></div><div class="vdots" id="vdA"></div><div class="vs-s" id="vsA"></div></div>
-        <div class="vsx"><div class="vscore"><b class="vsc" id="vscA">0</b><i>:</i><b class="vsc b" id="vscB">0</b></div><small id="dMode">ONLINE</small></div>
-        <div class="vp b" id="vpB"><div class="avatar sm b" id="vaB">?</div><div class="vn" id="vnB">Rakip</div><div class="vsub"><span class="vl" id="vlB"></span><span class="vbd" id="vbB"></span></div><div class="vdots" id="vdB"></div><div class="vs-s" id="vsB"></div></div>
+        <div class="vp" id="vpA"><div class="vav"><div class="avatar sm" id="vaA">?</div><svg class="vring" viewBox="0 0 60 60"><circle class="trk" cx="30" cy="30" r="27"/><circle class="arc" id="vrA" cx="30" cy="30" r="27"/></svg><span class="vsec" id="vtA"></span></div><div class="vn" id="vnA">Sen</div><div class="vsub"><span class="vl" id="vlA"></span><span class="vbd" id="vbA"></span></div><div class="vdots" id="vdA"></div><div class="vs-s" id="vsA"></div></div>
+        <div class="vsx"><div class="vscore"><b class="vsc" id="vscA">0</b><i>:</i><b class="vsc b" id="vscB">0</b></div><small id="dMode">ONLINE</small><div class="dturnp" id="dTurnP"></div><div class="vmode" id="dModeTxt"></div></div>
+        <div class="vp b" id="vpB"><div class="vav"><div class="avatar sm b" id="vaB">?</div><svg class="vring" viewBox="0 0 60 60"><circle class="trk" cx="30" cy="30" r="27"/><circle class="arc" id="vrB" cx="30" cy="30" r="27"/></svg><span class="vsec" id="vtB"></span></div><div class="vn" id="vnB">Rakip</div><div class="vsub"><span class="vl" id="vlB"></span><span class="vbd" id="vbB"></span></div><div class="vdots" id="vdB"></div><div class="vs-s" id="vsB"></div></div>
       </div>
       <div class="dboard hidden" id="dBoard"></div>
       <div class="dstat"><div class="dturn" id="dTurn">Senin sıran!</div><div class="dtimer"><div id="dTimeBar"></div></div><span class="dtt" id="dTimeTxt">15</span></div>
@@ -1773,7 +1823,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="79";
+const APP_VER="80";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2329,7 +2379,7 @@ function applyState(s){
   dShow("dGame");
   $("vnA").textContent=g.players[me].name; setAv($("vaA"),g.players[me].name,g.players[me].ph);
   const OV=vis(g.players[op]); if(D.mode==="online") checkOpp(g.players[op]); $("vnB").textContent=OV.name||"Rakip"; $("vbA").innerHTML=bdHTML((g.players[me]||{}).bd,1); $("vlA").innerHTML=lvHTML((g.players[me]||{}).w,"sm"); $("vlB").innerHTML=lvHTML((g.players[op]||{}).w,"sm"); $("vbB").innerHTML=bdHTML((g.players[op]||{}).bd,1); setAv($("vaB"),OV.name,OV.ph);
-  $("dMode").textContent= D.mode==="bot"?"ANTRENMAN":"ONLINE";
+  $("dMode").textContent= D.mode==="bot"?"ANTRENMAN":"ONLINE"; $("dModeTxt").textContent=$("dMode").textContent;
   g.done=g.done||[]; const cnt=k=>g.done.filter((x,i)=>x&&i%2===k).length;
   const gcnt=k=>(g.gm||[]).filter((x,i)=>x&&i%2===k).length;
   $("vsA").textContent=`${cnt(me)}/10 doğru${gcnt(me)?` · ${gcnt(me)}💎`:""}`; $("vsB").textContent=`${cnt(op)}/10 doğru${gcnt(op)?` · ${gcnt(op)}💎`:""}`;
@@ -2339,7 +2389,7 @@ function applyState(s){
   [["vdA",me],["vdB",op]].forEach(([id,k])=>{ let h=""; for(let j=0;j<10;j++){ const i=2*j+k; const gm=!!(g.gm&&g.gm[i]); h+=`<i class="vdot${g.done[i]?(gm?" gem":" ok"):(i<g.turn?" no":"")}${i===g.turn?" cur":""}"></i>`; } $(id).innerHTML=h; });
   const mine=g.turn%2===me;
   $("vpA").classList.toggle("act",mine); $("vpB").classList.toggle("act",!mine);
-  $("dTurn").textContent= mine ? "🎯 Senin sıran" : "⏳ Rakibin sırası";
+  $("dTurn").textContent= mine ? "🎯 Senin sıran" : "⏳ Rakibin sırası"; { const tp=$("dTurnP"), nt=mine?"🎯 Senin sıran":"⏳ Rakipte"; if(tp.textContent!==nt){ tp.textContent=nt; tp.className="dturnp"+(mine?"":" op"); tp.style.animation="none"; void tp.offsetWidth; tp.style.animation=""; } }
   // tahta
   const b=$("dBoard"); b.innerHTML="";
   for(let i=0;i<20;i++){ const t=document.createElement("div"); const own=i%2===me?"a":"b";
@@ -2347,7 +2397,8 @@ function applyState(s){
   // önceki soru elmasla bilindiyse iki tarafa da göster
   const pv=g.turn-1; if(pv>=0 && g.gm && g.gm[pv] && D.gmShown!==g.code+":"+pv){ D.gmShown=g.code+":"+pv; if(pv%2===me) gemFx("vpA","Elmasla bildin",QW(g.qs[pv])); }
   const q=g.qs[g.turn];
-  $("dQ").innerHTML=`<small>Soru ${g.turn+1} / 20 · ${[...QW(q)].length} harf · ${diffLabel(Math.floor(g.turn/2))}</small>`; $("dQ").appendChild(document.createTextNode(QT(q)));
+  { const dl=diffLabel(Math.floor(g.turn/2)), dc=/Zor|Uzman/i.test(dl)?" h":/Orta/i.test(dl)?" m":""; $("dQ").innerHTML=`<small><span class="qno">Soru ${g.turn+1}/20</span><span class="qdf${dc}">${dl}</span><span>${[...QW(q)].length} harf</span></small>`; }
+  $("dQ").appendChild(document.createTextNode(QT(q))); { const sl=document.createElement("div"); sl.className="dslots"; sl.id="dSlots"; sl.innerHTML=[...QW(q)].map(()=>"<span></span>").join(""); $("dQ").appendChild(sl); dSyncSlots(); }
   const jkNow=!!(g.jk&&g.jk[g.turn]);
   if(!D.host && D.lastTurn===g.turn && jkNow && !D.jkSeen){ D.endAt=Date.now()+(s.left||0); }
   if(D.lastTurn!==g.turn){ D.jkSeen=false; D.lastTurn=g.turn; D.turnAt=Date.now(); if(!D.host) D.endAt=Date.now()+(s.left||15000); buildDWheel(q.l); $("dCur").textContent=""; if(mine){ beep([[660,.1]]); haptic("turn"); } }
@@ -2396,8 +2447,14 @@ function gemFx(cardId,who,word){ const c=$(cardId); if(!c) return; document.quer
   setTimeout(()=>{ ov.remove(); }, T+60); setTimeout(()=>c.classList.remove("gemhit"), T+700);
   beep([[1046,.07],[1318,.07],[1568,.07],[2093,.09],[2637,.22]]); try{ haptic("turn"); }catch(e){}
   setTimeout(()=>{ beep([[2093,.05],[2637,.05],[3136,.16]]); try{ haptic("win"); }catch(e){} }, T*.5); }
+
+function dSyncSlots(){ const sl=$("dSlots"); if(!sl) return; const w=[...($("dCur").textContent||"")], bad=$("dCur").parentElement.classList.contains("bad");
+  [...sl.children].forEach((sp,i)=>{ sp.textContent=w[i]||""; sp.classList.toggle("f",!!w[i]); }); sl.classList.toggle("bad",bad); }
+try{ new MutationObserver(dSyncSlots).observe(document.getElementById("dCur").parentElement,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:["class"]}); }catch(e){}
 function dTick(){
-  const left=Math.max(0,D.endAt-Date.now()); $("dTimeBar").style.width=(left/15000*100)+"%"; $("dTimeTxt").textContent=Math.ceil(left/1000)+" sn"; $("dTimeTxt").parentElement.classList.toggle("low",left>0&&left<=5000);
+  const left=Math.max(0,D.endAt-Date.now()); $("dTimeBar").style.width=(left/15000*100)+"%"; $("dTimeTxt").textContent=Math.ceil(left/1000)+" sn"; $("dTimeTxt").parentElement.classList.toggle("low",left>0&&left<=5000); { const act=$("vpA").classList.contains("act")?"A":"B", ina=act==="A"?"B":"A", fr=Math.min(1,left/15000), lw=left>0&&left<=5000;
+    const ra=$("vr"+act), ri=$("vr"+ina); if(ra){ ra.style.strokeDashoffset=(169.6*(1-fr)).toFixed(1); ra.classList.toggle("low",lw); } if(ri){ ri.style.strokeDashoffset="169.6"; ri.classList.remove("low"); }
+    const ta=$("vt"+act), ti=$("vt"+ina); if(ta){ ta.textContent=Math.ceil(left/1000); ta.classList.toggle("low",lw); } if(ti) ti.textContent=""; }
   if(left<=0) clearInterval(D.tick);
 }
 function showEnd(){
@@ -2457,7 +2514,7 @@ function dHit(px,py){ const r=$("dWheel").getBoundingClientRect(), x=(px-r.left)
 function dLines(){
   const svg=$("dLines"), r=$("dWheel").getBoundingClientRect(); svg.setAttribute("viewBox",`0 0 ${r.width} ${r.height}`);
   const pts=dPath.map(i=>[dPos[i].x*r.width,dPos[i].y*r.height]); if(dDraw&&dPtr&&dPath.length) pts.push([dPtr.x*r.width,dPtr.y*r.height]);
-  svg.innerHTML= pts.length>1?`<polyline points="${pts.map(p=>p.join(",")).join(" ")}" fill="none" stroke="#ff6b8a" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>`:"";
+  svg.innerHTML= pts.length>1?`<polyline points="${pts.map(p=>p.join(",")).join(" ")}" fill="none" stroke="#ffb703" stroke-opacity=".9" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>`:"";
   dPos.forEach((p,i)=>p.el.classList.toggle("on",dPath.includes(i))); $("dCur").textContent=dPath.map(i=>dPos[i].ch).join("");
 }
 (()=>{ const wh=$("dWheel");
