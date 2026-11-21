@@ -595,6 +595,38 @@
   @keyframes gemrays{0%{transform:scale(.2) rotate(0);opacity:0}25%{opacity:1}100%{transform:scale(1.1) rotate(90deg);opacity:0}}
   @keyframes gemlbl{0%,20%{transform:translateY(8px) scale(.6);opacity:0}35%{transform:none;opacity:1}80%{opacity:1}100%{opacity:0;transform:translateY(-6px)}}
   @keyframes gemspark{0%{transform:translate(0,0) rotate(45deg) scale(1);opacity:1}100%{transform:translate(var(--x),var(--y)) rotate(45deg) scale(.2);opacity:0}}
+
+  /* ===== Elmasla bilme: sinematik efekt ===== */
+  .gemcine{position:fixed;inset:0;z-index:9000;pointer-events:none;display:flex;align-items:center;justify-content:center}
+  .gcbg{position:absolute;inset:0;background:radial-gradient(circle at 50% 42%,#0e7490cc 0%,#0b1220e6 45%,#050814f2 100%);animation:gcbg var(--T) ease forwards}
+  .gemcine.quick .gcbg{background:radial-gradient(circle at 50% 42%,#0e749099 0%,#0b1220b3 50%,#05081499 100%)}
+  .gcstage{position:relative;display:flex;flex-direction:column;align-items:center;transform:translateY(-6%)}
+  .gcrays{position:absolute;left:50%;top:80px;width:520px;height:520px;margin:-260px 0 0 -260px;border-radius:50%;background:repeating-conic-gradient(#67e8f938 0 7deg,transparent 7deg 18deg);-webkit-mask:radial-gradient(circle,#000 18%,transparent 66%);mask:radial-gradient(circle,#000 18%,transparent 66%);animation:gcrays var(--T) linear forwards}
+  .gcring{position:absolute;left:50%;top:80px;width:160px;height:160px;margin:-80px 0 0 -80px;border-radius:50%;border:3px solid #a5f3fc;box-shadow:0 0 30px #22d3ee,inset 0 0 30px #22d3ee;animation:gcring var(--T) ease-out forwards}
+  .gcgem{width:170px;height:160px;display:flex;align-items:center;justify-content:center;animation:gcgem var(--T) cubic-bezier(.2,1.5,.4,1) forwards}
+  .gcfly{position:relative;width:150px;height:131px;filter:drop-shadow(0 0 26px #22d3ee) drop-shadow(0 12px 18px #000a)}
+  .gcfly svg{width:100%;height:100%;display:block;animation:gcfloat 1.2s ease-in-out infinite alternate}
+  .gcshine{position:absolute;inset:0;clip-path:polygon(22% 5%,78% 5%,95% 34%,50% 95%,5% 34%);overflow:hidden}
+  .gcshine::before{content:"";position:absolute;top:-20%;bottom:-20%;width:38%;left:-60%;background:linear-gradient(100deg,transparent,#ffffffee,transparent);transform:skewX(-18deg);animation:gcshine var(--T) ease-in-out forwards}
+  .gctitle{margin-top:10px;font-size:26px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;background:linear-gradient(90deg,#e0f2fe,#67e8f9,#ffffff,#67e8f9,#e0f2fe);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 8px #0891b2);text-align:center;padding:0 16px;animation:gctitle var(--T) ease forwards,gctshine 1.2s linear infinite}
+  .gctiles{display:flex;gap:6px;margin-top:12px}
+  .gctiles span{width:42px;height:46px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#0b1220;border-radius:10px;background:linear-gradient(180deg,#ecfeff,#a5f3fc);box-shadow:0 4px 0 #0891b2,0 0 18px #22d3ee99;opacity:0;animation:gctile .45s cubic-bezier(.2,1.6,.4,1) forwards}
+  .gemcine .sp{position:absolute;left:50%;top:80px;background:#e0f2fe;transform:rotate(45deg);border-radius:2px;box-shadow:0 0 10px #67e8f9;opacity:0;animation:gcspark calc(var(--T)*.45) ease-out forwards}
+  .gemcine .tw{position:absolute;color:#e0f2fe;font-size:18px;text-shadow:0 0 10px #67e8f9;opacity:0;animation:gctw .7s ease-in-out forwards}
+  .gemcine.out .gctitle,.gemcine.out .gctiles,.gemcine.out .gcrays,.gemcine.out .gcring{transition:opacity .25s;opacity:0}
+  .vgem.bump{animation:vgembump .55s cubic-bezier(.2,1.8,.4,1)}
+  @keyframes vgembump{40%{transform:scale(1.6)}}
+  @keyframes gcbg{0%{opacity:0}10%{opacity:1}85%{opacity:1}100%{opacity:0}}
+  @keyframes gcrays{0%{transform:scale(.2) rotate(0);opacity:0}15%{opacity:1}100%{transform:scale(1.05) rotate(120deg);opacity:.6}}
+  @keyframes gcring{0%{transform:scale(.2);opacity:0}12%{opacity:1}40%{transform:scale(2.4);opacity:0}100%{opacity:0}}
+  @keyframes gcgem{0%{transform:translateY(-280px) rotate(-200deg) scale(.3);opacity:0}22%{transform:translateY(0) rotate(12deg) scale(1.2);opacity:1}32%{transform:rotate(-4deg) scale(.96)}40%{transform:rotate(0) scale(1)}100%{transform:none}}
+  @keyframes gcfloat{to{transform:translateY(-6px)}}
+  @keyframes gcshine{0%,30%{left:-60%}55%{left:130%}100%{left:130%}}
+  @keyframes gctitle{0%,25%{transform:translateY(16px) scale(.7);opacity:0}38%{transform:none;opacity:1}100%{opacity:1}}
+  @keyframes gctshine{to{background-position:-200% 0}}
+  @keyframes gctile{0%{transform:translateY(20px) scale(.3) rotate(-12deg);opacity:0}100%{transform:none;opacity:1}}
+  @keyframes gcspark{0%{transform:translate(0,0) rotate(45deg) scale(1.2);opacity:1}100%{transform:translate(var(--x),var(--y)) rotate(225deg) scale(.1);opacity:0}}
+  @keyframes gctw{0%{transform:scale(0) rotate(0);opacity:0}50%{transform:scale(1.3) rotate(90deg);opacity:1}100%{transform:scale(0) rotate(180deg);opacity:0}}
 </style>
 </head>
 <body>
@@ -1727,7 +1759,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="74";
+const APP_VER="75";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2314,12 +2346,22 @@ function applyState(s){
 }
 
 const GEM_SVG=(id)=>`<svg viewBox="0 0 64 56" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cffafe"/><stop offset=".45" stop-color="#22d3ee"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient></defs><polygon points="14,3 50,3 61,19 32,53 3,19" fill="url(#${id})" stroke="#e0f2fe" stroke-width="1.5" stroke-linejoin="round"/><polygon points="14,3 22,19 32,3" fill="#f0fdff" opacity=".9"/><polygon points="32,3 42,19 50,3" fill="#a5f3fc" opacity=".85"/><polygon points="3,19 22,19 32,53" fill="#0ea5e9" opacity=".75"/><polygon points="42,19 61,19 32,53" fill="#1e40af" opacity=".55"/><polygon points="22,19 42,19 32,53" fill="#38bdf8"/><polygon points="22,19 32,3 42,19" fill="#67e8f9"/></svg>`;
-function gemFx(cardId,who,word){ const c=$(cardId); if(!c) return; c.querySelectorAll(".gemfx").forEach(e=>e.remove());
-  const fx=document.createElement("div"); fx.className="gemfx"; let sp="";
-  for(let k=0;k<12;k++){ const a=k/12*Math.PI*2, r=60+Math.random()*30; sp+=`<i style="--x:${Math.cos(a)*r}px;--y:${Math.sin(a)*r}px;animation-delay:${.25+Math.random()*.15}s"></i>`; }
-  fx.innerHTML=`<div class="rays"></div>${sp}<div class="big">${GEM_SVG("gfx"+Date.now())}</div><div class="lbl">${who}${word?`<b>${word}</b>`:"!"}</div>`;
-  c.appendChild(fx); c.classList.add("gemhit"); try{ SFX.win(); }catch(e){} try{ haptic("turn"); }catch(e){}
-  setTimeout(()=>{ fx.remove(); c.classList.remove("gemhit"); },2350); }
+function gemFx(cardId,who,word){ const c=$(cardId); if(!c) return; document.querySelectorAll(".gemcine").forEach(e=>e.remove());
+  const mineFx=cardId==="vpA", T=mineFx?2600:1700; const W=[...(word||"")];
+  const ov=document.createElement("div"); ov.className="gemcine"+(mineFx?"":" quick"); ov.style.setProperty("--T",T+"ms");
+  let sp=""; for(let k=0;k<22;k++){ const ang=k/22*Math.PI*2+Math.random()*.3, r=110+Math.random()*90, sz=4+Math.random()*7; sp+=`<i class="sp" style="--x:${Math.cos(ang)*r}px;--y:${Math.sin(ang)*r}px;width:${sz}px;height:${sz}px;animation-delay:${(.32+Math.random()*.2)*T/2600}s"></i>`; }
+  let st=""; for(let k=0;k<7;k++){ st+=`<b class="tw" style="left:${15+Math.random()*70}%;top:${18+Math.random()*50}%;animation-delay:${(.5+Math.random()*.8)*T/2600}s">✦</b>`; }
+  const tiles=W.map((ch,k)=>`<span style="animation-delay:${(.55+k*.08)*T/2600}s">${ch}</span>`).join("");
+  ov.innerHTML=`<div class="gcbg"></div><div class="gcstage"><div class="gcrays"></div><div class="gcring"></div>${sp}${st}<div class="gcgem"><div class="gcfly">${GEM_SVG("gcx"+Date.now())}<div class="gcshine"></div></div></div><div class="gctitle">${who}</div>${W.length?`<div class="gctiles">${tiles}</div>`:""}</div>`;
+  document.body.appendChild(ov);
+  // elmas sonunda oyuncunun kartına uçsun
+  setTimeout(()=>{ const g=ov.querySelector(".gcfly"); if(!g) return; const r1=g.getBoundingClientRect(), r2=c.getBoundingClientRect();
+    const dx=(r2.left+r2.width*(mineFx?.85:.15))-(r1.left+r1.width/2), dy=(r2.top+8)-(r1.top+r1.height/2);
+    g.style.transition=`transform ${T*.2}ms cubic-bezier(.5,0,.75,0),opacity ${T*.2}ms`; g.style.transform=`translate(${dx}px,${dy}px) scale(.18)`; ov.classList.add("out"); }, T*.76);
+  setTimeout(()=>{ c.classList.add("gemhit"); const ch=c.querySelector(".vgem"); if(ch){ ch.classList.remove("bump"); void ch.offsetWidth; ch.classList.add("bump"); } }, T*.95);
+  setTimeout(()=>{ ov.remove(); }, T+60); setTimeout(()=>c.classList.remove("gemhit"), T+700);
+  beep([[1046,.07],[1318,.07],[1568,.07],[2093,.09],[2637,.22]]); try{ haptic("turn"); }catch(e){}
+  setTimeout(()=>{ beep([[2093,.05],[2637,.05],[3136,.16]]); try{ haptic("win"); }catch(e){} }, T*.5); }
 function dTick(){
   const left=Math.max(0,D.endAt-Date.now()); $("dTimeBar").style.width=(left/15000*100)+"%"; $("dTimeTxt").textContent=Math.ceil(left/1000)+" sn"; $("dTimeTxt").parentElement.classList.toggle("low",left>0&&left<=5000);
   if(left<=0) clearInterval(D.tick);
