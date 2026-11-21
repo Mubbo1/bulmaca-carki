@@ -810,6 +810,13 @@
     <div class="row"><span>🤬 Uygunsuz isim</span><button data-rep="isim">Seç</button></div>
     <div class="row"><span>⚠️ Hile / diğer</span><button data-rep="diger">Seç</button></div>
     <div class="row"><span>🚫 <b>Engelle</b><br><small>Bu oyuncu bir daha karşına çıkmaz</small></span><button id="repBlock" style="background:#e63946;color:#fff">Engelle</button></div>
+    <div id="admBox" class="hidden" style="margin:6px 0;padding:8px;border-radius:12px;background:#fff3cd;border:2px solid #ffb703">
+      <div style="font-weight:800;margin-bottom:4px">🔨 Yönetici: <span id="admName"></span></div>
+      <div class="row"><span>🖼️ Fotoğrafını sil</span><button data-ban="foto" style="background:#e63946;color:#fff">Banla</button></div>
+      <div class="row"><span>🤬 İsmini sil</span><button data-ban="isim" style="background:#e63946;color:#fff">Banla</button></div>
+      <div class="row"><span>⛔ Online'dan tamamen at</span><button data-ban="out" style="background:#7b0d1e;color:#fff">Banla</button></div>
+      <div class="row"><span>♻️ Banları kaldır</span><button data-ban="clear" style="background:#2a9d8f;color:#fff">Kaldır</button></div>
+    </div>
     <div class="note">3 farklı oyuncudan şikayet alan kişinin fotoğrafı veya ismi otomatik kaldırılır. 15 hile şikayeti alan sıralama tablosundan çıkarılır. Tüm şikayetler ekibimizce 24 saat içinde incelenir.</div>
     <button id="repClose" style="background:#dee2e6">Vazgeç</button>
   </div></div>
@@ -1847,7 +1854,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="87";
+const APP_VER="88";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2261,7 +2268,7 @@ async function loadRank(){
     let snap; try{ snap=await D.db.collection("profiles").orderBy(wf,"desc").limit(50).get(); }catch(e){ snap=await D.db.collection("profiles").get(); }
     let rows=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b[wf]||0)-(a[wf]||0)).slice(0,50);
     rows=rows.map(r=>rc?{...r,sc:r["w_"+rc]||0,wins:r["w_"+rc]||0,losses:r["l_"+rc]||0,draws:0}:{...r,sc:r[wk]||0});
-    const ban=await cheaters(); rows=rows.filter(r=>!ban.has(r.id));
+    const ban=await cheaters(); await loadBans(); Object.entries(D.bans||{}).forEach(([u,b])=>{ if(b&&b.out) ban.add(u); }); rows=rows.filter(r=>!ban.has(r.id));
     let wkEmpty=false;
     rows=rows.filter(r=>(r.sc||0)>0).sort((a,b)=>(b.sc||0)-(a.sc||0));
     // Hafta yeni başladıysa kimsede haftalık galibiyet olmaz; tablo boş kalmasın diye
@@ -2279,7 +2286,7 @@ async function loadRank(){
       const prize=(!rc&&!wkEmpty&&i<5)?`<span class="prz">${wkPrizeTxt(i)}</span>`:"";
       const main=rc?`<b>${r.wins||0}</b> G · ${r.losses||0} M<br>%${ra}`:`<b>${r.sc}</b> G<br><small>toplam ${r.wins||0}</small>`;
       el.innerHTML=`<div class="no">${["🥇","🥈","🥉"][i]||i+1}</div><div class="avatar sm"></div>${lvHTML(r.wins||0,"sm")}<div class="nm"></div>${prize}<div class="wl">${main}</div>`;
-      setAv(el.querySelector(".avatar"),r.name,r.ph); el.querySelector(".nm").textContent=cleanName(r.name); if(r.bd){ const sm=document.createElement("small"); sm.textContent=String(r.bd).split(",").filter(id=>BMAP[id]).slice(0,3).map(id=>BMAP[id][1]).join(""); el.querySelector(".nm").appendChild(sm); } box.appendChild(el); });
+      const bn=banOf(r.id); setAv(el.querySelector(".avatar"),bn.isim?"Oyuncu":r.name,bn.foto?"":r.ph); el.querySelector(".nm").textContent=bn.isim?"Oyuncu":cleanName(r.name); if(isAdmin()&&r.id!==D.uid){ el.style.cursor="pointer"; el.onclick=()=>{ $("repName").textContent=cleanName(r.name); document.querySelectorAll("[data-rep]").forEach(b=>{ b.disabled=true; b.style.opacity=.4; }); $("repDone").classList.add("hidden"); openAdmin(r.id,r.name); $("ovReport").classList.remove("hidden"); }; } if(r.bd){ const sm=document.createElement("small"); sm.textContent=String(r.bd).split(",").filter(id=>BMAP[id]).slice(0,3).map(id=>BMAP[id][1]).join(""); el.querySelector(".nm").appendChild(sm); } box.appendChild(el); });
   }catch(e){ box.innerHTML='<div class="dnote">Sıralama şu an yüklenemedi.</div>'; }
 }
 
@@ -2331,10 +2338,16 @@ async function cheaters(){ const out=new Set(); if(!D.db) return out; try{ const
   Object.entries(v||{}).forEach(([uid,o])=>{ const n=Object.values(o||{}).filter(x=>x&&x.r==="diger").length; if(n>=CHEAT_LIMIT) out.add(uid); }); }catch(e){} return out; }
 async function repCount(uid){ const c={foto:0,isim:0,diger:0}; if(!D.db||!uid) return c;
   try{ const sn=await D.db.doc("reports/"+uid).get(); const v=sn.exists?sn.data():null; Object.values(v||{}).forEach(x=>{ if(x&&c[x.r]!=null) c[x.r]++; }); }catch(e){} return c; }
-async function checkOpp(p){ if(!p||!p.uid||D.hide[p.uid]) return; D.hide[p.uid]={}; const c=await repCount(p.uid);
+async function checkOpp(p){ if(!p||!p.uid||D.hide[p.uid]) return; D.hide[p.uid]={};
+  try{ const bs=await D.db.doc("bans/"+p.uid).get(); const b=bs.exists?bs.data():null; if(b) D.bans[p.uid]=b; if(b&&b.out&&D.mode==="online"&&D.g&&D.g.status!=="end"&&!D.banLeft){ D.banLeft=true; toast("⛔ Rakip oyundan uzaklaştırılmış, yeni rakip aranıyor"); setTimeout(()=>{ leaveDuel(); dShow("dLobby"); D.banLeft=false; if(D.quick) quickMatch(); },400); return; } }catch(e){}
+  const c=await repCount(p.uid);
   D.hide[p.uid]={foto:c.foto>=REP_LIMIT, isim:c.isim>=REP_LIMIT}; if(D.g&&D.g.status!=="end"){ try{ D.g.status==="intro"?renderIntro():applyState(D.host?pub():D.g); }catch(e){} } }
-const vis=p=>{ p=p||{}; const h=(p.uid&&D.hide[p.uid])||{}; return {name:h.isim?"Oyuncu":cleanName(p.name), ph:h.foto?"":p.ph}; };
-async function checkMine(){ if(!D.uid) return; const c=await repCount(D.uid);
+const vis=p=>{ p=p||{}; const h=(p.uid&&D.hide[p.uid])||{}, bn=(p.uid&&D.bans&&D.bans[p.uid])||{}; return {name:(h.isim||bn.isim)?"Oyuncu":cleanName(p.name), ph:(h.foto||bn.foto)?"":p.ph}; };
+async function checkMine(){ if(!D.uid) return;
+  try{ const bs=await D.db.doc("bans/"+D.uid).get(); const b=bs.exists?bs.data():null; D.myBan=b||null;
+    if(b&&b.foto&&myPh()){ store.set("pphoto",""); setAv($("dAvatar"),myName(),""); saveProfile(); toast("🚩 Profil fotoğrafın kurallara aykırı olduğu için kaldırıldı"); }
+    if(b&&b.isim&&$("dName").value){ $("dName").value=""; store.set("pname",""); saveProfile(); toast("🚩 İsmin kurallara aykırı olduğu için kaldırıldı"); } }catch(e){}
+  const c=await repCount(D.uid);
   if(c.foto>=REP_LIMIT && myPh()){ store.set("pphoto",""); setAv($("dAvatar"),myName(),""); saveProfile(); toast("🚩 Profil fotoğrafın şikayetler nedeniyle kaldırıldı"); }
   if(c.diger>=CHEAT_LIMIT) toast("🚩 Hile şikayetleri nedeniyle sıralama tablosundan çıkarıldın");
   if(c.isim>=REP_LIMIT && $("dName").value){ $("dName").value=""; store.set("pname",""); saveProfile(); toast("🚩 İsmin şikayetler nedeniyle kaldırıldı, yeni bir isim seç"); } }
@@ -2343,7 +2356,22 @@ function openReport(){ const p=opp(); if(D.mode!=="online"||!p||!p.uid){ toast("
   const done=!!store.get("rep_"+p.uid,0); $("repDone").classList.toggle("hidden",!done);
   document.querySelectorAll("[data-rep]").forEach(b=>{ b.disabled=done; b.style.opacity=done?.4:1; });
   $("repBlock").disabled=isBlocked(p.uid); $("repBlock").textContent=isBlocked(p.uid)?"Engellendi":"Engelle";
-  $("repName").textContent=vis(p).name; $("ovReport").classList.remove("hidden"); }
+  $("repName").textContent=vis(p).name; $("admBox").classList.add("hidden"); if(isAdmin()) openAdmin(p.uid,p.name); $("ovReport").classList.remove("hidden"); }
+
+// ---------- YÖNETİCİ BANI (yalnızca yönetici hesabında görünür) ----------
+const ADMINS=["OBuZveNqaJOg3CRQQU1721vIEfN2"]; D.bans={};
+const isAdmin=()=>!!(D.uid&&ADMINS.includes(D.uid));
+async function loadBans(){ if(!D.db) return D.bans; try{ const sn=await D.db.doc("bans").get(); D.bans=(sn.exists?sn.data():{})||{}; }catch(e){} return D.bans; }
+const banOf=uid=>(uid&&D.bans&&D.bans[uid])||{};
+let admTarget=null;
+function openAdmin(uid,name){ if(!isAdmin()||!uid) return; admTarget={uid,name}; $("admName").textContent=name||"Oyuncu"; $("admBox").classList.remove("hidden"); }
+document.querySelectorAll("[data-ban]").forEach(b=>b.onclick=async()=>{ if(!isAdmin()||!admTarget||!D.db) return; const k=b.dataset.ban, uid=admTarget.uid; if(uid===D.uid){ toast("Kendini banlayamazsın"); return; }
+  try{ const cur=Object.assign({},banOf(uid)); let v;
+    if(k==="clear") v=null; else { cur[k]=1; if(k==="out"){ cur.foto=1; } cur.t=Date.now(); cur.n=String(admTarget.name||"").slice(0,20); v=cur; }
+    await D.db.doc("bans/"+uid).set(v); if(v) D.bans[uid]=v; else delete D.bans[uid];
+    toast(k==="clear"?"♻️ Banlar kaldırıldı":k==="out"?"⛔ Oyuncu online'dan atıldı":k==="foto"?"🖼️ Fotoğrafı herkes için silindi":"🤬 İsmi herkes için silindi");
+    $("ovReport").classList.add("hidden"); try{ if(D.g&&D.g.status!=="end") applyState(D.host?pub():D.g); }catch(e){} try{ if(!$("dTabRank")||!$("dTabRank").classList.contains("hidden")) loadRank(); }catch(e){} }
+  catch(e){ toast("Ban kaydedilemedi: "+(e&&e.message||e)); } });
 // ---------- ENGELLEME ----------
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function blockedMap(){ return store.get("blocked",{})||{}; }
@@ -2630,7 +2658,8 @@ $("dJoker").onclick=()=>{
 };
 // ---------- rastgele eşleşme (lobi) ----------
 const q0=()=>D.quick?7000:12000;
-async function quickMatch(){ D.quick=true; if(!nameOk()) return;
+const banOut=()=>{ if(D.myBan&&D.myBan.out){ toast("⛔ Kurallara aykırı davranış nedeniyle online düellodan uzaklaştırıldın. Antrenman modunu oynayabilirsin."); return true; } return false; };
+async function quickMatch(){ if(banOut()) return; D.quick=true; if(!nameOk()) return;
   if(!D.room){ toast("Online bağlantı yok"); return; }
   if(!$("dName").value.trim()){ toast("Önce adını yaz"); $("dName").focus(); return; }
   if(!hasLife()){ toast("Canın kalmadı — reklam izle ya da sınırsız can al"); openLife(); return; }
@@ -2668,7 +2697,7 @@ $("eulaNo").onclick=()=>{ D.eulaCb=null; $("ovEula").classList.add("hidden"); };
 $("eulaLink").onclick=e=>{ e.preventDefault(); window.open("https://mubbo1.github.io/bulmaca-carki/kullanim.html","_blank"); };
 $("btnBlk").onclick=()=>{ renderBlocked(); $("blkBox").classList.toggle("hidden"); };
 $("dQuick").onclick=()=>needEula(quickMatch);
-{ const c0=$("dCreate").onclick, j0=$("dJoin").onclick; $("dCreate").onclick=()=>needEula(c0); $("dJoin").onclick=()=>needEula(j0); }
+{ const c0=$("dCreate").onclick, j0=$("dJoin").onclick; $("dCreate").onclick=()=>{ if(!banOut()) needEula(c0); }; $("dJoin").onclick=()=>{ if(!banOut()) needEula(j0); }; }
 $("dAdLife").onclick=()=>showAd(()=>{ setLives(lives+1); toast("+1 ❤️ kazandın"); },"❤️");
 
 // ---------- İZLEME MODU (Claude'un oynaması için) ----------
