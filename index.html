@@ -691,6 +691,17 @@
   #dGame .dwheel .L.on{background:linear-gradient(180deg,#ffd166,#ffb703);color:#3a2500;box-shadow:0 4px 0 #b07a00,0 0 16px #ffb703aa;transform:scale(1.08)}
   #dGame .dwheel.off .bg{box-shadow:0 0 0 3px #ff6b8a66,0 0 0 9px #ffffff08,0 14px 34px #000a}
   #dGame .dwheel.off{opacity:.55;filter:grayscale(.35)}
+
+  .bdgrid{grid-template-columns:repeat(3,1fr)!important}
+  .bdgrid button{padding:10px 4px 8px!important;gap:3px!important}
+  .bdgrid button .n{font-size:12px!important;min-height:26px;display:flex;align-items:center;text-align:center}
+  .bdgrid button .p{font-size:10px;font-weight:800;color:#ffffff99}
+  .bdgrid button .p.ok{color:#43d9ad}
+  .bdgrid button .pb{width:80%;height:5px;border-radius:3px;background:#ffffff22;overflow:hidden}
+  .bdgrid button .pb i{display:block;height:100%;background:linear-gradient(90deg,#ffb703,#fb8500)}
+  .bdgrid button.lock{opacity:.6!important;filter:none!important}
+  .bdgrid button.lock .e{filter:grayscale(1);opacity:.55}
+  .bdgrid button.got{border-color:#43d9ad66}
 </style>
 </head>
 <body>
@@ -1823,7 +1834,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="81";
+const APP_VER="82";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2109,23 +2120,32 @@ async function initNet(){
 D.cat="genel"; // düelloda kategori yok: karışık genel kültür
 // ---------- ROZETLER ----------
 const BADGES=[
-  // galibiyet serileri (üst üste online galibiyet)
-  ["seri3","🔥","Alev","Üst üste 3 galibiyet","w"],
-  ["seri5","☄️","Kuyruklu Yıldız","Üst üste 5 galibiyet","w"],
-  ["seri10","🌟","Yenilmez","Üst üste 10 galibiyet","w"],
-  ["seri15","⚡","Fırtına","Üst üste 15 galibiyet","w"],
-  ["seri20","🌋","Volkan","Üst üste 20 galibiyet","w"],
-  ["seri30","🐉","Ejderha","Üst üste 30 galibiyet","w"],
-  ["seri50","👑","İmparator","Üst üste 50 galibiyet","w"],
-  // giriş serileri (her gün oyuna girmek)
-  ["gun3","📅","Alışkanlık","3 gün üst üste giriş","g"],
-  ["gun7","🗓️","Bir Hafta","7 gün üst üste giriş","g"],
-  ["gun14","🌙","İki Hafta","14 gün üst üste giriş","g"],
-  ["gun30","🏅","Bir Ay","30 gün üst üste giriş","g"],
-  ["gun60","💫","Tutkulu","60 gün üst üste giriş","g"],
-  ["gun100","🏆","Yüzler Kulübü","100 gün üst üste giriş","g"],
-  ["gun365","🌍","Efsane Yıl","365 gün üst üste giriş","g"]
+  // [id, simge, ad, açıklama, bölüm, ölçüt, hedef]
+  ["win1","🥇","İlk Zafer","Online düelloda ilk galibiyetini al","w","wins",1],
+  ["win10","🏅","10 Galibiyet","Online düelloda toplam 10 maç kazan","w","wins",10],
+  ["win25","🎖️","25 Galibiyet","Online düelloda toplam 25 maç kazan","w","wins",25],
+  ["win50","🏆","50 Galibiyet","Online düelloda toplam 50 maç kazan","w","wins",50],
+  ["win100","👑","100 Galibiyet","Online düelloda toplam 100 maç kazan","w","wins",100],
+  ["win250","💎","250 Galibiyet","Online düelloda toplam 250 maç kazan","w","wins",250],
+  ["seri3","🔥","3 Maç Üst Üste","Online düelloda arka arkaya 3 maç kazan","s","streak",3],
+  ["seri5","🔥","5 Maç Üst Üste","Online düelloda arka arkaya 5 maç kazan","s","streak",5],
+  ["seri10","☄️","10 Maç Üst Üste","Online düelloda arka arkaya 10 maç kazan","s","streak",10],
+  ["seri20","⚡","20 Maç Üst Üste","Online düelloda arka arkaya 20 maç kazan","s","streak",20],
+  ["dog50","📘","50 Doğru Cevap","Online düellolarda toplam 50 soruyu doğru bil","b","correct",50],
+  ["dog250","📚","250 Doğru Cevap","Online düellolarda toplam 250 soruyu doğru bil","b","correct",250],
+  ["dog1000","🧠","1000 Doğru Cevap","Online düellolarda toplam 1000 soruyu doğru bil","b","correct",1000],
+  ["full","💯","10'da 10","Bir maçta sana gelen 10 sorunun hepsini bil","o","perfect",1],
+  ["hiz","⏱️","3 Saniyede Cevap","Bir soruyu 3 saniyeden kısa sürede doğru bil","o","fast",1],
+  ["yardimsiz","💪","Yardımsız Zafer","Hiç joker ve elmas kullanmadan bir maç kazan","o","nohelp",1],
+  ["rovans","🔁","Rövanş","Kaybettiğin maçın hemen ardından kazan","o","comeback",1],
+  ["gun3","📅","3 Gün Üst Üste","Oyuna 3 gün arka arkaya gir","g","login",3],
+  ["gun7","🗓️","7 Gün Üst Üste","Oyuna 7 gün arka arkaya gir","g","login",7],
+  ["gun30","🌙","30 Gün Üst Üste","Oyuna 30 gün arka arkaya gir","g","login",30],
+  ["gun100","🌟","100 Gün Üst Üste","Oyuna 100 gün arka arkaya gir","g","login",100]
 ];
+const BSEC={w:"🏆 Galibiyetler",s:"🔥 Galibiyet serileri",b:"🧠 Bilgi",o:"⭐ Özel başarılar",g:"📅 Her gün giriş"};
+function bMetric(k){ switch(k){ case "wins": return (D.stat&&D.stat.w)||store.get("dWinsLocal",0); case "streak": return store.get("bestStreak",0); case "correct": return store.get("dCorrect",0);
+  case "perfect": return store.get("bPerfect",0); case "fast": return store.get("bFast",0); case "nohelp": return store.get("bNoHelp",0); case "comeback": return store.get("bComeback",0); case "login": return store.get("bestLogin",0); } return 0; }
 // ---------- SEVİYE SİSTEMİ: online galibiyetle seviye atlanır; her seviye bir öncekinden zor ----------
 // L → L+1 için 2×L galibiyet gerekir (1→2: 2, 5→6: 10, 10→11: 20 …). Toplam: L·(L-1)
 const LV_TIERS=[[1,"Çaylak","🌱"],[5,"Bronz","🥉"],[10,"Gümüş","🥈"],[15,"Altın","🥇"],[20,"Zümrüt","💚"],[25,"Safir","💠"],[30,"Yakut","❤️‍🔥"],[40,"Elmas","💎"],[50,"Usta","🔮"],[75,"Efsane","🐉"],[100,"Ölümsüz","👑"]];
@@ -2142,8 +2162,7 @@ const BMAP=Object.fromEntries(BADGES.map(b=>[b[0],b]));
 let bEarned=store.get("bdg",[]).filter(id=>BMAP[id]), bShow=store.get("bdShow",[]).filter(id=>BMAP[id]);
 const bdHTML=(ids,sm)=>(Array.isArray(ids)?ids:String(ids||"").split(",")).filter(id=>BMAP[id]).slice(0,3).map(id=>`<span class="bdg${sm?" sm":""}" title="${BMAP[id][2]}">${BMAP[id][1]}</span>`).join("");
 function checkBadges(){
-  const ws=store.get("bestStreak",0), ls=store.get("bestLogin",0);
-  const nw=BADGES.filter(b=>{ const n=+b[0].replace(/\D/g,""); return !bEarned.includes(b[0]) && (b[4]==="w"? ws>=n : ls>=n); });
+  const nw=BADGES.filter(b=>!bEarned.includes(b[0]) && bMetric(b[5])>=b[6]);
   if(nw.length){ bEarned=[...bEarned,...nw.map(b=>b[0])]; store.set("bdg",bEarned);
     nw.forEach(b=>{ if(bShow.length<3) bShow.push(b[0]); else { const k=bShow.findIndex(x=>BMAP[x]&&BMAP[x][4]===b[4]); if(k>=0) bShow[k]=b[0]; } }); store.set("bdShow",bShow);
     setTimeout(()=>{ toast(`🎉 Yeni rozet: ${nw.map(b=>b[1]+" "+b[2]).join(", ")}`); try{SFX.win();}catch(e){} },900); try{ saveProfile(); }catch(e){} }
@@ -2154,8 +2173,9 @@ function renderBadges(){
   $("bdCount").textContent=`${bEarned.length}/${BADGES.length}`;
   const g=$("bdGrid"); g.innerHTML="";
   $("bdStreak").innerHTML=`🔥 Galibiyet serisi: <b>${store.get("streak",0)}</b> (en iyi ${store.get("bestStreak",0)}) · 📅 Giriş serisi: <b>${store.get("loginStreak",1)}</b> gün`;
-  BADGES.forEach(([id,e,n,d,k],idx)=>{ if(idx===0||BADGES[idx-1][4]!==k){ const h=document.createElement("div"); h.className="bdsec"; h.textContent=k==="w"?"🔥 Galibiyet serileri":"📅 Günlük giriş serileri"; g.appendChild(h); } const b=document.createElement("button"); const got=bEarned.includes(id);
-    b.className=got?(bShow.includes(id)?"show":""):"lock"; b.innerHTML=`<span class="e">${e}</span><span class="n">${n}</span>`;
+  BADGES.forEach(([id,e,n,d,k,m,tg],idx)=>{ if(idx===0||BADGES[idx-1][4]!==k){ const h=document.createElement("div"); h.className="bdsec"; h.textContent=BSEC[k]; g.appendChild(h); } const b=document.createElement("button"); const got=bEarned.includes(id);
+    const cur=Math.min(tg,bMetric(m)); b.className=got?(bShow.includes(id)?"show":"got"):"lock";
+    b.innerHTML=`<span class="e">${e}</span><span class="n">${n}</span>${got?'<span class="p ok">Kazanıldı</span>':tg>1?`<span class="pb"><i style="width:${Math.round(cur/tg*100)}%"></i></span><span class="p">${cur}/${tg}</span>`:'<span class="p">🔒 Kilitli</span>'}`;
     b.onclick=()=>{ $("bdInfo").textContent=`${e} ${n} — ${d}${got?"":" 🔒"}`; if(!got) return;
       if(bShow.includes(id)) bShow=bShow.filter(x=>x!==id); else if(bShow.length<3) bShow.push(id); else { toast("En fazla 3 rozet gösterebilirsin"); return; }
       store.set("bdShow",bShow); renderBadges(); $("bdInfo").textContent=`${e} ${n} — ${d}`; saveProfile(); };
@@ -2488,6 +2508,8 @@ function showEnd(){
     if(won){ const st=store.get("streak",0)+1; store.set("streak",st); if(st>store.get("bestStreak",0)) store.set("bestStreak",st); if(store.get("lastLost",0)) store.set("bComeback",1); store.set("lastLost",0); }
     else if(!draw){ store.set("streak",0); store.set("lastLost",1); }
     if((g.done||[]).filter((x,i)=>x&&i%2===me).length>=10) store.set("bPerfect",1);
+    store.set("dCorrect",store.get("dCorrect",0)+(g.done||[]).filter((x,i)=>x&&i%2===me).length);
+    if(won && !(g.gm||[]).some((x,i)=>x&&i%2===me) && !(g.jk||[]).some((x,i)=>x&&i%2===me)) store.set("bNoHelp",1);
     renderStats(); saveProfile();
   }
   $("dEndLives").innerHTML = D.mode==="bot" ? "🤖 Antrenman — can harcanmadı" : unlimited ? "♾️ Sınırsız can — can gitmedi" : (!draw&&!won ? `❤️ −1 · Kalan can: ${lives}` : `Canların: ${"❤️".repeat(lives)||"0"}`);
