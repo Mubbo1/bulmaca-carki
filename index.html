@@ -1474,7 +1474,7 @@ function autoFound(){ let any=false;
   L.words.forEach(x=>{ if(!x.found && wordCells(x).every(c=>cellShown(c.x+","+c.y))){ x.found=true; any=true;
     wordCells(x).forEach((c,k)=>{ const el=cellMap.get(c.x+","+c.y).el; setTimeout(()=>{ el.classList.add("pop"); setTimeout(()=>el.classList.remove("pop"),400); },k*70); }); } });
   return any; }
-function win(){ { const c=store.get("lvCount",0)+1; store.set("lvCount",c); if(c%3===0) store.set("adDue",1); }
+function win(){ { const c=store.get("lvCount",0)+1; store.set("lvCount",c); if(c%3===0) store.set("adDue",1); if(c===8||c===29||c===80) askReview("lv"+c); }
   SFX.win();
   coins+=25; store.set("coins",coins); $("coins").textContent=coins;
   if(lv+1>unlocked){ unlocked=Math.min(lv+1,LEVELS.length-1); store.set(K("unlocked"),unlocked); }
@@ -1623,6 +1623,10 @@ $("btnAdDone").onclick=()=>{ $("ovAd").classList.add("hidden"); if(typeof adRewa
 document.querySelectorAll("[data-gem]").forEach(b=>b.onclick=()=>{ const n=+b.dataset.gem; setGems(gems+n); $("ovShop").classList.add("hidden"); toast(`Deneme: ${n} 💎 eklendi (ödeme alınmadı)`); });
 
 
+
+// ---------- OTOMATİK PUAN İSTEME: Apple'ın kendi yıldız penceresi (yılda en fazla 3 kez Apple gösterir) ----------
+function askReview(tag){ try{ if(store.get("rv_"+tag,0)) return; const C=window.Capacitor, P=C&&C.Plugins&&C.Plugins.InAppReview; if(!P||!C.isNativePlatform()) return;
+  store.set("rv_"+tag,1); setTimeout(()=>{ try{ P.requestReview(); }catch(e){} },2600); }catch(e){} }
 // ---------- OYUNU PUANLA: doğrudan App Store'daki "Değerlendirme yaz" ekranını açar ----------
 const APPSTORE_ID="6835316819";
 $("btnRate").onclick=()=>{ store.set("rated",1);
@@ -1843,7 +1847,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="86";
+const APP_VER="87";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2517,7 +2521,7 @@ function showEnd(){
   if(D.mode==="online" && !D.counted){
     D.counted=true;
     const gc=g.cat||"genel";
-    if(draw) D.stat.d++; else if(won){ D.stat.w++; catStat(gc).w++; addWeekWin(); } else { D.stat.l++; catStat(gc).l++; if(!unlimited) setLives(lives-1); }
+    if(draw) D.stat.d++; else if(won){ D.stat.w++; catStat(gc).w++; addWeekWin(); if(D.stat.w===3||D.stat.w===15) askReview("dw"+D.stat.w); } else { D.stat.l++; catStat(gc).l++; if(!unlimited) setLives(lives-1); }
     if(won && lvOf(D.stat.w)>lvOf(D.stat.w-1)) D.lvUp=lvOf(D.stat.w);
     if(won){ const st=store.get("streak",0)+1; store.set("streak",st); if(st>store.get("bestStreak",0)) store.set("bestStreak",st); if(store.get("lastLost",0)) store.set("bComeback",1); store.set("lastLost",0); }
     else if(!draw){ store.set("streak",0); store.set("lastLost",1); }

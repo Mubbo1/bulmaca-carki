@@ -2,7 +2,7 @@
   "name": "bulmaca-carki",
   "version": "1.0.0",
   "private": true,
-  "description": "Bulmaca \u00c7ark\u0131 - kelime bulmaca oyunu (Capacitor)",
+  "description": "Bulmaca Çarkı - kelime bulmaca oyunu (Capacitor)",
   "scripts": {
     "build:web": "node scripts/build-web.js",
     "sync": "npm run build:web && npx cap sync"
@@ -14,7 +14,8 @@
     "@capacitor/local-notifications": "^7.0.0",
     "@capacitor-community/admob": "^7.0.0",
     "cordova-plugin-purchase": "^13.12.1",
-    "@capacitor/haptics": "^7.0.0"
+    "@capacitor/haptics": "^7.0.0",
+    "@capacitor-community/in-app-review": "~7.0.1"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
