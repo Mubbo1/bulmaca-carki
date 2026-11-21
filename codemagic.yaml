@@ -62,6 +62,10 @@ workflows:
           pb "Delete :SKAdNetworkItems"; pb "Add :SKAdNetworkItems array"
           i=0; for n in cstr6suwn9 4fzdc2evr5 2fnua5tdw4 ydx93a7ass p78axxw29g v72qych5uu ludvb6z3bs cp8zw746q7 3sh42y64q3 c6k4g5qg8m s39g8k73mm 3qy4746246 hs6bdukanm mlmmfzh3r3 v4nxqhlyqp wzmmz9fp6w su67r6k2v3 yclnxrl5pm 7ug5zh24hu gta9lk7p23 vutu7akeur y5ghdn5j9k v9wttpbfk9 n38lu8286q 47vhws6wlr kbd757ywx3 9t245vhmpl a2p9lx4jpn 22mmun2rn5 44jx6755aq k674qkevps 4468km3ulz 2u9pt9hc89 8s468mfl3y klf5c3l5u5 ppxm28t8ap kbmxgpxpgc uw77j35x4d 578prtvx9j 4dzt52r2t5 tl55sbb4fm c3frkrj4fj e5fvkxwrpn 8c4e2ghe7u 3rd42ekr43 97r2b46745 3qcr597p9d; do
             pb "Add :SKAdNetworkItems:$i dict"; pb "Add :SKAdNetworkItems:$i:SKAdNetworkIdentifier string $n.skadnetwork"; i=$((i+1)); done
+          pb "Delete :CFBundleDevelopmentRegion"; pb "Add :CFBundleDevelopmentRegion string tr"
+          pb "Delete :CFBundleLocalizations"; pb "Add :CFBundleLocalizations array"; pb "Add :CFBundleLocalizations:0 string tr"
+          # App Store'da dil "Türkçe" görünsün: proje geliştirme dili tr
+          sed -i '' 's/developmentRegion = en;/developmentRegion = tr;/' ios/App/App.xcodeproj/project.pbxproj || true
           echo "Info.plist hazır"
       - name: İmza profilleri
         script: xcode-project use-profiles
@@ -69,7 +73,7 @@ workflows:
         script: |
           cd ios/App
           agvtool new-version -all ${BUILD_NUMBER:-1}
-          agvtool new-marketing-version 1.0.1
+          agvtool new-marketing-version 1.0.2
       - name: iOS uygulamasını paketle
         script: xcode-project build-ipa --workspace "$XCODE_WORKSPACE" --scheme "$XCODE_SCHEME"
     artifacts:
@@ -134,6 +138,10 @@ workflows:
           pb "Delete :SKAdNetworkItems"; pb "Add :SKAdNetworkItems array"
           i=0; for n in cstr6suwn9 4fzdc2evr5 2fnua5tdw4 ydx93a7ass p78axxw29g v72qych5uu ludvb6z3bs cp8zw746q7 3sh42y64q3 c6k4g5qg8m s39g8k73mm 3qy4746246 hs6bdukanm mlmmfzh3r3 v4nxqhlyqp wzmmz9fp6w su67r6k2v3 yclnxrl5pm 7ug5zh24hu gta9lk7p23 vutu7akeur y5ghdn5j9k v9wttpbfk9 n38lu8286q 47vhws6wlr kbd757ywx3 9t245vhmpl a2p9lx4jpn 22mmun2rn5 44jx6755aq k674qkevps 4468km3ulz 2u9pt9hc89 8s468mfl3y klf5c3l5u5 ppxm28t8ap kbmxgpxpgc uw77j35x4d 578prtvx9j 4dzt52r2t5 tl55sbb4fm c3frkrj4fj e5fvkxwrpn 8c4e2ghe7u 3rd42ekr43 97r2b46745 3qcr597p9d; do
             pb "Add :SKAdNetworkItems:$i dict"; pb "Add :SKAdNetworkItems:$i:SKAdNetworkIdentifier string $n.skadnetwork"; i=$((i+1)); done
+          pb "Delete :CFBundleDevelopmentRegion"; pb "Add :CFBundleDevelopmentRegion string tr"
+          pb "Delete :CFBundleLocalizations"; pb "Add :CFBundleLocalizations array"; pb "Add :CFBundleLocalizations:0 string tr"
+          # App Store'da dil "Türkçe" görünsün: proje geliştirme dili tr
+          sed -i '' 's/developmentRegion = en;/developmentRegion = tr;/' ios/App/App.xcodeproj/project.pbxproj || true
           echo "Info.plist hazır"
       - name: İmza profilleri
         script: xcode-project use-profiles
