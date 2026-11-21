@@ -1773,7 +1773,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="78";
+const APP_VER="79";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2345,7 +2345,7 @@ function applyState(s){
   for(let i=0;i<20;i++){ const t=document.createElement("div"); const own=i%2===me?"a":"b";
     const gmI=!!(g.gm&&g.gm[i]); t.className=`dt ${own}${g.done[i]?" ok":""}${gmI?" gem":""}${i===g.turn?" cur":""}`; t.textContent=g.done[i]?(gmI?"💎":"✓"):i+1; if(gmI) t.title="Elmasla bilindi"; b.appendChild(t); }
   // önceki soru elmasla bilindiyse iki tarafa da göster
-  const pv=g.turn-1; if(pv>=0 && g.gm && g.gm[pv] && D.gmShown!==g.code+":"+pv){ D.gmShown=g.code+":"+pv; const mineG=pv%2===me; gemFx(mineG?"vpA":"vpB", mineG?"Elmasla bildin":((vis(g.players[op]).name||"Rakip")+" elmasla bildi"), QW(g.qs[pv])); }
+  const pv=g.turn-1; if(pv>=0 && g.gm && g.gm[pv] && D.gmShown!==g.code+":"+pv){ D.gmShown=g.code+":"+pv; if(pv%2===me) gemFx("vpA","Elmasla bildin",QW(g.qs[pv])); }
   const q=g.qs[g.turn];
   $("dQ").innerHTML=`<small>Soru ${g.turn+1} / 20 · ${[...QW(q)].length} harf · ${diffLabel(Math.floor(g.turn/2))}</small>`; $("dQ").appendChild(document.createTextNode(QT(q)));
   const jkNow=!!(g.jk&&g.jk[g.turn]);
