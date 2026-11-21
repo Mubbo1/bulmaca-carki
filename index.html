@@ -777,6 +777,7 @@
     <div class="set"><span>💎 Elmas Mağazası</span><button id="btnSetShop" class="mini">Aç</button></div>
     <div class="set"><span>♻️ Satın Alımları Geri Yükle<small>Telefon değiştirdiysen</small></span><button id="btnRestore" class="mini">Yükle</button></div>
     <div class="ssec">Diğer</div>
+    <div class="set"><span>⭐ Oyunu Puanla<small>Beğendiysen App Store'da yıldız ver, bize çok destek olur</small></span><button id="btnRate" class="mini" style="background:#ffb703;color:#1b262c">Puanla</button></div>
     <div class="set"><span>❓ Yardım & Destek<small>Sık sorulan sorular, bize yaz</small></span><button id="btnHelp" class="mini">Aç</button></div>
     <div class="set"><span>🗑️ Hesabımı Sil<small>Profilin ve tüm oyun verilerin silinir</small></span><button id="btnDelAcc" class="mini" style="background:#e63946;color:#fff">Sil</button></div>
     <div id="delAsk" class="hidden" style="margin-top:8px;font-size:15px">Profilin, düello istatistiklerin, bölümlerin, altın ve elmasların kalıcı olarak silinecek. Bu işlem geri alınamaz. Emin misin?
@@ -785,7 +786,7 @@
     <div id="blkBox" class="hidden" style="margin:4px 0 8px"><div id="blkList"></div></div>
     <div class="set"><span>📜 Kullanım Şartları</span><button class="mini" onclick="window.open('https://mubbo1.github.io/bulmaca-carki/kullanim.html','_blank')">Aç</button></div>
     <div class="set"><span>📄 Gizlilik Politikası</span><button class="mini" onclick="window.open('https://mubbo1.github.io/bulmaca-carki/gizlilik.html','_blank')">Aç</button></div>
-    <div class="set"><span>ℹ️ Sürüm</span><span style="color:#888;font-size:15px">1.0</span></div>
+    <div class="set"><span>ℹ️ Sürüm</span><span style="color:#888;font-size:15px">1.0.2</span></div>
     <div class="hidden"><button id="btnReset"></button></div>
     <div id="resetAsk" class="hidden" style="margin-top:8px;font-size:15px">Tüm bölümler, altın ve elmaslar sıfırlanacak. Emin misin?
       <div style="display:flex;gap:8px"><button class="danger" id="btnResetYes">Evet, sıfırla</button><button id="btnResetNo" style="background:#dee2e6">Vazgeç</button></div></div>
@@ -1621,6 +1622,14 @@ $("btnAd").onclick=()=>{ adReward=null; if(noAds){ $("ovShop").classList.add("hi
 $("btnAdDone").onclick=()=>{ $("ovAd").classList.add("hidden"); if(typeof adReward==="function"){ const f=adReward; adReward=null; f(); return; } setGems(gems+1); toast("+1 💎 kazandın"); };
 document.querySelectorAll("[data-gem]").forEach(b=>b.onclick=()=>{ const n=+b.dataset.gem; setGems(gems+n); $("ovShop").classList.add("hidden"); toast(`Deneme: ${n} 💎 eklendi (ödeme alınmadı)`); });
 
+
+// ---------- OYUNU PUANLA: doğrudan App Store'daki "Değerlendirme yaz" ekranını açar ----------
+const APPSTORE_ID="6835316819";
+$("btnRate").onclick=()=>{ store.set("rated",1);
+  const nat=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
+  const web="https://apps.apple.com/tr/app/id"+APPSTORE_ID+"?action=write-review";
+  if(nat){ location.href="itms-apps://itunes.apple.com/app/id"+APPSTORE_ID+"?action=write-review"; }
+  else window.open(web,"_blank"); };
 // ---------- ANA EKRAN / AYARLAR / SES ----------
 let soundOn=store.get("sound",true), vibOn=store.get("vib",true), menuFromHome=false, actx=null;
 // ses motoru: iPhone'da ilk dokunuşta kilidi aç, sessiz modda da çalsın, askıya alınırsa devam ettir
@@ -1834,7 +1843,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="85";
+const APP_VER="86";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
