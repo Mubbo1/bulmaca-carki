@@ -541,6 +541,39 @@
   .dfriend .fh{font-weight:800;margin-bottom:8px}
   .dfriend .fh small{display:block;font-weight:600;color:#9aa3c7;font-size:12.5px}
   #dFriendBtn{width:100%}
+
+  /* ===== Düello oyun ekranı (sade skor tablosu) ===== */
+  #dGame .vs{gap:6px;align-items:stretch}
+  #dGame .vp{flex:1 1 0;min-width:0;padding:10px 8px 9px;border-radius:18px;background:linear-gradient(180deg,#ffffff10,#ffffff06);border:1.5px solid #ffffff1a;align-items:center;gap:3px}
+  #dGame .vp.act{border-color:#ffb703;box-shadow:0 0 0 1px #ffb70355,0 6px 22px #ffb70333;background:linear-gradient(180deg,#ffb70322,#ffb7030a)}
+  #dGame .vp.b.act{border-color:#ff6b8a;box-shadow:0 0 0 1px #ff6b8a55,0 6px 22px #ff6b8a33;background:linear-gradient(180deg,#ff6b8a22,#ff6b8a0a)}
+  #dGame .avatar.sm{width:44px;height:44px;font-size:19px;box-shadow:0 0 0 2px #ffb703}
+  #dGame .avatar.sm.b{box-shadow:0 0 0 2px #ff6b8a}
+  #dGame .vn{margin:3px 0 0;font-size:14px;max-width:100%;text-align:center}
+  .vsub{display:flex;align-items:center;justify-content:center;gap:2px;height:26px;max-width:100%;overflow:hidden}
+  .vsub .vl{margin:0;display:inline-flex;transform:scale(.7);margin:0 -6px}
+  #dGame .vbd{margin:0;min-height:0;gap:0}
+  #dGame .vbd>*{transform:scale(.72);margin:0 -3px}
+  .vdots{display:grid;grid-template-columns:repeat(10,1fr);gap:2px;margin-top:5px;width:100%}
+  .vdot{height:6px;border-radius:3px;background:#ffffff1f}
+  .vdot.ok{background:#43d9ad}.vdot.gem{background:#4cc9f0}.vdot.no{background:#e6394699}
+  .vdot.cur{background:#fff;box-shadow:0 0 8px #fff;animation:vdotp 1s infinite}
+  @keyframes vdotp{50%{opacity:.45}}
+  #dGame .vs-s{display:none}
+  #dGame .vsx{flex:none;align-self:center;display:flex;flex-direction:column;align-items:center}
+  .vscore{display:flex;align-items:center;gap:4px;font-variant-numeric:tabular-nums}
+  .vscore i{font-style:normal;font-weight:900;font-size:22px;color:#ffffff55}
+  .vsc{font-size:32px;font-weight:900;line-height:1;color:#ffb703;min-width:20px;text-align:center}
+  .vsc.b{color:#ff6b8a}
+  .vsc.pop{animation:vscpop .45s}
+  @keyframes vscpop{40%{transform:scale(1.45)}}
+  #dGame .vsx small{font-size:9px;letter-spacing:.6px;margin-top:4px;color:#ffffff70;font-weight:800}
+  .dstat{display:flex;align-items:center;gap:10px;background:#ffffff0d;border-radius:14px;padding:8px 12px}
+  .dstat .dturn{font-size:15px;white-space:nowrap;text-align:left;overflow:hidden;text-overflow:ellipsis;max-width:60%}
+  .dstat .dtimer{flex:1;height:8px;border-radius:6px;background:#ffffff1a}
+  .dstat .dtt{font-weight:900;font-size:15px;min-width:42px;text-align:right;font-variant-numeric:tabular-nums}
+  .dstat.low .dtt{color:#ff6b8a;animation:vdotp .6s infinite}
+  #dGame .dq{border-radius:18px;padding:14px 16px;font-size:17px;box-shadow:0 8px 24px #0005}
 </style>
 </head>
 <body>
@@ -830,13 +863,12 @@
     <!-- OYUN -->
     <div id="dGame" class="dpage hidden">
       <div class="vs">
-        <div class="vp" id="vpA"><div class="avatar sm" id="vaA">?</div><div class="vn" id="vnA">Sen</div><div class="vl" id="vlA"></div><div class="vbd" id="vbA"></div><div class="vs-s" id="vsA">0</div></div>
-        <div class="vsx">VS<small id="dMode">ONLINE</small></div>
-        <div class="vp" id="vpB"><div class="avatar sm b" id="vaB">?</div><div class="vn" id="vnB">Rakip</div><div class="vl" id="vlB"></div><div class="vbd" id="vbB"></div><div class="vs-s" id="vsB">0</div></div>
+        <div class="vp" id="vpA"><div class="avatar sm" id="vaA">?</div><div class="vn" id="vnA">Sen</div><div class="vsub"><span class="vl" id="vlA"></span><span class="vbd" id="vbA"></span></div><div class="vdots" id="vdA"></div><div class="vs-s" id="vsA"></div></div>
+        <div class="vsx"><div class="vscore"><b class="vsc" id="vscA">0</b><i>:</i><b class="vsc b" id="vscB">0</b></div><small id="dMode">ONLINE</small></div>
+        <div class="vp b" id="vpB"><div class="avatar sm b" id="vaB">?</div><div class="vn" id="vnB">Rakip</div><div class="vsub"><span class="vl" id="vlB"></span><span class="vbd" id="vbB"></span></div><div class="vdots" id="vdB"></div><div class="vs-s" id="vsB"></div></div>
       </div>
-      <div class="dboard" id="dBoard"></div>
-      <div class="dturn" id="dTurn">Senin sıran!</div>
-      <div class="dtimer"><div id="dTimeBar"></div><span id="dTimeTxt">15</span></div>
+      <div class="dboard hidden" id="dBoard"></div>
+      <div class="dstat"><div class="dturn" id="dTurn">Senin sıran!</div><div class="dtimer"><div id="dTimeBar"></div></div><span class="dtt" id="dTimeTxt">15</span></div>
       <div class="dq" id="dQ">…</div>
       <div class="djrow"><div class="dcur"><span id="dCur"></span></div><button class="djoker" id="dJoker">🃏 Joker <small>200🪙</small></button><button class="djoker solve" id="dSolve">✅ Cevabı Bil <small>5💎</small></button></div>
       <div id="dWheel" class="dwheel"><div class="bg"></div><svg id="dLines"></svg></div>
@@ -1674,7 +1706,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="72";
+const APP_VER="73";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2234,9 +2266,12 @@ function applyState(s){
   g.done=g.done||[]; const cnt=k=>g.done.filter((x,i)=>x&&i%2===k).length;
   const gcnt=k=>(g.gm||[]).filter((x,i)=>x&&i%2===k).length;
   $("vsA").textContent=`${cnt(me)}/10 doğru${gcnt(me)?` · ${gcnt(me)}💎`:""}`; $("vsB").textContent=`${cnt(op)}/10 doğru${gcnt(op)?` · ${gcnt(op)}💎`:""}`;
+  const setSc=(id,v)=>{ const e=$(id); if(e.textContent!==String(v)){ e.textContent=v; e.classList.remove("pop"); void e.offsetWidth; e.classList.add("pop"); } };
+  setSc("vscA",cnt(me)); setSc("vscB",cnt(op));
+  [["vdA",me],["vdB",op]].forEach(([id,k])=>{ let h=""; for(let j=0;j<10;j++){ const i=2*j+k; const gm=!!(g.gm&&g.gm[i]); h+=`<i class="vdot${g.done[i]?(gm?" gem":" ok"):(i<g.turn?" no":"")}${i===g.turn?" cur":""}"></i>`; } $(id).innerHTML=h; });
   const mine=g.turn%2===me;
   $("vpA").classList.toggle("act",mine); $("vpB").classList.toggle("act",!mine);
-  $("dTurn").textContent= mine ? "🎯 Senin sıran!" : `⏳ ${(g.players[op]||{}).name||"Rakip"} cevaplıyor…`;
+  $("dTurn").textContent= mine ? "🎯 Senin sıran" : `⏳ ${(g.players[op]||{}).name||"Rakip"} cevaplıyor`;
   // tahta
   const b=$("dBoard"); b.innerHTML="";
   for(let i=0;i<20;i++){ const t=document.createElement("div"); const own=i%2===me?"a":"b";
@@ -2256,7 +2291,7 @@ function applyState(s){
   clearInterval(D.tick); D.tick=setInterval(dTick,150); dTick();
 }
 function dTick(){
-  const left=Math.max(0,D.endAt-Date.now()); $("dTimeBar").style.width=(left/15000*100)+"%"; $("dTimeTxt").textContent=Math.ceil(left/1000)+" sn";
+  const left=Math.max(0,D.endAt-Date.now()); $("dTimeBar").style.width=(left/15000*100)+"%"; $("dTimeTxt").textContent=Math.ceil(left/1000)+" sn"; $("dTimeTxt").parentElement.classList.toggle("low",left>0&&left<=5000);
   if(left<=0) clearInterval(D.tick);
 }
 function showEnd(){
