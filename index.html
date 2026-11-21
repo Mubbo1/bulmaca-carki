@@ -598,17 +598,17 @@
 
   /* ===== Elmasla bilme: sinematik efekt ===== */
   .gemcine{position:fixed;inset:0;z-index:9000;pointer-events:none;display:flex;align-items:center;justify-content:center}
-  .gcbg{position:absolute;inset:0;background:radial-gradient(circle at 50% 42%,#0e7490cc 0%,#0b1220e6 45%,#050814f2 100%);animation:gcbg var(--T) ease forwards}
+  .gcbg{position:absolute;inset:0;background:radial-gradient(circle at 50% 42%,#0e749088 0%,#0b1220b8 50%,#050814cc 100%);animation:gcbg var(--T) ease forwards}
   .gemcine.quick .gcbg{background:radial-gradient(circle at 50% 42%,#0e749099 0%,#0b1220b3 50%,#05081499 100%)}
   .gcstage{position:relative;display:flex;flex-direction:column;align-items:center;transform:translateY(-6%)}
-  .gcrays{position:absolute;left:50%;top:80px;width:520px;height:520px;margin:-260px 0 0 -260px;border-radius:50%;background:repeating-conic-gradient(#67e8f938 0 7deg,transparent 7deg 18deg);-webkit-mask:radial-gradient(circle,#000 18%,transparent 66%);mask:radial-gradient(circle,#000 18%,transparent 66%);animation:gcrays var(--T) linear forwards}
+  .gcrays{position:absolute;left:50%;top:80px;width:520px;height:520px;margin:-260px 0 0 -260px;border-radius:50%;background:repeating-conic-gradient(#67e8f91f 0 7deg,transparent 7deg 18deg);-webkit-mask:radial-gradient(circle,#000 18%,transparent 66%);mask:radial-gradient(circle,#000 18%,transparent 66%);animation:gcrays var(--T) linear forwards}
   .gcring{position:absolute;left:50%;top:80px;width:160px;height:160px;margin:-80px 0 0 -80px;border-radius:50%;border:3px solid #a5f3fc;box-shadow:0 0 30px #22d3ee,inset 0 0 30px #22d3ee;animation:gcring var(--T) ease-out forwards}
   .gcgem{width:170px;height:160px;display:flex;align-items:center;justify-content:center;animation:gcgem var(--T) cubic-bezier(.2,1.5,.4,1) forwards}
-  .gcfly{position:relative;width:150px;height:131px;filter:drop-shadow(0 0 26px #22d3ee) drop-shadow(0 12px 18px #000a)}
+  .gcfly{position:relative;width:120px;height:105px;filter:drop-shadow(0 0 26px #22d3ee) drop-shadow(0 12px 18px #000a)}
   .gcfly svg{width:100%;height:100%;display:block;animation:gcfloat 1.2s ease-in-out infinite alternate}
   .gcshine{position:absolute;inset:0;clip-path:polygon(22% 5%,78% 5%,95% 34%,50% 95%,5% 34%);overflow:hidden}
   .gcshine::before{content:"";position:absolute;top:-20%;bottom:-20%;width:38%;left:-60%;background:linear-gradient(100deg,transparent,#ffffffee,transparent);transform:skewX(-18deg);animation:gcshine var(--T) ease-in-out forwards}
-  .gctitle{margin-top:10px;font-size:26px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;background:linear-gradient(90deg,#e0f2fe,#67e8f9,#ffffff,#67e8f9,#e0f2fe);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 8px #0891b2);text-align:center;padding:0 16px;animation:gctitle var(--T) ease forwards,gctshine 1.2s linear infinite}
+  .gctitle{margin-top:8px;font-size:22px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;background:linear-gradient(90deg,#e0f2fe,#67e8f9,#ffffff,#67e8f9,#e0f2fe);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 8px #0891b2);text-align:center;padding:0 16px;animation:gctitle var(--T) ease forwards,gctshine 1.2s linear infinite}
   .gctiles{display:flex;gap:6px;margin-top:12px}
   .gctiles span{width:42px;height:46px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#0b1220;border-radius:10px;background:linear-gradient(180deg,#ecfeff,#a5f3fc);box-shadow:0 4px 0 #0891b2,0 0 18px #22d3ee99;opacity:0;animation:gctile .45s cubic-bezier(.2,1.6,.4,1) forwards}
   .gemcine .sp{position:absolute;left:50%;top:80px;background:#e0f2fe;transform:rotate(45deg);border-radius:2px;box-shadow:0 0 10px #67e8f9;opacity:0;animation:gcspark calc(var(--T)*.45) ease-out forwards}
@@ -619,7 +619,7 @@
   @keyframes gcbg{0%{opacity:0}10%{opacity:1}85%{opacity:1}100%{opacity:0}}
   @keyframes gcrays{0%{transform:scale(.2) rotate(0);opacity:0}15%{opacity:1}100%{transform:scale(1.05) rotate(120deg);opacity:.6}}
   @keyframes gcring{0%{transform:scale(.2);opacity:0}12%{opacity:1}40%{transform:scale(2.4);opacity:0}100%{opacity:0}}
-  @keyframes gcgem{0%{transform:translateY(-280px) rotate(-200deg) scale(.3);opacity:0}22%{transform:translateY(0) rotate(12deg) scale(1.2);opacity:1}32%{transform:rotate(-4deg) scale(.96)}40%{transform:rotate(0) scale(1)}100%{transform:none}}
+  @keyframes gcgem{0%{transform:translateY(-60px) scale(.4);opacity:0}20%{transform:translateY(0) scale(1.08);opacity:1}30%{transform:scale(1)}100%{transform:none}}
   @keyframes gcfloat{to{transform:translateY(-6px)}}
   @keyframes gcshine{0%,30%{left:-60%}55%{left:130%}100%{left:130%}}
   @keyframes gctitle{0%,25%{transform:translateY(16px) scale(.7);opacity:0}38%{transform:none;opacity:1}100%{opacity:1}}
@@ -1773,7 +1773,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="76";
+const APP_VER="77";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2363,39 +2363,36 @@ const GEM_SVG=(id)=>`<svg viewBox="0 0 64 56" xmlns="http://www.w3.org/2000/svg"
 
 function gemParticles(cv,T,anchor){ if(!cv) return; const dpr=Math.min(2,window.devicePixelRatio||1), W=innerWidth, H=innerHeight; cv.width=W*dpr; cv.height=H*dpr; const x=cv.getContext("2d"); x.scale(dpr,dpr);
   const P=[], cols=["#ffffff","#cffafe","#67e8f9","#22d3ee","#60a5fa","#a78bfa","#f0abfc"]; let cx=W/2, cy=H*.4, burst=false, t0=performance.now();
-  const shard=(big)=>{ const a=Math.random()*Math.PI*2, v=(big?5:2.5)+Math.random()*(big?9:5); P.push({x:cx,y:cy,vx:Math.cos(a)*v,vy:Math.sin(a)*v-(big?3:1),r:big?5+Math.random()*7:2+Math.random()*3,rot:Math.random()*6,vr:(Math.random()-.5)*.4,c:cols[(Math.random()*cols.length)|0],life:1,dec:.008+Math.random()*.012,g:.18+Math.random()*.12,tw:Math.random()<.35}); };
+  const shard=(big)=>{ const a=Math.random()*Math.PI*2, v=(big?3.5:2)+Math.random()*(big?5:3.5); P.push({x:cx,y:cy,vx:Math.cos(a)*v,vy:Math.sin(a)*v-(big?3:1),r:big?3.5+Math.random()*3:1.5+Math.random()*2,rot:Math.random()*6,vr:(Math.random()-.5)*.4,c:cols[(Math.random()*cols.length)|0],life:1,dec:.008+Math.random()*.012,g:.18+Math.random()*.12,tw:Math.random()<.35}); };
   const drawShard=p=>{ x.save(); x.translate(p.x,p.y); x.rotate(p.rot); x.globalAlpha=Math.max(0,p.life); const r=p.r;
     const gr=x.createLinearGradient(-r,-r,r,r); gr.addColorStop(0,"#fff"); gr.addColorStop(.5,p.c); gr.addColorStop(1,"#1e3a8a"); x.fillStyle=gr;
     x.beginPath(); x.moveTo(0,-r*1.2); x.lineTo(r*.8,-r*.2); x.lineTo(0,r*1.3); x.lineTo(-r*.8,-r*.2); x.closePath(); x.fill();
     if(p.tw && Math.random()<.5){ x.globalAlpha=Math.max(0,p.life); x.strokeStyle="#fff"; x.lineWidth=1.2; x.beginPath(); x.moveTo(-r*2,0); x.lineTo(r*2,0); x.moveTo(0,-r*2); x.lineTo(0,r*2); x.stroke(); }
     x.restore(); };
   const loop=now=>{ const el=now-t0; if(el>T+200||!cv.isConnected) return;
-    if(!burst && el>T*.2){ burst=true; try{ const r=anchor.getBoundingClientRect(); cx=r.left+r.width/2; cy=r.top+r.height/2; }catch(e){} for(let k=0;k<70;k++) shard(k<34); }
-    if(burst && el<T*.7 && Math.random()<.5) { const a=Math.random()*Math.PI*2, d=60+Math.random()*40; P.push({x:cx+Math.cos(a)*d,y:cy+Math.sin(a)*d,vx:0,vy:-.3,r:1.5+Math.random()*2.5,rot:0,vr:0,c:"#ffffff",life:1,dec:.03,g:0,tw:true}); }
+    if(!burst && el>T*.2){ burst=true; try{ const r=anchor.getBoundingClientRect(); cx=r.left+r.width/2; cy=r.top+r.height/2; }catch(e){} for(let k=0;k<26;k++) shard(k<8); }
+    if(burst && el<T*.6 && Math.random()<.12) { const a=Math.random()*Math.PI*2, d=60+Math.random()*40; P.push({x:cx+Math.cos(a)*d,y:cy+Math.sin(a)*d,vx:0,vy:-.3,r:1.5+Math.random()*2.5,rot:0,vr:0,c:"#ffffff",life:1,dec:.03,g:0,tw:true}); }
     x.clearRect(0,0,W,H);
     for(let i=P.length-1;i>=0;i--){ const p=P[i]; p.vx*=.985; p.vy=p.vy*.985+p.g; p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; p.life-=p.dec; if(p.life<=0){ P.splice(i,1); continue; } drawShard(p); }
     requestAnimationFrame(loop); };
   requestAnimationFrame(loop); }
 function gemFx(cardId,who,word){ const c=$(cardId); if(!c) return; document.querySelectorAll(".gemcine").forEach(e=>e.remove());
-  const mineFx=cardId==="vpA", T=mineFx?2600:1700; const W=[...(word||"")];
+  const mineFx=cardId==="vpA", T=mineFx?2200:1500; const W=[...(word||"")];
   const ov=document.createElement("div"); ov.className="gemcine"+(mineFx?"":" quick"); ov.style.setProperty("--T",T+"ms");
-  let sp=""; for(let k=0;k<22;k++){ const ang=k/22*Math.PI*2+Math.random()*.3, r=110+Math.random()*90, sz=4+Math.random()*7; sp+=`<i class="sp" style="--x:${Math.cos(ang)*r}px;--y:${Math.sin(ang)*r}px;width:${sz}px;height:${sz}px;animation-delay:${(.32+Math.random()*.2)*T/2600}s"></i>`; }
-  let st=""; for(let k=0;k<7;k++){ st+=`<b class="tw" style="left:${15+Math.random()*70}%;top:${18+Math.random()*50}%;animation-delay:${(.5+Math.random()*.8)*T/2600}s">✦</b>`; }
+  let sp=""; for(let k=0;k<0;k++){ const ang=k/22*Math.PI*2+Math.random()*.3, r=110+Math.random()*90, sz=4+Math.random()*7; sp+=`<i class="sp" style="--x:${Math.cos(ang)*r}px;--y:${Math.sin(ang)*r}px;width:${sz}px;height:${sz}px;animation-delay:${(.32+Math.random()*.2)*T/2600}s"></i>`; }
+  let st=""; for(let k=0;k<3;k++){ st+=`<b class="tw" style="left:${15+Math.random()*70}%;top:${18+Math.random()*50}%;animation-delay:${(.5+Math.random()*.8)*T/2600}s">✦</b>`; }
   const tiles=W.map((ch,k)=>`<span style="animation-delay:${(.55+k*.08)*T/2600}s">${ch}</span>`).join("");
   ov.innerHTML=`<div class="gcbg"></div><div class="gcstage"><div class="gcrays"></div><div class="gcring"></div>${sp}${st}<div class="gcgem"><div class="gcfly">${GEM_SVG("gcx"+Date.now())}<div class="gcshine"></div></div></div><div class="gctitle">${who}</div>${W.length?`<div class="gctiles">${tiles}</div>`:""}</div>`;
-  ov.querySelector(".gcstage").insertAdjacentHTML("afterbegin",'<div class="gcprism"></div>');
-  ov.insertAdjacentHTML("beforeend",'<canvas class="gccv"></canvas><div class="gcflash"></div>');
+  ov.insertAdjacentHTML("beforeend",'<canvas class="gccv"></canvas>');
   document.body.appendChild(ov);
   gemParticles(ov.querySelector(".gccv"), T, ov.querySelector(".gcgem"));
-  setTimeout(()=>{ const gs=$("dGame"); if(gs){ gs.classList.remove("gshake"); void gs.offsetWidth; gs.classList.add("gshake"); } }, T*.2);
   // elmas sonunda oyuncunun kartına uçsun
   setTimeout(()=>{ const g=ov.querySelector(".gcfly"); if(!g) return; const r1=g.getBoundingClientRect(), r2=c.getBoundingClientRect();
     const dx=(r2.left+r2.width*(mineFx?.85:.15))-(r1.left+r1.width/2), dy=(r2.top+8)-(r1.top+r1.height/2);
     g.style.transition=`transform ${T*.2}ms cubic-bezier(.5,0,.75,0),opacity ${T*.2}ms`; g.style.transform=`translate(${dx}px,${dy}px) scale(.18)`; ov.classList.add("out"); }, T*.76);
   setTimeout(()=>{ c.classList.add("gemhit"); const ch=c.querySelector(".vgem"); if(ch){ ch.classList.remove("bump"); void ch.offsetWidth; ch.classList.add("bump"); } }, T*.95);
   setTimeout(()=>{ ov.remove(); }, T+60); setTimeout(()=>c.classList.remove("gemhit"), T+700);
-  beep([[1046,.07],[1318,.07],[1568,.07],[2093,.09],[2637,.22]]); try{ haptic("turn"); }catch(e){}
-  setTimeout(()=>{ beep([[2093,.05],[2637,.05],[3136,.16]]); try{ haptic("win"); }catch(e){} }, T*.5); }
+  beep([[1318,.07],[1568,.07],[2093,.16]]); try{ haptic("turn"); }catch(e){} }
 function dTick(){
   const left=Math.max(0,D.endAt-Date.now()); $("dTimeBar").style.width=(left/15000*100)+"%"; $("dTimeTxt").textContent=Math.ceil(left/1000)+" sn"; $("dTimeTxt").parentElement.classList.toggle("low",left>0&&left<=5000);
   if(left<=0) clearInterval(D.tick);
