@@ -40,7 +40,6 @@
   const op=document.getElementById("open");
   op.href = isIOS ? app : "./?f="+c;
   if(!isIOS) op.textContent="🎡 Oyunu Aç ve Arkadaş Ol (web)";
-  if(isIOS && c){ setTimeout(()=>{ location.href=app; },400); }
 </script>
 </body>
 </html>
