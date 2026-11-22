@@ -1854,7 +1854,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="88";
+const APP_VER="89";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2541,7 +2541,7 @@ function showEnd(){
     const opN=vis(g.players[1-me]).name||"Rakip";
     $("dEndScore").innerHTML=`<div><b>${c(me)}</b><span>Sen${gq(me)?` · ${gq(me)}💎`:""}</span></div><div class="vs">VS</div><div><b>${c(1-me)}</b><span>${esc(opN)}${gq(1-me)?` · ${gq(1-me)}💎`:""}</span></div>`;
     if(won||draw){ if(!D.endConf){ D.endConf=true; confetti($("dEndConf"),won?70:35); } } else $("dEndConf").innerHTML=""; }
-  if(!D.endAd){ D.endAd=true; clearTimeout(D.adT); D.adT=setTimeout(()=>{ if(!$("dEnd").classList.contains("hidden")) showInterstitial(); },3500); }
+  if(!D.endAd){ D.endAd=true; D.endAdShown=false; clearTimeout(D.adT); D.adT=setTimeout(()=>{ if(!$("dEnd").classList.contains("hidden")&&!D.endAdShown){ D.endAdShown=true; showInterstitial(); } },2200); }
   if(!D.endSfx){ D.endSfx=true; if(won||draw){ applause(); buzz([100,60,100]); } else { sadTrombone(); buzz(400); } }
   $("dEndTitle").textContent= draw?"Berabere!":won?"Kazandın!":"Kaybettin";
   const why={time:"süresinde cevap veremedi",left:"oyundan ayrıldı",draw:""}[g.reason]||"";
@@ -2603,6 +2603,7 @@ function dSubmit(w,gm){
 // ---------- düğmeler ----------
 $("hDuel").onclick=openDuel;
 $("duelBack").onclick=()=>{
+  if(!$("dEnd").classList.contains("hidden")&&D.endAd&&!D.endAdShown){ D.endAdShown=true; clearTimeout(D.adT); showInterstitial(()=>$("duelBack").onclick()); return; }
   // rakip ararken, oda beklerken, maç içinde ya da sonunda: önce düello lobisine dön; lobideyken ana menüye
   if($("dLobby").classList.contains("hidden")){
     if(D.g&&(D.g.status==="play"||D.g.status==="intro")){ finish(D.host?1-myIdx():myIdx()===0?1:0,"left"); }
@@ -2637,7 +2638,9 @@ $("dFriendBtn").onclick=()=>{ const f=$("dFriend"); f.classList.toggle("hidden")
 $("dCreate").onclick=()=>{ D.quick=false; D.retries=0; if(!nameOk()) return; if(!$("dName").value.trim()){ toast("Önce adını yaz"); $("dName").focus(); return; } joinRoom(rcode(),true).then(()=>{ $("dWaitNote").textContent="Oda kodunu arkadaşına gönder"; $("dWaitCode").style.display=""; $("dWaitTitle").textContent="Arkadaşın bekleniyor…"; }); };
 $("dJoin").onclick=()=>{ D.quick=false; D.retries=0; if(!nameOk()) return; const c=$("dCode").value.trim().toUpperCase(); if(c.length<4){ toast("4 haneli oda kodunu gir"); return; } if(!$("dName").value.trim()){ toast("Önce adını yaz"); return; } joinRoom(c,false).then(()=>{ $("dWaitCode").style.display=""; $("dWaitTitle").textContent="Odaya bağlanılıyor…"; }); };
 $("dCancel").onclick=()=>{ D.quick=false; D.retries=0; leaveDuel(); dShow("dLobby"); };
-$("dAgain").onclick=()=>{ leaveDuel(); dShow("dLobby"); renderLives(); };
+$("dAgain").onclick=()=>{ const go=()=>{ leaveDuel(); dShow("dLobby"); renderLives(); };
+  // maç sonu reklamı: oyuncu sonuç ekranından hızlı çıksa da reklam bir kez gösterilir
+  if(D.endAd&&!D.endAdShown){ D.endAdShown=true; clearTimeout(D.adT); showInterstitial(go); } else go(); };
 $("dBot").onclick=()=>{ leaveDuel(); D.mode="bot"; D.host=true; D.me="me";
   const bots=["Bilge Bot","Zeki Robot","Kelime Ustası","Çark Botu"];
   D.ansTurn=-1; D.g={status:"wait",players:[{id:"me",name:myName(),bd:myBd(),ph:myPh(),w:D.stat.w,l:D.stat.l},{id:"bot",name:bots[Math.floor(Math.random()*bots.length)],bd:BADGES.map(b=>b[0]).sort(()=>Math.random()-.5).slice(0,1+Math.floor(Math.random()*3)).join(","),w:Math.floor(Math.random()*120)}],qs:makeQuestions(),cat:D.cat,turn:0,done:[],v:1};
