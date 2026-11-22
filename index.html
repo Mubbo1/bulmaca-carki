@@ -718,6 +718,13 @@
   .frmy b{letter-spacing:2px;font-size:14px;color:#ffd166}
   .frempty{font-size:13px;opacity:.75;text-align:center;padding:8px}
   .rk .fadd{margin-left:4px;background:#ffffff1f;border:0;border-radius:10px;color:#fff;font-size:13px;padding:4px 7px}
+
+  .rans{margin:10px 0 2px;background:#ffffff12;border:1.5px solid #ffffff22;border-radius:14px;padding:10px 12px;text-align:left}
+  .rans small{display:block;font-size:11px;letter-spacing:.4px;opacity:.7;font-weight:800;text-transform:uppercase;margin-bottom:4px}
+  .rans .q{font-size:14px;line-height:1.35;opacity:.95}
+  .rans .a{margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;opacity:.85}
+  .rans .a span{display:inline-flex;gap:3px}
+  .rans .a i{font-style:normal;width:26px;height:30px;border-radius:7px;background:#43d9ad;color:#063;font-weight:900;font-size:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 0 #1f9e78}
 </style>
 </head>
 <body>
@@ -1047,6 +1054,7 @@
         <div class="rname" id="dEndName"></div>
         <div id="dEndTxt" class="rmsg"></div>
         <div class="rscore" id="dEndScore"></div>
+        <div class="rans hidden" id="dEndAns"></div>
         <div class="wreward" style="margin-top:12px"><span id="dEndLives">❤️❤️❤️</span></div>
         <div id="dEndLvUp"></div>
       </div>
@@ -1883,7 +1891,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="94";
+const APP_VER="95";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2666,6 +2674,10 @@ function showEnd(){
   if(!D.endSfx){ try{ ["ovFund","ovShop"].forEach(id=>$(id)&&$(id).classList.add("hidden")); }catch(e){} }
   if(!D.endSfx){ D.endSfx=true; if(won||draw){ applause(); buzz([100,60,100]); } else { sadTrombone(); buzz(400); } }
   $("dEndTitle").textContent= draw?"Berabere!":won?"Kazandın!":"Kaybettin";
+  // maçı bitiren sorunun cevabı
+  { const box=$("dEndAns"), qi=g.turn, q=(g.qs||[])[qi]; if(g.reason==="time"&&q&&!((g.done||[])[qi])){ const mine=qi%2===me;
+      box.innerHTML=`<small>${mine?"Bilemediğin soru":"Rakibinin bilemediği soru"}</small><div class="q"></div><div class="a">Cevap: <span>${[...QW(q)].map(c=>`<i>${esc(c)}</i>`).join("")}</span></div>`;
+      box.querySelector(".q").textContent=QT(q); box.classList.remove("hidden"); } else box.classList.add("hidden"); }
   { const op=g.players[1-me]||{}, b=$("dAddFr"); if(D.mode==="online"&&op.uid&&op.uid!==D.uid&&!isFriend(op.uid)&&!isBlocked(op.uid)){ b.style.display=""; b.textContent=`➕ ${vis(op).name||"Rakibi"} arkadaş olarak ekle`; b.onclick=()=>{ addFriend(op.uid,op.name,vis(op).ph); b.style.display="none"; }; } else b.style.display="none"; }
   const why={time:"süresinde cevap veremedi",left:"oyundan ayrıldı",draw:""}[g.reason]||"";
   $("dEndTxt").textContent= draw ? "İkiniz de 10 sorunun hepsini bildiniz!" : won ? `${opName} ${why}.` : (g.reason==="time"?"15 saniyede cevap veremedin.":"Bağlantı koptu.");
