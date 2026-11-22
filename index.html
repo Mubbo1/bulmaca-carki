@@ -1907,7 +1907,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="98";
+const APP_VER="99";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2317,6 +2317,7 @@ async function loadProfile(){ if(!(D.db&&D.uid)) return false;
       DCATS.forEach(([c])=>{ const cc=(cur.c||{})[c]||{}; ns.c[c]={w:mx(d["w_"+c],(bc[c]||{}).w,cc.w),l:mx(d["l_"+c],(bc[c]||{}).l,cc.l)}; });
       // 22.11: sıfırlanma hatasında kaybolan eski sonuçlar geri eklenir (yalnızca bir kez)
       if(d.fix1) D.fix1=1; if(D.uid==="OBuZveNqaJOg3CRQQU1721vIEfN2"&&!store.get("statFix1",0)&&!d.fix1){ ns.w+=3; ns.l+=1; store.set("statFix1",1); D.needFix=1; D.fix1=1; }
+      if(d.fix2) D.fix2=1; if(D.uid==="XLa0C3B7bpRJgZdxJzEcCCQ2h4o2"&&!store.get("statFix2",0)&&!d.fix2){ ns.w+=8; ns.l+=1; store.set("statFix2",1); D.needFix=1; D.fix2=1; }
       D.stat=ns; D.profLoaded=true; statBackup();
       if(!$("dName").value && d.name){ $("dName").value=d.name; store.set("pname",d.name); }
       if(D.needFix||ns.w!==(+d.wins||0)||ns.l!==(+d.losses||0)) setTimeout(saveProfile,300);
@@ -2326,7 +2327,7 @@ async function saveProfile(){
   store.set("pname",myName()); setAv($("dAvatar"),myName(),myPh());
   if(!(D.db&&D.uid)) return; statBackup();
   if(!D.profLoaded && !(await loadProfile())) return; // profil okunamadıysa sunucudaki sonuçların üstüne yazma
-  try{ await D.db.doc("profiles/"+D.uid).set(Object.assign({name:myName(),...(D.fix1?{fix1:1}:{}),bd:myBd(),ph:myPh(),wins:D.stat.w,losses:D.stat.l,draws:D.stat.d,updated:Date.now(),[wkey()]:myWeekWins()}, ...DCATS.map(([c])=>({["w_"+c]:catStat(c).w,["l_"+c]:catStat(c).l})))); }catch(e){}
+  try{ await D.db.doc("profiles/"+D.uid).set(Object.assign({name:myName(),...(D.fix1?{fix1:1}:{}),...(D.fix2?{fix2:1}:{}),bd:myBd(),ph:myPh(),wins:D.stat.w,losses:D.stat.l,draws:D.stat.d,updated:Date.now(),[wkey()]:myWeekWins()}, ...DCATS.map(([c])=>({["w_"+c]:catStat(c).w,["l_"+c]:catStat(c).l})))); }catch(e){}
 }
 async function loadRank(){
   const box=$("dRank");
@@ -2429,7 +2430,7 @@ function openReport(){ const p=opp(); if(D.mode!=="online"||!p||!p.uid){ toast("
   $("repName").textContent=vis(p).name; $("admBox").classList.add("hidden"); if(isAdmin()) openAdmin(p.uid,p.name); $("ovReport").classList.remove("hidden"); }
 
 // ---------- YÖNETİCİ BANI (yalnızca yönetici hesabında görünür) ----------
-const ADMINS=["OBuZveNqaJOg3CRQQU1721vIEfN2","XlpT4r43bpaet2LEE6nkWJRYAeB3"]; D.bans={};
+const ADMINS=["OBuZveNqaJOg3CRQQU1721vIEfN2","XlpT4r43bpaet2LEE6nkWJRYAeB3","XLa0C3B7bpRJgZdxJzEcCCQ2h4o2"]; D.bans={};
 const isAdmin=()=>!!(D.uid&&ADMINS.includes(D.uid));
 async function loadBans(){ if(!D.db) return D.bans; try{ const sn=await D.db.doc("bans").get(); D.bans=(sn.exists?sn.data():{})||{}; }catch(e){} return D.bans; }
 const banOf=uid=>(uid&&D.bans&&D.bans[uid])||{};
