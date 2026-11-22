@@ -739,6 +739,7 @@
   @keyframes runaway{0%{transform:none}20%{transform:translateX(-6px) rotate(-6deg)}100%{transform:translateX(104px) scale(.35);opacity:0}}
   @keyframes dustp{0%,10%{opacity:0;transform:scale(.4)}30%{opacity:1;transform:translateX(30px) scale(1)}100%{opacity:0;transform:translateX(90px) scale(1.4)}}
   @keyframes lwinp{0%{transform:scale(0);opacity:0}100%{transform:none;opacity:1}}
+  .spinbox h2{font-size:clamp(19px,5.3vw,25px);white-space:nowrap;padding:0 34px}
 </style>
 </head>
 <body>
@@ -1906,7 +1907,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="96";
+const APP_VER="97";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
