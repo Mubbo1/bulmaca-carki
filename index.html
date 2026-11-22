@@ -1673,12 +1673,7 @@ $("btnInfo").onclick=()=>{
   selectWord(wi); toast("Bilgi açıldı (-1 💎)");
 };
 let adTimer=null;
-$("btnAd").onclick=()=>{ adReward=null; if(noAds){ $("ovShop").classList.add("hidden"); setGems(gems+1); toast("+1 💎 kazandın (reklamsız)"); return; }
-  $("adNote").textContent="Reklam bitince 1 💎 kazanacaksın"; $("btnAdDone").textContent="Kapat ve 1 💎 al";
-  $("ovShop").classList.add("hidden"); $("ovAd").classList.remove("hidden");
-  let n=5; $("adCount").textContent=n; const b=$("btnAdDone"); b.disabled=true; b.style.opacity=.4;
-  clearInterval(adTimer); adTimer=setInterval(()=>{ n--; $("adCount").textContent=Math.max(n,0); if(n<=0){ clearInterval(adTimer); b.disabled=false; b.style.opacity=1; } },1000);
-};
+$("btnAd").onclick=()=>{ $("ovShop").classList.add("hidden"); showAd(()=>{ setGems(gems+1); toast("+1 💎 kazandın"); try{ SFX.win(); }catch(e){} },"💎"); };
 $("btnAdDone").onclick=()=>{ $("ovAd").classList.add("hidden"); if(typeof adReward==="function"){ const f=adReward; adReward=null; f(); return; } setGems(gems+1); toast("+1 💎 kazandın"); };
 document.querySelectorAll("[data-gem]").forEach(b=>b.onclick=()=>{ const n=+b.dataset.gem; setGems(gems+n); $("ovShop").classList.add("hidden"); toast(`Deneme: ${n} 💎 eklendi (ödeme alınmadı)`); });
 
@@ -1907,7 +1902,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="101";
+const APP_VER="102";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
