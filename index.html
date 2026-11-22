@@ -1907,7 +1907,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="100";
+const APP_VER="101";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2317,7 +2317,7 @@ async function loadProfile(){ if(!(D.db&&D.uid)) return false;
       DCATS.forEach(([c])=>{ const cc=(cur.c||{})[c]||{}; ns.c[c]={w:mx(d["w_"+c],(bc[c]||{}).w,cc.w),l:mx(d["l_"+c],(bc[c]||{}).l,cc.l)}; });
       // 22.11: sıfırlanma hatasında kaybolan eski sonuçlar geri eklenir (yalnızca bir kez)
       if(d.fix1) D.fix1=1; if(D.uid==="OBuZveNqaJOg3CRQQU1721vIEfN2"&&!store.get("statFix1",0)&&!d.fix1){ ns.w+=3; ns.l+=1; store.set("statFix1",1); D.needFix=1; D.fix1=1; }
-      if(d.fix2) D.fix2=1; if(D.uid==="XLa0C3B7bpRJgZdxJzEcCCQ2h4o2"&&!store.get("statFix2",0)&&!d.fix2){ ns.w+=8; ns.l+=1; store.set("statFix2",1); try{ addCoins(500); setGems(gems+20); toast("🎁 Eski hesabın: +500 🪙 +20 💎"); }catch(e){} D.needFix=1; D.fix2=1; }
+      if(d.fix2) D.fix2=1; if(D.uid==="XLa0C3B7bpRJgZdxJzEcCCQ2h4o2"&&!store.get("statFix2",0)&&!d.fix2){ ns.w+=8; ns.l+=1; store.set("statFix2",1); try{ addCoins(15000); setGems(gems+150); toast("🎁 Eski hesabın: +15000 🪙 +150 💎"); }catch(e){} D.needFix=1; D.fix2=1; }
       D.stat=ns; D.profLoaded=true; statBackup();
       if(!$("dName").value && d.name){ $("dName").value=d.name; store.set("pname",d.name); }
       if(D.needFix||ns.w!==(+d.wins||0)||ns.l!==(+d.losses||0)) setTimeout(saveProfile,300);
