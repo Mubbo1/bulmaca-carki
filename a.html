@@ -19,7 +19,7 @@
   .y{background:#ffb703;color:#1b262c;box-shadow:0 5px 0 #b07a00}
   .w{background:#ffffff1f;color:#fff;border:1.5px solid #ffffff40}
   .code{margin-top:18px;background:#ffffff14;border-radius:14px;padding:12px;font-size:14px}
-  .code b{display:block;font-size:28px;letter-spacing:6px;color:#ffd166;margin-top:4px}
+  .code .k{display:block;font-size:28px;letter-spacing:6px;color:#ffd166;margin-top:4px}
 </style>
 </head>
 <body>
@@ -29,7 +29,7 @@
   <p id="d">Bulmaca Çarkı'nda arkadaş olun ve online düelloda kapışın.</p>
   <a class="b y" id="open" href="#">🎡 Oyunu Aç ve Arkadaş Ol</a>
   <a class="b w" href="https://apps.apple.com/tr/app/id6835316819">📲 App Store'dan Ücretsiz İndir</a>
-  <div class="code">Oyunu yeni indirdiysen: <br>Düello → 👥 Arkadaşınla Oyna → <b>Arkadaşlık kodu</b> kutusuna şu kodu yaz:<b id="k">——</b></div>
+  <div class="code">Oyunu yeni indirdiysen: <br>Düello → 👥 Arkadaşınla Oyna → <strong>Arkadaşlık kodu</strong> kutusuna şu kodu yaz:<b class="k" id="k">——</b></div>
 </div>
 <script>
   const q=new URLSearchParams(location.search), c=(q.get("c")||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6), n=(q.get("n")||"").slice(0,20);
