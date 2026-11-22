@@ -1854,7 +1854,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="89";
+const APP_VER="90";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2541,7 +2541,7 @@ function showEnd(){
     const opN=vis(g.players[1-me]).name||"Rakip";
     $("dEndScore").innerHTML=`<div><b>${c(me)}</b><span>Sen${gq(me)?` · ${gq(me)}💎`:""}</span></div><div class="vs">VS</div><div><b>${c(1-me)}</b><span>${esc(opN)}${gq(1-me)?` · ${gq(1-me)}💎`:""}</span></div>`;
     if(won||draw){ if(!D.endConf){ D.endConf=true; confetti($("dEndConf"),won?70:35); } } else $("dEndConf").innerHTML=""; }
-  if(!D.endAd){ D.endAd=true; D.endAdShown=false; clearTimeout(D.adT); D.adT=setTimeout(()=>{ if(!$("dEnd").classList.contains("hidden")&&!D.endAdShown){ D.endAdShown=true; showInterstitial(); } },2200); }
+  if(!D.endAd){ D.endAd=true; { const n=store.get("duelEnds",0)+1; store.set("duelEnds",n); D.endAdShown = n%2!==0; } /* reklam 2 maçta bir */ clearTimeout(D.adT); D.adT=setTimeout(()=>{ if(!$("dEnd").classList.contains("hidden")&&!D.endAdShown){ D.endAdShown=true; showInterstitial(); } },2200); }
   if(!D.endSfx){ D.endSfx=true; if(won||draw){ applause(); buzz([100,60,100]); } else { sadTrombone(); buzz(400); } }
   $("dEndTitle").textContent= draw?"Berabere!":won?"Kazandın!":"Kaybettin";
   const why={time:"süresinde cevap veremedi",left:"oyundan ayrıldı",draw:""}[g.reason]||"";
