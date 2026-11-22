@@ -1907,7 +1907,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="97";
+const APP_VER="98";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2429,7 +2429,7 @@ function openReport(){ const p=opp(); if(D.mode!=="online"||!p||!p.uid){ toast("
   $("repName").textContent=vis(p).name; $("admBox").classList.add("hidden"); if(isAdmin()) openAdmin(p.uid,p.name); $("ovReport").classList.remove("hidden"); }
 
 // ---------- YÖNETİCİ BANI (yalnızca yönetici hesabında görünür) ----------
-const ADMINS=["OBuZveNqaJOg3CRQQU1721vIEfN2"]; D.bans={};
+const ADMINS=["OBuZveNqaJOg3CRQQU1721vIEfN2","XlpT4r43bpaet2LEE6nkWJRYAeB3"]; D.bans={};
 const isAdmin=()=>!!(D.uid&&ADMINS.includes(D.uid));
 async function loadBans(){ if(!D.db) return D.bans; try{ const sn=await D.db.doc("bans").get(); D.bans=(sn.exists?sn.data():{})||{}; }catch(e){} return D.bans; }
 const banOf=uid=>(uid&&D.bans&&D.bans[uid])||{};
