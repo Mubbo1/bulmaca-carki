@@ -1854,7 +1854,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="90";
+const APP_VER="91";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2137,7 +2137,7 @@ async function initNet(){
   $("dNet").textContent = D.room ? "🟢 Online hazır. Oda kur ya da arkadaşının kodunu gir." : "Online bağlantı yok; bota karşı antrenman yapabilirsin.";
   $("dCreate").disabled=$("dJoin").disabled=$("dQuick").disabled=!D.room;
   if(D.db && D.uid){
-    try{ const s=await D.db.doc("profiles/"+D.uid).get(); if(s.exists){ const d=s.data(); D.stat={w:d.wins||0,l:d.losses||0,d:d.draws||0,c:{}}; DCATS.forEach(([c])=>{ D.stat.c[c]={w:d["w_"+c]||0,l:d["l_"+c]||0}; }); if(!$("dName").value && d.name){ $("dName").value=d.name; store.set("pname",d.name);} } }catch(e){}
+    await loadProfile();
     renderStats(); claimWeekly();
   }
 }
@@ -2253,10 +2253,27 @@ async function claimWeekly(){
     setTimeout(()=>{ try{ applause(); }catch(e){} },300);
   }catch(e){}
 }
+
+// ---------- İSTATİSTİK KORUMASI: sunucudaki profil yüklenmeden asla yazılmaz; telefonda yedek tutulur, büyük olan alınır ----------
+function statBackup(){ try{ store.set("dstatBk",JSON.parse(JSON.stringify(D.stat))); }catch(e){} }
+async function loadProfile(){ if(!(D.db&&D.uid)) return false;
+  for(let k=0;k<3&&!D.profLoaded;k++){
+    try{ const s=await D.db.doc("profiles/"+D.uid).get(); const d=s.exists?s.data():{}; const bk=store.get("dstatBk",null)||{}, bc=bk.c||{}, cur=D.stat||{};
+      const mx=(...a)=>Math.max(...a.map(x=>+x||0));
+      const ns={w:mx(d.wins,bk.w,cur.w),l:mx(d.losses,bk.l,cur.l),d:mx(d.draws,bk.d,cur.d),c:{}};
+      DCATS.forEach(([c])=>{ const cc=(cur.c||{})[c]||{}; ns.c[c]={w:mx(d["w_"+c],(bc[c]||{}).w,cc.w),l:mx(d["l_"+c],(bc[c]||{}).l,cc.l)}; });
+      // 22.11: sıfırlanma hatasında kaybolan eski sonuçlar geri eklenir (yalnızca bir kez)
+      if(d.fix1) D.fix1=1; if(D.uid==="OBuZveNqaJOg3CRQQU1721vIEfN2"&&!store.get("statFix1",0)&&!d.fix1){ ns.w+=3; ns.l+=1; store.set("statFix1",1); D.needFix=1; D.fix1=1; }
+      D.stat=ns; D.profLoaded=true; statBackup();
+      if(!$("dName").value && d.name){ $("dName").value=d.name; store.set("pname",d.name); }
+      if(D.needFix||ns.w!==(+d.wins||0)||ns.l!==(+d.losses||0)) setTimeout(saveProfile,300);
+    }catch(e){ await new Promise(r=>setTimeout(r,1500)); } }
+  return !!D.profLoaded; }
 async function saveProfile(){
   store.set("pname",myName()); setAv($("dAvatar"),myName(),myPh());
-  if(!(D.db&&D.uid)) return;
-  try{ await D.db.doc("profiles/"+D.uid).set(Object.assign({name:myName(),bd:myBd(),ph:myPh(),wins:D.stat.w,losses:D.stat.l,draws:D.stat.d,updated:Date.now(),[wkey()]:myWeekWins()}, ...DCATS.map(([c])=>({["w_"+c]:catStat(c).w,["l_"+c]:catStat(c).l})))); }catch(e){}
+  if(!(D.db&&D.uid)) return; statBackup();
+  if(!D.profLoaded && !(await loadProfile())) return; // profil okunamadıysa sunucudaki sonuçların üstüne yazma
+  try{ await D.db.doc("profiles/"+D.uid).set(Object.assign({name:myName(),...(D.fix1?{fix1:1}:{}),bd:myBd(),ph:myPh(),wins:D.stat.w,losses:D.stat.l,draws:D.stat.d,updated:Date.now(),[wkey()]:myWeekWins()}, ...DCATS.map(([c])=>({["w_"+c]:catStat(c).w,["l_"+c]:catStat(c).l})))); }catch(e){}
 }
 async function loadRank(){
   const box=$("dRank");
