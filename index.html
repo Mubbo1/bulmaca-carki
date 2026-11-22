@@ -725,6 +725,20 @@
   .rans .a{margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;opacity:.85}
   .rans .a span{display:inline-flex;gap:3px}
   .rans .a i{font-style:normal;width:26px;height:30px;border-radius:7px;background:#43d9ad;color:#063;font-weight:900;font-size:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 0 #1f9e78}
+
+  /* ===== Rakip maçtan ayrıldı ===== */
+  .rleft{margin:12px 0 4px;padding:14px 12px 12px;border-radius:16px;background:linear-gradient(135deg,#ffffff14,#ffffff06);border:1.5px dashed #ffffff33;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .rleft b{font-size:18px}
+  .rleft small{font-size:13px;opacity:.8;text-align:center;line-height:1.35}
+  .lstage{position:relative;width:200px;height:70px;margin-bottom:4px}
+  .lstage .avatar{position:absolute;left:20px;top:6px;width:56px;height:56px;font-size:24px;filter:grayscale(1);opacity:.9;animation:runaway 2.4s cubic-bezier(.5,0,.75,0) .5s forwards}
+  .lstage .dust{position:absolute;left:4px;top:24px;font-size:26px;opacity:0;animation:dustp 2.4s ease .6s forwards}
+  .lstage .door{position:absolute;right:10px;top:4px;font-size:52px;filter:drop-shadow(0 4px 8px #0008)}
+  .lwin{margin-top:8px;background:linear-gradient(135deg,#ffd166,#ffb703);color:#3a2500;font-weight:900;font-size:14px;padding:6px 14px;border-radius:999px;box-shadow:0 0 16px #ffb70388;animation:lwinp .6s cubic-bezier(.2,1.8,.4,1) 2.6s both}
+  .rleft.me .lwin{background:#ffffff22;color:#ffc2d0;box-shadow:none}
+  @keyframes runaway{0%{transform:none}20%{transform:translateX(-6px) rotate(-6deg)}100%{transform:translateX(104px) scale(.35);opacity:0}}
+  @keyframes dustp{0%,10%{opacity:0;transform:scale(.4)}30%{opacity:1;transform:translateX(30px) scale(1)}100%{opacity:0;transform:translateX(90px) scale(1.4)}}
+  @keyframes lwinp{0%{transform:scale(0);opacity:0}100%{transform:none;opacity:1}}
 </style>
 </head>
 <body>
@@ -1053,6 +1067,7 @@
         <h2 id="dEndTitle">Kazandın!</h2>
         <div class="rname" id="dEndName"></div>
         <div id="dEndTxt" class="rmsg"></div>
+        <div class="rleft hidden" id="dEndLeft"><div class="lstage"><div class="avatar" id="dEndLeftAv">?</div><span class="dust">💨</span><span class="door">🚪</span></div><b id="dEndLeftT"></b><small id="dEndLeftS"></small><div class="lwin" id="dEndLeftW">🏆 +1 Galibiyet</div></div>
         <div class="rscore" id="dEndScore"></div>
         <div class="rans hidden" id="dEndAns"></div>
         <div class="wreward" style="margin-top:12px"><span id="dEndLives">❤️❤️❤️</span></div>
@@ -1891,7 +1906,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="95";
+const APP_VER="96";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2675,6 +2690,12 @@ function showEnd(){
   if(!D.endSfx){ D.endSfx=true; if(won||draw){ applause(); buzz([100,60,100]); } else { sadTrombone(); buzz(400); } }
   $("dEndTitle").textContent= draw?"Berabere!":won?"Kazandın!":"Kaybettin";
   // maçı bitiren sorunun cevabı
+  { const lb=$("dEndLeft"); if(g.reason==="left"&&!draw){ const op=g.players[1-me]||{}, on=vis(op).name||"Rakibin";
+      lb.classList.remove("hidden"); lb.classList.toggle("me",!won);
+      if(won){ setAv($("dEndLeftAv"),on,vis(op).ph); $("dEndLeftT").textContent="Rakibin kaçtı! 🏃"; $("dEndLeftS").textContent=`${on} maçı yarıda bırakıp çıktı. Galibiyet senin, tebrikler!`; $("dEndLeftW").textContent="🏆 +1 Galibiyet"; }
+      else { setAv($("dEndLeftAv"),myName(),myPh()); $("dEndLeftT").textContent="Maçtan ayrıldın"; $("dEndLeftS").textContent="Maç bitmeden çıktığın için yenik sayıldın."; $("dEndLeftW").textContent=unlimited?"❤️ Can gitmedi":"❤️ −1 can"; }
+      $("dEndScore").style.display="none"; $("dEndTxt").style.display="none";
+    } else { lb.classList.add("hidden"); $("dEndScore").style.display=""; $("dEndTxt").style.display=""; } }
   { const box=$("dEndAns"), qi=g.turn, q=(g.qs||[])[qi]; if(g.reason==="time"&&q&&!((g.done||[])[qi])){ const mine=qi%2===me;
       box.innerHTML=`<small>${mine?"Bilemediğin soru":"Rakibinin bilemediği soru"}</small><div class="q"></div><div class="a">Cevap: <span>${[...QW(q)].map(c=>`<i>${esc(c)}</i>`).join("")}</span></div>`;
       box.querySelector(".q").textContent=QT(q); box.classList.remove("hidden"); } else box.classList.add("hidden"); }
@@ -2690,7 +2711,7 @@ function showEnd(){
     else if(!draw){ store.set("streak",0); store.set("lastLost",1); }
     if((g.done||[]).filter((x,i)=>x&&i%2===me).length>=10) store.set("bPerfect",1);
     store.set("dCorrect",store.get("dCorrect",0)+(g.done||[]).filter((x,i)=>x&&i%2===me).length);
-    if(won && !(g.gm||[]).some((x,i)=>x&&i%2===me) && !(g.jk||[]).some((x,i)=>x&&i%2===me)) store.set("bNoHelp",1);
+    if(won && g.reason!=="left" && (g.done||[]).filter((x,i)=>x&&i%2===me).length>=3 && !(g.gm||[]).some((x,i)=>x&&i%2===me) && !(g.jk||[]).some((x,i)=>x&&i%2===me)) store.set("bNoHelp",1);
     renderStats(); saveProfile();
   }
   $("dEndLives").innerHTML = D.mode==="bot" ? "🤖 Antrenman — can harcanmadı" : unlimited ? "♾️ Sınırsız can — can gitmedi" : (!draw&&!won ? `❤️ −1 · Kalan can: ${lives}` : `Canların: ${"❤️".repeat(lives)||"0"}`);
