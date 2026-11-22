@@ -702,6 +702,20 @@
   .bdgrid button.lock{opacity:.6!important;filter:none!important}
   .bdgrid button.lock .e{filter:grayscale(1);opacity:.55}
   .bdgrid button.got{border-color:#43d9ad66}
+
+  /* ===== Arkadaş listesi ===== */
+  .frlist{display:flex;flex-direction:column;gap:6px;margin:8px 0 2px}
+  .frrow{display:flex;align-items:center;gap:10px;background:#ffffff12;border-radius:14px;padding:8px 10px;cursor:pointer}
+  .frrow .avatar{width:40px;height:40px;font-size:17px;flex:none;position:relative}
+  .frrow .fi{flex:1;min-width:0}
+  .frrow .fi b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .frrow .fi small{opacity:.75;font-size:12px}
+  .frrow .on{display:inline-block;width:9px;height:9px;border-radius:50%;background:#43d9ad;box-shadow:0 0 6px #43d9ad;margin-right:4px}
+  .frrow .off{display:inline-block;width:9px;height:9px;border-radius:50%;background:#ffffff40;margin-right:4px}
+  .frrow .fp{background:#ffb703;color:#1b262c;border:0;border-radius:12px;padding:8px 12px;font-weight:900;font-size:13px}
+  .frrow .fx{background:none;border:0;color:#ffffff70;font-size:16px;padding:4px}
+  .frempty{font-size:13px;opacity:.75;text-align:center;padding:8px}
+  .rk .fadd{margin-left:4px;background:#ffffff1f;border:0;border-radius:10px;color:#fff;font-size:13px;padding:4px 7px}
 </style>
 </head>
 <body>
@@ -803,6 +817,13 @@
     <button id="btnNext">Devam Et ▶</button>
   </div></div>
 
+
+  <div class="overlay hidden" id="ovInvite"><div class="box shop" style="text-align:center">
+    <div class="avatar" id="invAv" style="width:72px;height:72px;margin:0 auto 8px;font-size:30px">?</div>
+    <h2 style="margin:4px 0">⚔️ Düello Daveti</h2>
+    <div style="font-size:16px"><b id="invName"></b> seni düelloya çağırıyor!</div>
+    <div style="display:flex;gap:10px;margin-top:14px"><button id="invNo" style="flex:1;background:#dee2e6">Reddet</button><button id="invYes" style="flex:1;background:#2a9d8f;color:#fff">Kabul Et</button></div>
+  </div></div>
   <div class="overlay hidden" id="ovReport"><div class="box shop">
     <h2>🚩 Şikayet Et / Engelle</h2>
     <div style="font-size:15px"><b id="repName"></b> adlı oyuncuyu neden şikayet ediyorsun? <span id="repDone" class="hidden" style="color:#2a9d8f;font-weight:700">(Şikayetin alındı)</span></div>
@@ -947,6 +968,8 @@
         <div class="dgrid"><button class="dbtn" id="dFriendBtn">👥 Arkadaşınla Oyna</button><button class="dbtn" id="dBot">🤖 Antrenman</button></div>
         <div class="dfriend hidden" id="dFriend">
           <div class="fh">👥 Arkadaşınla Oyna<small>Oda kur ve kodu arkadaşına gönder, ya da arkadaşının kodunu yazıp katıl.</small></div>
+          <div class="frlist" id="frList"></div>
+          <div class="fh" style="margin-top:10px"><small>Ya da oda kodu ile:</small></div>
           <button class="dbtn gold" id="dCreate" style="width:100%">➕ Oda Kur</button>
           <div class="drow djoin" style="margin-top:8px"><input id="dCode" maxlength="5" placeholder="Arkadaşının kodu"><button class="dbtn" id="dJoin">Katıl</button></div>
         </div>
@@ -1022,6 +1045,7 @@
         <div class="wreward" style="margin-top:12px"><span id="dEndLives">❤️❤️❤️</span></div>
         <div id="dEndLvUp"></div>
       </div>
+      <button class="dbtn" id="dAddFr" style="display:none;width:100%;margin-bottom:8px">➕ Arkadaş olarak ekle</button>
       <button class="dbtn gold" id="dAgain">Lobiye Dön</button>
       <button class="dbtn ghost repbtn" id="dReport">🚩 Şikayet et / Engelle</button>
     </div>
@@ -1641,6 +1665,8 @@ $("btnRate").onclick=()=>{ store.set("rated",1);
   const web="https://apps.apple.com/tr/app/id"+APPSTORE_ID+"?action=write-review";
   if(nat){ location.href="itms-apps://itunes.apple.com/app/id"+APPSTORE_ID+"?action=write-review"; }
   else window.open(web,"_blank"); };
+// davetler ve çevrimiçi durumu için bağlantı oyun açılınca kurulur
+setTimeout(()=>{ try{ if(!D.inited&&!IN_ARTIFACT&&navigator.onLine!==false){ D.inited=true; initNet(); } }catch(e){} },3500);
 // ---------- ANA EKRAN / AYARLAR / SES ----------
 let soundOn=store.get("sound",true), vibOn=store.get("vib",true), menuFromHome=false, actx=null;
 // ses motoru: iPhone'da ilk dokunuşta kilidi aç, sessiz modda da çalsın, askıya alınırsa devam ettir
@@ -1854,7 +1880,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="91";
+const APP_VER="92";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2128,7 +2154,7 @@ async function openDuel(){
 async function initNet(){
   if(!IN_ARTIFACT){
     $("dNet").textContent="Sunucuya bağlanılıyor…";
-    try{ const f=await fbInit(); D.room=f.room; D.db=f.db; D.uid=f.uid; D.fb=true; checkMine(); }catch(e){ D.room=null; D.db=null; }
+    try{ const f=await fbInit(); D.room=f.room; D.db=f.db; D.uid=f.uid; D.fb=true; checkMine(); listenInvites(); goOnline(); syncFriends().then(renderFriends); }catch(e){ D.room=null; D.db=null; }
   }else{
   try{ D.room=await window.claude?.use?.("room"); }catch(e){ D.room=null; }
   try{ D.db=await window.claude?.use?.("db"); }catch(e){ D.db=null; }
@@ -2303,7 +2329,7 @@ async function loadRank(){
       const prize=(!rc&&!wkEmpty&&i<5)?`<span class="prz">${wkPrizeTxt(i)}</span>`:"";
       const main=rc?`<b>${r.wins||0}</b> G · ${r.losses||0} M<br>%${ra}`:`<b>${r.sc}</b> G<br><small>toplam ${r.wins||0}</small>`;
       el.innerHTML=`<div class="no">${["🥇","🥈","🥉"][i]||i+1}</div><div class="avatar sm"></div>${lvHTML(r.wins||0,"sm")}<div class="nm"></div>${prize}<div class="wl">${main}</div>`;
-      const bn=banOf(r.id); setAv(el.querySelector(".avatar"),bn.isim?"Oyuncu":r.name,bn.foto?"":r.ph); el.querySelector(".nm").textContent=bn.isim?"Oyuncu":cleanName(r.name); if(isAdmin()&&r.id!==D.uid){ el.style.cursor="pointer"; el.onclick=()=>{ $("repName").textContent=cleanName(r.name); document.querySelectorAll("[data-rep]").forEach(b=>{ b.disabled=true; b.style.opacity=.4; }); $("repDone").classList.add("hidden"); openAdmin(r.id,r.name); $("ovReport").classList.remove("hidden"); }; } if(r.bd){ const sm=document.createElement("small"); sm.textContent=String(r.bd).split(",").filter(id=>BMAP[id]).slice(0,3).map(id=>BMAP[id][1]).join(""); el.querySelector(".nm").appendChild(sm); } box.appendChild(el); });
+      const bn=banOf(r.id); setAv(el.querySelector(".avatar"),bn.isim?"Oyuncu":r.name,bn.foto?"":r.ph); el.querySelector(".nm").textContent=bn.isim?"Oyuncu":cleanName(r.name); if(r.id!==D.uid&&!isFriend(r.id)&&!(banOf(r.id).out)){ const fb=document.createElement("button"); fb.className="fadd"; fb.textContent="➕"; fb.title="Arkadaş ekle"; fb.onclick=e=>{ e.stopPropagation(); addFriend(r.id,r.name,bn.foto?"":r.ph); fb.remove(); }; el.querySelector(".nm").after(fb); } if(isAdmin()&&r.id!==D.uid){ el.style.cursor="pointer"; el.onclick=()=>{ $("repName").textContent=cleanName(r.name); document.querySelectorAll("[data-rep]").forEach(b=>{ b.disabled=true; b.style.opacity=.4; }); $("repDone").classList.add("hidden"); openAdmin(r.id,r.name); $("ovReport").classList.remove("hidden"); }; } if(r.bd){ const sm=document.createElement("small"); sm.textContent=String(r.bd).split(",").filter(id=>BMAP[id]).slice(0,3).map(id=>BMAP[id][1]).join(""); el.querySelector(".nm").appendChild(sm); } box.appendChild(el); });
   }catch(e){ box.innerHTML='<div class="dnote">Sıralama şu an yüklenemedi.</div>'; }
 }
 
@@ -2389,6 +2415,50 @@ document.querySelectorAll("[data-ban]").forEach(b=>b.onclick=async()=>{ if(!isAd
     toast(k==="clear"?"♻️ Banlar kaldırıldı":k==="out"?"⛔ Oyuncu online'dan atıldı":k==="foto"?"🖼️ Fotoğrafı herkes için silindi":"🤬 İsmi herkes için silindi");
     $("ovReport").classList.add("hidden"); try{ if(D.g&&D.g.status!=="end") applyState(D.host?pub():D.g); }catch(e){} try{ if(!$("dTabRank")||!$("dTabRank").classList.contains("hidden")) loadRank(); }catch(e){} }
   catch(e){ toast("Ban kaydedilemedi: "+(e&&e.message||e)); } });
+
+// ---------- ARKADAŞ LİSTESİ ve DAVET ----------
+function frMap(){ return store.get("friends",{})||{}; }
+function isFriend(uid){ return !!(uid&&frMap()[uid]); }
+function addFriend(uid,name,ph,quiet){ if(!uid||uid===D.uid) return; const m=frMap(); m[uid]={n:cleanName(name||"Oyuncu"),ph:okPh(ph)?ph:"",t:Date.now()}; store.set("friends",m);
+  try{ if(D.uid&&window.firebase) firebase.database().ref(`friends/${D.uid}/${uid}`).set({n:m[uid].n,t:m[uid].t}); }catch(e){}
+  if(!quiet) toast(`👥 ${m[uid].n} arkadaş listene eklendi`); renderFriends(); }
+function delFriend(uid){ const m=frMap(); delete m[uid]; store.set("friends",m); try{ firebase.database().ref(`friends/${D.uid}/${uid}`).remove(); }catch(e){} renderFriends(); }
+async function syncFriends(){ try{ if(!(D.uid&&window.firebase)) return; const sn=await firebase.database().ref("friends/"+D.uid).get(); const v=sn.val()||{}, m=frMap(); let ch=false;
+  Object.entries(v).forEach(([u,o])=>{ if(!m[u]){ m[u]={n:cleanName((o&&o.n)||"Oyuncu"),ph:"",t:(o&&o.t)||Date.now()}; ch=true; } }); if(ch) store.set("friends",m); }catch(e){} }
+D.frOn={};
+async function renderFriends(){ const box=$("frList"); if(!box) return; const m=frMap(), ks=Object.keys(m).sort((a,b)=>(m[b].t||0)-(m[a].t||0));
+  if(!ks.length){ box.innerHTML='<div class="frempty">Henüz arkadaşın yok. Online bir maçtan sonra rakibini <b>➕ Arkadaş olarak ekle</b> ile listene ekleyebilirsin.</div>'; return; }
+  box.innerHTML=""; ks.forEach(u=>{ const f=m[u]; const el=document.createElement("div"); el.className="frrow";
+    el.innerHTML=`<div class="avatar"></div><div class="fi"><b></b><small><i class="${D.frOn[u]?"on":"off"}"></i>${D.frOn[u]?"Çevrimiçi":"Çevrimdışı"}</small></div><button class="fp">⚔️ Davet Et</button><button class="fx" title="Listeden çıkar">✕</button>`;
+    setAv(el.querySelector(".avatar"),f.n,f.ph); el.querySelector("b").textContent=f.n;
+    el.querySelector(".fp").onclick=e=>{ e.stopPropagation(); inviteFriend(u); };
+    el.querySelector(".fx").onclick=e=>{ e.stopPropagation(); if(confirmDel(f.n)) delFriend(u); };
+    el.onclick=()=>inviteFriend(u); box.appendChild(el); });
+  // çevrimiçi durumu ve güncel isim/fotoğraf
+  if(D.db) ks.forEach(async u=>{ try{ const p=await D.db.doc("profiles/"+u).get(); if(p.exists){ const d=p.data(); const mm=frMap(); if(mm[u]){ mm[u].n=cleanName(d.name||mm[u].n); mm[u].ph=okPh(d.ph)&&!banOf(u).foto?d.ph:""; store.set("friends",mm); } }
+    const o=await firebase.database().ref("online/"+u).get(); const on=!!(o.val()&&Date.now()-(o.val().t||0)<6*3600e3); if(on!==!!D.frOn[u]||p.exists){ D.frOn[u]=on; clearTimeout(D.frRT); D.frRT=setTimeout(()=>renderFriendsLite(),150); } }catch(e){} }); }
+function renderFriendsLite(){ const m=frMap(), box=$("frList"); if(!box) return; const ks=Object.keys(m).sort((a,b)=>(m[b].t||0)-(m[a].t||0));
+  [...box.querySelectorAll(".frrow")].forEach((el,i)=>{ const u=ks[i]; if(!u) return; const f=m[u]; setAv(el.querySelector(".avatar"),f.n,f.ph); el.querySelector("b").textContent=f.n; el.querySelector("small").innerHTML=`<i class="${D.frOn[u]?"on":"off"}"></i>${D.frOn[u]?"Çevrimiçi":"Çevrimdışı"}`; }); }
+let frDelAsk=0; function confirmDel(n){ const now=Date.now(); if(now-frDelAsk<2500){ frDelAsk=0; return true; } frDelAsk=now; toast(`${n} listeden çıkarılsın mı? Onaylamak için ✕'e tekrar bas`); return false; }
+async function inviteFriend(uid){ if(banOut()) return; if(!D.room||!window.firebase){ toast("Online bağlantı yok, birazdan tekrar dene"); return; }
+  if(!$("dName").value.trim()){ toast("Önce adını yaz"); $("dName").focus(); return; } if(!nameOk()) return;
+  needEula(async()=>{ const f=frMap()[uid]||{n:"Arkadaşın"}; D.quick=false; D.retries=0; const code=rcode();
+    await joinRoom(code,true); $("dWaitTitle").textContent=`${f.n} bekleniyor…`; $("dWaitNote").textContent="Davet gönderildi. Arkadaşın kabul edince maç başlayacak."; $("dWaitCode").style.display="";
+    try{ await firebase.database().ref(`invites/${uid}/${D.uid}`).set({n:myName(),ph:myPh()&&myPh().length<9000?myPh():"",code,t:Date.now()}); }catch(e){ toast("Davet gönderilemedi"); } }); }
+// gelen davetleri dinle
+function listenInvites(){ if(D.invL||!(D.uid&&window.firebase)) return; D.invL=true; const ref=firebase.database().ref("invites/"+D.uid);
+  ref.on("child_added",sn=>{ const v=sn.val()||{}, from=sn.key; sn.ref.remove().catch(()=>{});
+    if(!v.code||Date.now()-(v.t||0)>120000||isBlocked(from)) return;
+    if(D.g&&(D.g.status==="play"||D.g.status==="intro")) return; // maçtayken davet gösterme
+    D.inv={from,...v}; setAv($("invAv"),v.n,okPh(v.ph)?v.ph:""); $("invName").textContent=cleanName(v.n||"Arkadaşın"); $("ovInvite").classList.remove("hidden"); try{ beep([[660,.1],[880,.15]]); haptic("turn"); }catch(e){} }); }
+$("invNo").onclick=()=>{ $("ovInvite").classList.add("hidden"); D.inv=null; };
+$("invYes").onclick=()=>{ const v=D.inv; $("ovInvite").classList.add("hidden"); D.inv=null; if(!v) return; if(banOut()) return;
+  const go=async()=>{ if($("duel").classList.contains("hidden")){ try{ hideHome(); }catch(e){} await openDuel(); }
+    if(!store.get("pname","")&&!$("dName").value.trim()){ toast("Önce adını yaz, sonra davete katıl"); return; }
+    addFriend(v.from,v.n,v.ph,true); leaveDuel(); D.quick=false; D.retries=0; needEula(()=>joinRoom(v.code,false).then(()=>{ $("dWaitCode").style.display="none"; $("dWaitTitle").textContent="Maç başlıyor…"; })); };
+  go(); };
+// çevrimiçi durumu
+function goOnline(){ try{ if(!(D.uid&&window.firebase)) return; const r=firebase.database().ref("online/"+D.uid); const put=()=>r.set({t:Date.now()}).catch(()=>{}); put(); r.onDisconnect().remove(); clearInterval(D.onlT); D.onlT=setInterval(put,5*60e3); }catch(e){} }
 // ---------- ENGELLEME ----------
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function blockedMap(){ return store.get("blocked",{})||{}; }
@@ -2561,6 +2631,7 @@ function showEnd(){
   if(!D.endAd){ D.endAd=true; { const n=store.get("duelEnds",0)+1; store.set("duelEnds",n); D.endAdShown = n%2!==0; } /* reklam 2 maçta bir */ clearTimeout(D.adT); D.adT=setTimeout(()=>{ if(!$("dEnd").classList.contains("hidden")&&!D.endAdShown){ D.endAdShown=true; showInterstitial(); } },2200); }
   if(!D.endSfx){ D.endSfx=true; if(won||draw){ applause(); buzz([100,60,100]); } else { sadTrombone(); buzz(400); } }
   $("dEndTitle").textContent= draw?"Berabere!":won?"Kazandın!":"Kaybettin";
+  { const op=g.players[1-me]||{}, b=$("dAddFr"); if(D.mode==="online"&&op.uid&&op.uid!==D.uid&&!isFriend(op.uid)&&!isBlocked(op.uid)){ b.style.display=""; b.textContent=`➕ ${vis(op).name||"Rakibi"} arkadaş olarak ekle`; b.onclick=()=>{ addFriend(op.uid,op.name,vis(op).ph); b.style.display="none"; }; } else b.style.display="none"; }
   const why={time:"süresinde cevap veremedi",left:"oyundan ayrıldı",draw:""}[g.reason]||"";
   $("dEndTxt").textContent= draw ? "İkiniz de 10 sorunun hepsini bildiniz!" : won ? `${opName} ${why}.` : (g.reason==="time"?"15 saniyede cevap veremedin.":"Bağlantı koptu.");
   if(D.mode==="online" && !D.counted){
@@ -2651,7 +2722,7 @@ $("dPhoto").onchange=e=>{ const f=e.target.files&&e.target.files[0]; if(!f) retu
     c.getContext("2d").drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,S,S); const d=c.toDataURL("image/jpeg",.7);
     if(!okPh(d)){ toast("Fotoğraf yüklenemedi"); return; } store.set("pphoto",d); setAv($("dAvatar"),myName(),d); saveProfile(); toast("📷 Profil fotoğrafın güncellendi"); };
     im.src=fr.result; }; fr.readAsDataURL(f); e.target.value=""; };
-$("dFriendBtn").onclick=()=>{ const f=$("dFriend"); f.classList.toggle("hidden"); if(!f.classList.contains("hidden")) setTimeout(()=>{ try{ f.scrollIntoView({behavior:"smooth",block:"center"}); }catch(e){} },50); };
+$("dFriendBtn").onclick=()=>{ const f=$("dFriend"); f.classList.toggle("hidden"); renderFriends(); if(!f.classList.contains("hidden")) setTimeout(()=>{ try{ f.scrollIntoView({behavior:"smooth",block:"center"}); }catch(e){} },50); };
 $("dCreate").onclick=()=>{ D.quick=false; D.retries=0; if(!nameOk()) return; if(!$("dName").value.trim()){ toast("Önce adını yaz"); $("dName").focus(); return; } joinRoom(rcode(),true).then(()=>{ $("dWaitNote").textContent="Oda kodunu arkadaşına gönder"; $("dWaitCode").style.display=""; $("dWaitTitle").textContent="Arkadaşın bekleniyor…"; }); };
 $("dJoin").onclick=()=>{ D.quick=false; D.retries=0; if(!nameOk()) return; const c=$("dCode").value.trim().toUpperCase(); if(c.length<4){ toast("4 haneli oda kodunu gir"); return; } if(!$("dName").value.trim()){ toast("Önce adını yaz"); return; } joinRoom(c,false).then(()=>{ $("dWaitCode").style.display=""; $("dWaitTitle").textContent="Odaya bağlanılıyor…"; }); };
 $("dCancel").onclick=()=>{ D.quick=false; D.retries=0; leaveDuel(); dShow("dLobby"); };
