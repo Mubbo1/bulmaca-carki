@@ -714,6 +714,8 @@
   .frrow .off{display:inline-block;width:9px;height:9px;border-radius:50%;background:#ffffff40;margin-right:4px}
   .frrow .fp{background:#ffb703;color:#1b262c;border:0;border-radius:12px;padding:8px 12px;font-weight:900;font-size:13px}
   .frrow .fx{background:none;border:0;color:#ffffff70;font-size:16px;padding:4px}
+  .frmy{font-size:12px;opacity:.8;text-align:center;margin:6px 0 2px}
+  .frmy b{letter-spacing:2px;font-size:14px;color:#ffd166}
   .frempty{font-size:13px;opacity:.75;text-align:center;padding:8px}
   .rk .fadd{margin-left:4px;background:#ffffff1f;border:0;border-radius:10px;color:#fff;font-size:13px;padding:4px 7px}
 </style>
@@ -968,6 +970,9 @@
         <div class="dgrid"><button class="dbtn" id="dFriendBtn">👥 Arkadaşınla Oyna</button><button class="dbtn" id="dBot">🤖 Antrenman</button></div>
         <div class="dfriend hidden" id="dFriend">
           <div class="fh">👥 Arkadaşınla Oyna<small>Oda kur ve kodu arkadaşına gönder, ya da arkadaşının kodunu yazıp katıl.</small></div>
+          <button class="dbtn" id="frShare" style="width:100%;background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;margin-top:6px">📲 WhatsApp'tan Arkadaşını Davet Et</button>
+          <div class="drow djoin" style="margin-top:8px"><input id="frCodeIn" maxlength="6" placeholder="Arkadaşlık kodu" style="text-transform:uppercase"><button class="dbtn" id="frCodeAdd">Ekle</button></div>
+          <div class="frmy">Senin kodun: <b id="frMyCode">…</b></div>
           <div class="frlist" id="frList"></div>
           <div class="fh" style="margin-top:10px"><small>Ya da oda kodu ile:</small></div>
           <button class="dbtn gold" id="dCreate" style="width:100%">➕ Oda Kur</button>
@@ -1665,8 +1670,6 @@ $("btnRate").onclick=()=>{ store.set("rated",1);
   const web="https://apps.apple.com/tr/app/id"+APPSTORE_ID+"?action=write-review";
   if(nat){ location.href="itms-apps://itunes.apple.com/app/id"+APPSTORE_ID+"?action=write-review"; }
   else window.open(web,"_blank"); };
-// davetler ve çevrimiçi durumu için bağlantı oyun açılınca kurulur
-setTimeout(()=>{ try{ if(!D.inited&&!IN_ARTIFACT&&navigator.onLine!==false){ D.inited=true; initNet(); } }catch(e){} },3500);
 // ---------- ANA EKRAN / AYARLAR / SES ----------
 let soundOn=store.get("sound",true), vibOn=store.get("vib",true), menuFromHome=false, actx=null;
 // ses motoru: iPhone'da ilk dokunuşta kilidi aç, sessiz modda da çalsın, askıya alınırsa devam ettir
@@ -1880,7 +1883,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="93";
+const APP_VER="94";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2154,7 +2157,7 @@ async function openDuel(){
 async function initNet(){
   if(!IN_ARTIFACT){
     $("dNet").textContent="Sunucuya bağlanılıyor…";
-    try{ const f=await fbInit(); D.room=f.room; D.db=f.db; D.uid=f.uid; D.fb=true; checkMine(); listenInvites(); goOnline(); syncFriends().then(renderFriends); }catch(e){ D.room=null; D.db=null; }
+    try{ const f=await fbInit(); D.room=f.room; D.db=f.db; D.uid=f.uid; D.fb=true; checkMine(); listenInvites(); goOnline(); listenFrIn(); regCode(); syncFriends().then(renderFriends); if(D.pendCode){ const c=D.pendCode; D.pendCode=null; setTimeout(()=>addByCode(c,true),800); } }catch(e){ D.room=null; D.db=null; }
   }else{
   try{ D.room=await window.claude?.use?.("room"); }catch(e){ D.room=null; }
   try{ D.db=await window.claude?.use?.("db"); }catch(e){ D.db=null; }
@@ -2459,6 +2462,37 @@ $("invYes").onclick=()=>{ const v=D.inv; $("ovInvite").classList.add("hidden"); 
   go(); };
 // çevrimiçi durumu
 function goOnline(){ try{ if(!(D.uid&&window.firebase)) return; const r=firebase.database().ref("online/"+D.uid); const put=()=>r.set({t:Date.now()}).catch(()=>{}); put(); r.onDisconnect().remove(); clearInterval(D.onlT); D.onlT=setInterval(put,5*60e3); }catch(e){} }
+
+// ---------- ARKADAŞLIK KODU ve WHATSAPP DAVET LİNKİ ----------
+function myCode(){ if(!D.uid) return ""; const A="ABCDEFGHJKLMNPRSTUVYZ23456789"; let h=2166136261; for(const c of D.uid){ h^=c.charCodeAt(0); h=Math.imul(h,16777619)>>>0; } let s=""; for(let i=0;i<6;i++){ s+=A[h%A.length]; h=Math.floor(h/A.length)^Math.imul(h,31)>>>0; h>>>=0; } return s; }
+async function regCode(){ try{ if(!(D.uid&&window.firebase)) return; const c=myCode(); $("frMyCode").textContent=c; const r=firebase.database().ref("codes/"+c); const v=(await r.get()).val(); if(v!==D.uid) await r.set(D.uid); }catch(e){} }
+async function addByCode(code,viaLink){ code=String(code||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6); if(code.length<6){ toast("Kod 6 haneli olmalı"); return; }
+  if(!(D.uid&&window.firebase)){ D.pendCode=code; toast("Bağlanılıyor, arkadaşın birazdan eklenecek…"); return; }
+  if(code===myCode()){ toast("Bu senin kendi kodun 🙂"); return; }
+  try{ const uid=(await firebase.database().ref("codes/"+code).get()).val(); if(!uid){ toast("Bu koda ait oyuncu bulunamadı"); return; }
+    let n="Oyuncu", ph=""; try{ const p=await D.db.doc("profiles/"+uid).get(); if(p.exists){ n=p.data().name||n; ph=p.data().ph||""; } }catch(e){}
+    if(isFriend(uid)){ toast(`${cleanName(n)} zaten arkadaş listende`); return; }
+    addFriend(uid,n,ph,true); toast(`👥 ${cleanName(n)} ile artık arkadaşsınız!`);
+    try{ await firebase.database().ref(`frIn/${uid}/${D.uid}`).set({n:myName(),t:Date.now()}); }catch(e){}
+    try{ if($("duel").classList.contains("hidden")){ hideHome(); await openDuel(); } $("dFriend").classList.remove("hidden"); renderFriends(); }catch(e){} }
+  catch(e){ toast("Arkadaş eklenemedi, tekrar dene"); } }
+function listenFrIn(){ if(D.frInL||!(D.uid&&window.firebase)) return; D.frInL=true;
+  firebase.database().ref("frIn/"+D.uid).on("child_added",sn=>{ const v=sn.val()||{}, from=sn.key; sn.ref.remove().catch(()=>{}); if(!from||isBlocked(from)) return;
+    if(!isFriend(from)){ addFriend(from,v.n,"",true); toast(`👥 ${cleanName(v.n||"Arkadaşın")} davetini kabul etti, artık arkadaşsınız!`); } }); }
+$("frCodeAdd").onclick=()=>{ addByCode($("frCodeIn").value); $("frCodeIn").value=""; };
+$("frShare").onclick=()=>{ const c=myCode(); if(!c){ toast("Online bağlantı bekleniyor, birazdan tekrar dene"); return; }
+  const link=`https://mubbo1.github.io/bulmaca-carki/a.html?c=${c}&n=${encodeURIComponent(myName()||"")}`;
+  const txt=`Bulmaca Çarkı'nda benimle düello yapar mısın? ⚔️🎡\nArkadaş olmak için linke dokun:\n${link}\n\n(Oyunu indirdikten sonra kodum: ${c})`;
+  const wa="https://wa.me/?text="+encodeURIComponent(txt);
+  const nat=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
+  if(nat) location.href="whatsapp://send?text="+encodeURIComponent(txt); else window.open(wa,"_blank");
+  setTimeout(()=>{ if(nat&&document.visibilityState==="visible") location.href=wa; },1200); };
+// link ile açılış: web'de ?f=KOD, uygulamada bulmacacarki://f/KOD
+function linkCode(u){ try{ const m=String(u||"").match(/(?:[?&]f=|bulmacacarki:\/\/f\/|bulmacacarki:\/\/\?f=)([A-Za-z0-9]{6})/); return m?m[1].toUpperCase():null; }catch(e){ return null; } }
+{ const c=linkCode(location.href); if(c){ D.pendCode=c; try{ history.replaceState(null,"",location.pathname); }catch(e){} } }
+// davetler ve çevrimiçi durumu için bağlantı oyun açılınca kurulur
+setTimeout(()=>{ try{ if(!D.inited&&!IN_ARTIFACT&&navigator.onLine!==false){ D.inited=true; initNet(); } }catch(e){} },D.pendCode?300:3500);
+try{ const AppP=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.App; if(AppP){ AppP.addListener("appUrlOpen",e=>{ const c=linkCode(e&&e.url); if(c){ if(D.uid&&window.firebase) addByCode(c,true); else D.pendCode=c; } }); } }catch(e){}
 // ---------- ENGELLEME ----------
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function blockedMap(){ return store.get("blocked",{})||{}; }
