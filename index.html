@@ -716,6 +716,15 @@
   .frrow .fx{background:none;border:0;color:#ffffff70;font-size:16px;padding:4px}
   .frmy{font-size:12px;opacity:.8;text-align:center;margin:6px 0 2px}
   .frmy b{letter-spacing:2px;font-size:14px;color:#ffd166}
+  .frinbox{position:relative;background:#ffffff14;border:1px solid #ffffff26;color:#fff;border-radius:12px;font-size:20px;padding:6px 10px;line-height:1;flex:none}
+  .frinbox .bdg{position:absolute;top:-6px;right:-6px;background:#e63946;color:#fff;font-size:11px;font-weight:900;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 0 0 2px #1b1f3a}
+  .frinbox .bdg.hidden{display:none}
+  .frqrow{display:flex;align-items:center;gap:10px;background:#00000010;border-radius:14px;padding:8px 10px;margin:6px 0;text-align:left}
+  .frqrow .avatar{width:42px;height:42px;font-size:18px;flex:none}
+  .frqrow b{flex:1;min-width:0;color:#1b262c;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:15px}
+  .box .frqrow button{border:0;border-radius:10px;padding:8px 10px;font-weight:900;font-size:13px;width:auto;margin:0;flex:none}
+  .frqrow .ok{background:#2a9d8f;color:#fff}.frqrow .no{background:#dee2e6;color:#333}
+  .frrow.pend{opacity:.6;cursor:default}
   .frempty{font-size:13px;opacity:.75;text-align:center;padding:8px}
   .rk .fadd{margin-left:4px;background:#ffffff1f;border:0;border-radius:10px;color:#fff;font-size:13px;padding:4px 7px}
 
@@ -842,6 +851,11 @@
   </div></div>
 
 
+  <div class="overlay hidden" id="ovFrReq"><div class="box shop" style="text-align:center">
+    <h2 style="margin:4px 0;font-size:22px">📬 Arkadaşlık İstekleri</h2>
+    <div id="frReqList"></div>
+    <button id="frReqClose" style="margin-top:10px;width:100%;background:#dee2e6">Kapat</button>
+  </div></div>
   <div class="overlay hidden" id="ovInvite"><div class="box shop" style="text-align:center">
     <div class="avatar" id="invAv" style="width:72px;height:72px;margin:0 auto 8px;font-size:30px">?</div>
     <h2 style="margin:4px 0">⚔️ Düello Daveti</h2>
@@ -924,7 +938,7 @@
   <div class="overlay hidden" id="ovHelp"><div class="box setbox xbox helpbox"><button class="xclose" id="helpClose" aria-label="Kapat">✕</button>
     <h2>❓ Yardım & Destek</h2>
     <div class="ssec">Sık sorulan sorular</div>
-    <details class="faq"><summary>🎮 Nasıl oynanır?</summary><div>Bulmacadaki bir kutucuğa dokun, sorusu ekranda çıkar. Aşağıdaki çarkta harflerin üzerinden parmağını kaydırarak cevabı yaz ve parmağını kaldır. Doğruysa harfler kutucuklara yerleşir. Sadece ekrandaki sorunun cevabı kabul edilir.</div></details><details class="faq"><summary>💡 Takıldım, ne yapabilirim?</summary><div>💡 ampul 25 🪙 karşılığında bir harf açar. 🔍 büyüteç 1 💎 karşılığında soruyla ilgili ipucu verir. 🔀 harfleri karıştırır. Bütün harfleri açarsan kelime kendiliğinden tamamlanır.</div></details><details class="faq"><summary>🪙 Altın nasıl kazanılır?</summary><div>Her doğru kelimede ve bölüm sonunda altın kazanırsın. Giriş ekranındaki altının yanındaki + ile 1 reklam izleyip 100 🪙 alabilirsin. Günlük çarktan da altın çıkar.</div></details><details class="faq"><summary>💎 Elmas nasıl kazanılır?</summary><div>Elmas mağazasından satın alabilir, reklam izleyerek 1 💎 kazanabilir ya da günlük şans çarkından kazanabilirsin.</div></details><details class="faq"><summary>🎁 Günlük şans çarkı nedir?</summary><div>Her gün 1 bedava çevirme hakkın var. Kullandıktan sonra reklam izleyerek 1 kez daha çevirebilirsin. Altın, elmas ve bonus can çıkabilir.</div></details><details class="faq"><summary>⚔️ Düello nasıl oynanır?</summary><div>20 soru sırayla sorulur: bir soru sana, bir soru rakibine. Sorular kolaydan zora gider ve cevabın kaç harfli olduğu gösterilmez. Her soru için 15 saniyen var; süresinde bilemeyen kaybeder. Rastgele rakip bulabilir, arkadaş listenden birini davet edebilir ya da oda kodu ile arkadaşınla oynayabilirsin.</div></details><details class="faq"><summary>👥 Arkadaş listesi nasıl çalışır?</summary><div>Online bir maçtan sonra sonuç ekranındaki <b>➕ Arkadaş olarak ekle</b> ile ya da Sıralama'daki ➕ ile oyuncuları listene eklersin. Düello → Arkadaşınla Oyna'da arkadaşlarını ve çevrimiçi olup olmadıklarını görürsün. <b>⚔️ Davet Et</b>'e dokununca arkadaşına davet gider; kabul edince maç başlar.</div></details><details class="faq"><summary>❤️ Canlar nasıl çalışır?</summary><div>Online düelloda kaybedersen 1 can gider. En fazla 3 canın olur ve 3'ün altındayken her 15 dakikada 1 can kendiliğinden dolar. Reklam izleyerek can kazanabilir ya da sınırsız can alabilirsin.</div></details><details class="faq"><summary>🏅 Seviye ve rozetler</summary><div>Online galibiyetlerle seviye atlarsın; her seviye bir öncekinden daha fazla galibiyet ister. Toplam galibiyet, üst üste galibiyet, doğru cevap sayısı, özel başarılar (10'da 10, 3 saniyede cevap, yardımsız zafer, rövanş) ve her gün girişle rozet kazanırsın. Kazanmadığın rozetin altında ne kadar kaldığını görürsün; en fazla 3'ünü profilinde gösterebilirsin.</div></details><details class="faq"><summary>🚫 Reklamları nasıl kaldırırım?</summary><div>Ayarlar → Premium → Reklamları Kaldır ile reklamsız oynayabilirsin. Reklam izleyerek kazanılan ödüller o zaman anında gelir.</div></details><details class="faq"><summary>🚩 Uygunsuz bir oyuncu gördüm</summary><div>Maç ekranındaki 🚩 Şikayet et butonunu kullan. 3 farklı oyuncudan şikayet alan kişinin fotoğrafı veya ismi otomatik kaldırılır.</div></details><details class="faq demoOnly"><summary>📱 Uygulama gibi nasıl kullanırım?</summary><div>iPhone'da Safari → Paylaş → Ana Ekrana Ekle. Android'de Chrome menüsü → Ana ekrana ekle. Oyun tam ekran açılır.</div></details><details class="faq"><summary>💾 İlerlemem kaybolur mu?</summary><div>Oyunu güncellemek ilerlemeni silmez. Bölüm ilerlemen bu cihazda saklanır; oyunu silip yeniden yüklersen ya da başka cihaza geçersen sıfırlanabilir. Düello galibiyetlerin, seviyen ve arkadaş listen sunucuda da tutulur.</div></details>
+    <details class="faq"><summary>🎮 Nasıl oynanır?</summary><div>Bulmacadaki bir kutucuğa dokun, sorusu ekranda çıkar. Aşağıdaki çarkta harflerin üzerinden parmağını kaydırarak cevabı yaz ve parmağını kaldır. Doğruysa harfler kutucuklara yerleşir. Sadece ekrandaki sorunun cevabı kabul edilir.</div></details><details class="faq"><summary>💡 Takıldım, ne yapabilirim?</summary><div>💡 ampul 25 🪙 karşılığında bir harf açar. 🔍 büyüteç 1 💎 karşılığında soruyla ilgili ipucu verir. 🔀 harfleri karıştırır. Bütün harfleri açarsan kelime kendiliğinden tamamlanır.</div></details><details class="faq"><summary>🪙 Altın nasıl kazanılır?</summary><div>Her doğru kelimede ve bölüm sonunda altın kazanırsın. Giriş ekranındaki altının yanındaki + ile 1 reklam izleyip 100 🪙 alabilirsin. Günlük çarktan da altın çıkar.</div></details><details class="faq"><summary>💎 Elmas nasıl kazanılır?</summary><div>Elmas mağazasından satın alabilir, reklam izleyerek 1 💎 kazanabilir ya da günlük şans çarkından kazanabilirsin.</div></details><details class="faq"><summary>🎁 Günlük şans çarkı nedir?</summary><div>Her gün 1 bedava çevirme hakkın var. Kullandıktan sonra reklam izleyerek 1 kez daha çevirebilirsin. Altın, elmas ve bonus can çıkabilir.</div></details><details class="faq"><summary>⚔️ Düello nasıl oynanır?</summary><div>20 soru sırayla sorulur: bir soru sana, bir soru rakibine. Sorular kolaydan zora gider ve cevabın kaç harfli olduğu gösterilmez. Her soru için 15 saniyen var; süresinde bilemeyen kaybeder. Rastgele rakip bulabilir, arkadaş listenden birini davet edebilir ya da oda kodu ile arkadaşınla oynayabilirsin.</div></details><details class="faq"><summary>👥 Arkadaş listesi nasıl çalışır?</summary><div>Online bir maçtan sonra sonuç ekranındaki <b>➕ Arkadaş olarak ekle</b> ile, Sıralama'daki ➕ ile ya da arkadaşlık kodu / WhatsApp linkiyle <b>arkadaşlık isteği</b> gönderirsin. İstek, Düello ekranında canların yanındaki <b>📬</b> kutusuna düşer; karşı taraf <b>Kabul Et</b> derse ikiniz de birbirinizin listesine eklenirsiniz. Düello → Arkadaşınla Oyna'da arkadaşlarını ve çevrimiçi olup olmadıklarını görürsün. <b>⚔️ Davet Et</b>'e dokununca arkadaşına davet gider; kabul edince maç başlar.</div></details><details class="faq"><summary>❤️ Canlar nasıl çalışır?</summary><div>Online düelloda kaybedersen 1 can gider. En fazla 3 canın olur ve 3'ün altındayken her 15 dakikada 1 can kendiliğinden dolar. Reklam izleyerek can kazanabilir ya da sınırsız can alabilirsin.</div></details><details class="faq"><summary>🏅 Seviye ve rozetler</summary><div>Online galibiyetlerle seviye atlarsın; her seviye bir öncekinden daha fazla galibiyet ister. Toplam galibiyet, üst üste galibiyet, doğru cevap sayısı, özel başarılar (10'da 10, 3 saniyede cevap, yardımsız zafer, rövanş) ve her gün girişle rozet kazanırsın. Kazanmadığın rozetin altında ne kadar kaldığını görürsün; en fazla 3'ünü profilinde gösterebilirsin.</div></details><details class="faq"><summary>🚫 Reklamları nasıl kaldırırım?</summary><div>Ayarlar → Premium → Reklamları Kaldır ile reklamsız oynayabilirsin. Reklam izleyerek kazanılan ödüller o zaman anında gelir.</div></details><details class="faq"><summary>🚩 Uygunsuz bir oyuncu gördüm</summary><div>Maç ekranındaki 🚩 Şikayet et butonunu kullan. 3 farklı oyuncudan şikayet alan kişinin fotoğrafı veya ismi otomatik kaldırılır.</div></details><details class="faq demoOnly"><summary>📱 Uygulama gibi nasıl kullanırım?</summary><div>iPhone'da Safari → Paylaş → Ana Ekrana Ekle. Android'de Chrome menüsü → Ana ekrana ekle. Oyun tam ekran açılır.</div></details><details class="faq"><summary>💾 İlerlemem kaybolur mu?</summary><div>Oyunu güncellemek ilerlemeni silmez. Bölüm ilerlemen bu cihazda saklanır; oyunu silip yeniden yüklersen ya da başka cihaza geçersen sıfırlanabilir. Düello galibiyetlerin, seviyen ve arkadaş listen sunucuda da tutulur.</div></details>
     <div class="ssec">Bize ulaş</div>
     <div class="hcontact">Sorun mu yaşıyorsun, bir sorunun cevabı mı yanlış, yoksa bir önerin mi var? Bize yaz, en kısa sürede dönelim.
       <div style="margin-top:10px;padding:10px 12px;border-radius:12px;background:#fff4d6;border:1.5px solid #ffd166;font-size:16px;text-align:center">📧 <b id="helpAddr" style="user-select:all;-webkit-user-select:all">bulmacacarki.destek@gmail.com</b>
@@ -986,7 +1000,7 @@
           </div>
           <div class="pbadges" id="pBadges"></div>
         </div>
-        <div class="dcard lives"><div class="lvl"><span class="lbl">Canlar</span><div class="hearts" id="dHearts">❤️❤️❤️</div><small id="dLifeTimer"></small></div><button class="dbtn" id="dAdLife">+1 ❤️<br><small>Reklam izle</small></button></div>
+        <div class="dcard lives"><div class="lvl"><span class="lbl">Canlar</span><div class="hearts" id="dHearts">❤️❤️❤️</div><small id="dLifeTimer"></small></div><div style="display:flex;gap:8px;align-items:center"><button class="frinbox" id="dFrInbox" title="Arkadaşlık istekleri">📬<span class="bdg hidden" id="dFrBadge">0</span></button><button class="dbtn" id="dAdLife">+1 ❤️<br><small>Reklam izle</small></button></div></div>
         <div class="hidden"><div id="dCats"></div><div id="dCatStat"></div></div>
         <button class="dbtn gold dcta" id="dQuick"><span>Rakip Bul</span><small>Rastgele bir oyuncuyla eşleş</small></button>
         <div class="dgrid"><button class="dbtn" id="dFriendBtn">👥 Arkadaşınla Oyna</button><button class="dbtn" id="dBot">🤖 Antrenman</button></div>
@@ -1902,7 +1916,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="102";
+const APP_VER="103";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2176,7 +2190,7 @@ async function openDuel(){
 async function initNet(){
   if(!IN_ARTIFACT){
     $("dNet").textContent="Sunucuya bağlanılıyor…";
-    try{ const f=await fbInit(); D.room=f.room; D.db=f.db; D.uid=f.uid; D.fb=true; checkMine(); listenInvites(); goOnline(); listenFrIn(); regCode(); syncFriends().then(renderFriends); if(D.pendCode){ const c=D.pendCode; D.pendCode=null; setTimeout(()=>addByCode(c,true),800); } }catch(e){ D.room=null; D.db=null; }
+    try{ const f=await fbInit(); D.room=f.room; D.db=f.db; D.uid=f.uid; D.fb=true; checkMine(); listenInvites(); goOnline(); listenFrIn(); listenFrReq(); regCode(); syncFriends().then(renderFriends); if(D.pendCode){ const c=D.pendCode; D.pendCode=null; setTimeout(()=>addByCode(c,true),800); } }catch(e){ D.room=null; D.db=null; }
   }else{
   try{ D.room=await window.claude?.use?.("room"); }catch(e){ D.room=null; }
   try{ D.db=await window.claude?.use?.("db"); }catch(e){ D.db=null; }
@@ -2352,7 +2366,7 @@ async function loadRank(){
       const prize=(!rc&&!wkEmpty&&i<5)?`<span class="prz">${wkPrizeTxt(i)}</span>`:"";
       const main=rc?`<b>${r.wins||0}</b> G · ${r.losses||0} M<br>%${ra}`:`<b>${r.sc}</b> G<br><small>toplam ${r.wins||0}</small>`;
       el.innerHTML=`<div class="no">${["🥇","🥈","🥉"][i]||i+1}</div><div class="avatar sm"></div>${lvHTML(r.wins||0,"sm")}<div class="nm"></div>${prize}<div class="wl">${main}</div>`;
-      const bn=banOf(r.id); setAv(el.querySelector(".avatar"),bn.isim?"Oyuncu":r.name,bn.foto?"":r.ph); el.querySelector(".nm").textContent=bn.isim?"Oyuncu":cleanName(r.name); if(r.id!==D.uid&&!isFriend(r.id)&&!(banOf(r.id).out)){ const fb=document.createElement("button"); fb.className="fadd"; fb.textContent="➕"; fb.title="Arkadaş ekle"; fb.onclick=e=>{ e.stopPropagation(); addFriend(r.id,r.name,bn.foto?"":r.ph); fb.remove(); }; el.querySelector(".nm").after(fb); } if(isAdmin()&&r.id!==D.uid){ el.style.cursor="pointer"; el.onclick=()=>{ $("repName").textContent=cleanName(r.name); document.querySelectorAll("[data-rep]").forEach(b=>{ b.disabled=true; b.style.opacity=.4; }); $("repDone").classList.add("hidden"); openAdmin(r.id,r.name); $("ovReport").classList.remove("hidden"); }; } if(r.bd){ const sm=document.createElement("small"); sm.textContent=String(r.bd).split(",").filter(id=>BMAP[id]).slice(0,3).map(id=>BMAP[id][1]).join(""); el.querySelector(".nm").appendChild(sm); } box.appendChild(el); });
+      const bn=banOf(r.id); setAv(el.querySelector(".avatar"),bn.isim?"Oyuncu":r.name,bn.foto?"":r.ph); el.querySelector(".nm").textContent=bn.isim?"Oyuncu":cleanName(r.name); if(r.id!==D.uid&&!isFriend(r.id)&&!frSent()[r.id]&&!(banOf(r.id).out)){ const fb=document.createElement("button"); fb.className="fadd"; fb.textContent="➕"; fb.title="Arkadaş ekle"; fb.onclick=e=>{ e.stopPropagation(); sendFrReq(r.id,r.name); fb.remove(); }; el.querySelector(".nm").after(fb); } if(isAdmin()&&r.id!==D.uid){ el.style.cursor="pointer"; el.onclick=()=>{ $("repName").textContent=cleanName(r.name); document.querySelectorAll("[data-rep]").forEach(b=>{ b.disabled=true; b.style.opacity=.4; }); $("repDone").classList.add("hidden"); openAdmin(r.id,r.name); $("ovReport").classList.remove("hidden"); }; } if(r.bd){ const sm=document.createElement("small"); sm.textContent=String(r.bd).split(",").filter(id=>BMAP[id]).slice(0,3).map(id=>BMAP[id][1]).join(""); el.querySelector(".nm").appendChild(sm); } box.appendChild(el); });
   }catch(e){ box.innerHTML='<div class="dnote">Sıralama şu an yüklenemedi.</div>'; }
 }
 
@@ -2450,8 +2464,12 @@ async function syncFriends(){ try{ if(!(D.uid&&window.firebase)) return; const s
   Object.entries(v).forEach(([u,o])=>{ if(!m[u]){ m[u]={n:cleanName((o&&o.n)||"Oyuncu"),ph:"",t:(o&&o.t)||Date.now()}; ch=true; } }); if(ch) store.set("friends",m); }catch(e){} }
 D.frOn={};
 async function renderFriends(){ const box=$("frList"); if(!box) return; const m=frMap(), ks=Object.keys(m).sort((a,b)=>(m[b].t||0)-(m[a].t||0));
-  if(!ks.length){ box.innerHTML='<div class="frempty">Henüz arkadaşın yok. Online bir maçtan sonra rakibini <b>➕ Arkadaş olarak ekle</b> ile listene ekleyebilirsin.</div>'; return; }
-  box.innerHTML=""; ks.forEach(u=>{ const f=m[u]; const el=document.createElement("div"); el.className="frrow";
+  const sp=frSent(); Object.keys(sp).forEach(u=>{ if(isFriend(u)){ delete sp[u]; store.set("frSent",sp); } }); const pk=Object.keys(sp);
+  if(!ks.length&&!pk.length){ box.innerHTML='<div class="frempty">Henüz arkadaşın yok. Online bir maçtan sonra rakibini <b>➕ Arkadaş olarak ekle</b> ile ekleyebilirsin; kabul edince listene gelir.</div>'; return; }
+  box.innerHTML=""; pk.forEach(u=>{ const el=document.createElement("div"); el.className="frrow pend";
+    el.innerHTML='<div class="avatar"></div><div class="fi"><b></b><small>⏳ İstek gönderildi, cevap bekleniyor</small></div><button class="fx" title="İsteği geri al">✕</button>';
+    setAv(el.querySelector(".avatar"),sp[u].n,""); el.querySelector("b").textContent=sp[u].n; el.querySelector(".fx").onclick=e=>{ e.stopPropagation(); cancelFrReq(u); toast("İstek geri alındı"); }; box.appendChild(el); });
+  ks.forEach(u=>{ const f=m[u]; const el=document.createElement("div"); el.className="frrow";
     el.innerHTML=`<div class="avatar"></div><div class="fi"><b></b><small><i class="${D.frOn[u]?"on":"off"}"></i>${D.frOn[u]?"Çevrimiçi":"Çevrimdışı"}</small></div><button class="fp">⚔️ Davet Et</button><button class="fx" title="Listeden çıkar">✕</button>`;
     setAv(el.querySelector(".avatar"),f.n,f.ph); el.querySelector("b").textContent=f.n;
     el.querySelector(".fp").onclick=e=>{ e.stopPropagation(); inviteFriend(u); };
@@ -2461,7 +2479,7 @@ async function renderFriends(){ const box=$("frList"); if(!box) return; const m=
   if(D.db) ks.forEach(async u=>{ try{ const p=await D.db.doc("profiles/"+u).get(); if(p.exists){ const d=p.data(); const mm=frMap(); if(mm[u]){ mm[u].n=cleanName(d.name||mm[u].n); mm[u].ph=okPh(d.ph)&&!banOf(u).foto?d.ph:""; store.set("friends",mm); } }
     const o=await firebase.database().ref("online/"+u).get(); const on=!!(o.val()&&Date.now()-(o.val().t||0)<6*3600e3); if(on!==!!D.frOn[u]||p.exists){ D.frOn[u]=on; clearTimeout(D.frRT); D.frRT=setTimeout(()=>renderFriendsLite(),150); } }catch(e){} }); }
 function renderFriendsLite(){ const m=frMap(), box=$("frList"); if(!box) return; const ks=Object.keys(m).sort((a,b)=>(m[b].t||0)-(m[a].t||0));
-  [...box.querySelectorAll(".frrow")].forEach((el,i)=>{ const u=ks[i]; if(!u) return; const f=m[u]; setAv(el.querySelector(".avatar"),f.n,f.ph); el.querySelector("b").textContent=f.n; el.querySelector("small").innerHTML=`<i class="${D.frOn[u]?"on":"off"}"></i>${D.frOn[u]?"Çevrimiçi":"Çevrimdışı"}`; }); }
+  [...box.querySelectorAll(".frrow:not(.pend)")].forEach((el,i)=>{ const u=ks[i]; if(!u) return; const f=m[u]; setAv(el.querySelector(".avatar"),f.n,f.ph); el.querySelector("b").textContent=f.n; el.querySelector("small").innerHTML=`<i class="${D.frOn[u]?"on":"off"}"></i>${D.frOn[u]?"Çevrimiçi":"Çevrimdışı"}`; }); }
 let frDelAsk=0; function confirmDel(n){ const now=Date.now(); if(now-frDelAsk<2500){ frDelAsk=0; return true; } frDelAsk=now; toast(`${n} listeden çıkarılsın mı? Onaylamak için ✕'e tekrar bas`); return false; }
 async function inviteFriend(uid){ if(banOut()) return; if(!D.room||!window.firebase){ toast("Online bağlantı yok, birazdan tekrar dene"); return; }
   if(!$("dName").value.trim()){ toast("Önce adını yaz"); $("dName").focus(); return; } if(!nameOk()) return;
@@ -2492,13 +2510,48 @@ async function addByCode(code,viaLink){ code=String(code||"").toUpperCase().repl
   try{ const uid=(await firebase.database().ref("codes/"+code).get()).val(); if(!uid){ toast("Bu koda ait oyuncu bulunamadı"); return; }
     let n="Oyuncu", ph=""; try{ const p=await D.db.doc("profiles/"+uid).get(); if(p.exists){ n=p.data().name||n; ph=p.data().ph||""; } }catch(e){}
     if(isFriend(uid)){ toast(`${cleanName(n)} zaten arkadaş listende`); return; }
-    addFriend(uid,n,ph,true); toast(`👥 ${cleanName(n)} ile artık arkadaşsınız!`);
-    try{ await firebase.database().ref(`frIn/${uid}/${D.uid}`).set({n:myName(),t:Date.now()}); }catch(e){}
+    await sendFrReq(uid,n);
     try{ if($("duel").classList.contains("hidden")){ hideHome(); await openDuel(); } $("dFriend").classList.remove("hidden"); renderFriends(); }catch(e){} }
   catch(e){ toast("Arkadaş eklenemedi, tekrar dene"); } }
 function listenFrIn(){ if(D.frInL||!(D.uid&&window.firebase)) return; D.frInL=true;
   firebase.database().ref("frIn/"+D.uid).on("child_added",sn=>{ const v=sn.val()||{}, from=sn.key; sn.ref.remove().catch(()=>{}); if(!from||isBlocked(from)) return;
-    if(!isFriend(from)){ addFriend(from,v.n,"",true); toast(`👥 ${cleanName(v.n||"Arkadaşın")} davetini kabul etti, artık arkadaşsınız!`); } }); }
+    if(isFriend(from)) return;
+    const sent=frSent(); if(sent[from]||v.acc){ delete sent[from]; store.set("frSent",sent); addFriend(from,v.n,"",true); toast(`👥 ${cleanName(v.n||"Arkadaşın")} arkadaşlık isteğini kabul etti!`); return; }
+    // eski sürümden gelen istek: gelen kutusuna koy
+    firebase.database().ref(`frReq/${D.uid}/${from}`).set({n:cleanName(v.n||"Oyuncu"),t:v.t||Date.now()}).catch(()=>{}); }); }
+// ---------- ARKADAŞLIK İSTEKLERİ ----------
+function frSent(){ return store.get("frSent",{})||{}; }
+D.frReq={};
+async function sendFrReq(uid,name){ if(!uid||uid===D.uid) return; if(isFriend(uid)){ toast(`${cleanName(name||"Oyuncu")} zaten arkadaşın`); return; }
+  if(!(D.uid&&window.firebase)){ toast("Online bağlantı yok, birazdan tekrar dene"); return; }
+  if(D.frReq[uid]){ acceptFrReq(uid); return; } // o da bana istek atmışsa direkt arkadaş ol
+  const m=frSent(); m[uid]={n:cleanName(name||"Oyuncu"),t:Date.now()}; store.set("frSent",m);
+  try{ await firebase.database().ref(`frReq/${uid}/${D.uid}`).set({n:myName()||"Oyuncu",t:Date.now()}); toast(`📨 ${cleanName(name||"Oyuncu")} kişisine arkadaşlık isteği gönderildi`); }
+  catch(e){ delete m[uid]; store.set("frSent",m); toast("İstek gönderilemedi, tekrar dene"); }
+  renderFriends(); }
+function cancelFrReq(uid){ const m=frSent(); delete m[uid]; store.set("frSent",m); try{ firebase.database().ref(`frReq/${uid}/${D.uid}`).remove(); }catch(e){} renderFriends(); }
+async function acceptFrReq(from){ const v=D.frReq[from]||{}; delete D.frReq[from]; renderFrReq();
+  try{ firebase.database().ref(`frReq/${D.uid}/${from}`).remove(); }catch(e){}
+  let ph=""; try{ const p=await D.db.doc("profiles/"+from).get(); if(p.exists) ph=p.data().ph||""; }catch(e){}
+  addFriend(from,v.n,ph,true); toast(`👥 ${cleanName(v.n||"Oyuncu")} ile artık arkadaşsınız!`);
+  try{ await firebase.database().ref(`frIn/${from}/${D.uid}`).set({n:myName()||"Oyuncu",acc:1,t:Date.now()}); }catch(e){} }
+function rejectFrReq(from){ delete D.frReq[from]; renderFrReq(); try{ firebase.database().ref(`frReq/${D.uid}/${from}`).remove(); }catch(e){} }
+function renderFrReq(){ const ks=Object.keys(D.frReq).sort((a,b)=>(D.frReq[b].t||0)-(D.frReq[a].t||0)), bd=$("dFrBadge");
+  if(bd){ bd.textContent=ks.length>9?"9+":ks.length; bd.classList.toggle("hidden",!ks.length); }
+  const box=$("frReqList"); if(!box) return;
+  if(!ks.length){ box.innerHTML='<div class="frempty" style="color:#555">Şu an bekleyen arkadaşlık isteğin yok.</div>'; return; }
+  box.innerHTML=""; ks.forEach(u=>{ const v=D.frReq[u]; const el=document.createElement("div"); el.className="frqrow";
+    el.innerHTML='<div class="avatar"></div><b></b><button class="ok">Kabul Et</button><button class="no" title="Reddet">✕</button>';
+    setAv(el.querySelector(".avatar"),v.n,""); el.querySelector("b").textContent=cleanName(v.n||"Oyuncu");
+    D.db&&D.db.doc("profiles/"+u).get().then(p=>{ if(p.exists&&okPh(p.data().ph)&&!banOf(u).foto) setAv(el.querySelector(".avatar"),v.n,p.data().ph); }).catch(()=>{});
+    el.querySelector(".ok").onclick=()=>acceptFrReq(u); el.querySelector(".no").onclick=()=>rejectFrReq(u); box.appendChild(el); }); }
+function listenFrReq(){ if(D.frReqL||!(D.uid&&window.firebase)) return; D.frReqL=true; const ref=firebase.database().ref("frReq/"+D.uid);
+  ref.on("child_added",sn=>{ const v=sn.val()||{}, from=sn.key; if(!from||isBlocked(from)||isFriend(from)){ sn.ref.remove().catch(()=>{}); return; }
+    if(frSent()[from]){ D.frReq[from]=v; acceptFrReq(from); return; } // ikimiz de istek attıysak direkt arkadaş
+    const isNew=!D.frReq[from]; D.frReq[from]=v; renderFrReq(); if(isNew&&Date.now()-(v.t||0)<60000){ toast(`📬 ${cleanName(v.n||"Bir oyuncu")} sana arkadaşlık isteği gönderdi`); try{ beep([[660,.08],[990,.12]]); }catch(e){} } });
+  ref.on("child_removed",sn=>{ delete D.frReq[sn.key]; renderFrReq(); }); }
+$("dFrInbox").onclick=()=>{ renderFrReq(); $("ovFrReq").classList.remove("hidden"); };
+$("frReqClose").onclick=()=>$("ovFrReq").classList.add("hidden");
 $("frCodeAdd").onclick=()=>{ addByCode($("frCodeIn").value); $("frCodeIn").value=""; };
 $("frShare").onclick=()=>{ const c=myCode(); if(!c){ toast("Online bağlantı bekleniyor, birazdan tekrar dene"); return; }
   const link=`https://mubbo1.github.io/bulmaca-carki/a.html?c=${c}&n=${encodeURIComponent(myName()||"")}`;
@@ -2696,7 +2749,7 @@ function showEnd(){
   { const box=$("dEndAns"), qi=g.turn, q=(g.qs||[])[qi]; if(g.reason==="time"&&q&&!((g.done||[])[qi])){ const mine=qi%2===me;
       box.innerHTML=`<small>${mine?"Bilemediğin soru":"Rakibinin bilemediği soru"}</small><div class="q"></div><div class="a">Cevap: <span>${[...QW(q)].map(c=>`<i>${esc(c)}</i>`).join("")}</span></div>`;
       box.querySelector(".q").textContent=QT(q); box.classList.remove("hidden"); } else box.classList.add("hidden"); }
-  { const op=g.players[1-me]||{}, b=$("dAddFr"); if(D.mode==="online"&&op.uid&&op.uid!==D.uid&&!isFriend(op.uid)&&!isBlocked(op.uid)){ b.style.display=""; b.textContent=`➕ ${vis(op).name||"Rakibi"} arkadaş olarak ekle`; b.onclick=()=>{ addFriend(op.uid,op.name,vis(op).ph); b.style.display="none"; }; } else b.style.display="none"; }
+  { const op=g.players[1-me]||{}, b=$("dAddFr"); if(D.mode==="online"&&op.uid&&op.uid!==D.uid&&!isFriend(op.uid)&&!frSent()[op.uid]&&!isBlocked(op.uid)){ b.style.display=""; b.textContent=`➕ ${vis(op).name||"Rakibi"} arkadaş olarak ekle`; b.onclick=()=>{ sendFrReq(op.uid,op.name); b.style.display="none"; }; } else b.style.display="none"; }
   const why={time:"süresinde cevap veremedi",left:"oyundan ayrıldı",draw:""}[g.reason]||"";
   $("dEndTxt").textContent= draw ? "İkiniz de 10 sorunun hepsini bildiniz!" : won ? `${opName} ${why}.` : (g.reason==="time"?"15 saniyede cevap veremedin.":"Bağlantı koptu.");
   if(D.mode==="online" && !D.counted){
