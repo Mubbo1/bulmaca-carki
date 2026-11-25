@@ -20,8 +20,10 @@ workflows:
       app_store_connect: CubeTrafficASC
     environment:
       ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.bulmacacarki.game
+        provisioning_profiles:
+          - bulmaca_appstore_push
+        certificates:
+          - cube_dist
       vars:
         XCODE_WORKSPACE: ios/App/App.xcworkspace
         XCODE_SCHEME: App
@@ -113,8 +115,10 @@ workflows:
       app_store_connect: CubeTrafficASC
     environment:
       ios_signing:
-        distribution_type: ad_hoc
-        bundle_identifier: com.bulmacacarki.game
+        provisioning_profiles:
+          - bulmaca_adhoc_push
+        certificates:
+          - cube_dist
       vars:
         XCODE_WORKSPACE: ios/App/App.xcworkspace
         XCODE_SCHEME: App
