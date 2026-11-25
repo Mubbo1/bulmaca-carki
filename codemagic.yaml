@@ -37,6 +37,22 @@ workflows:
         script: |
           [ -d ios ] || npx cap add ios
           npx cap sync ios
+      - name: Anlık bildirim (push) izni
+        script: |
+          cat > ios/App/App/App.entitlements <<'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict><key>aps-environment</key><string>production</string></dict></plist>
+          EOF
+          ruby -e 'require "xcodeproj"; p=Xcodeproj::Project.open("ios/App/App.xcodeproj"); t=p.targets.find{|x| x.name=="App"}; t.build_configurations.each{|c| c.build_settings["CODE_SIGN_ENTITLEMENTS"]="App/App.entitlements"}; p.save'
+          python3 - <<'PY'
+          p='ios/App/App/AppDelegate.swift'; s=open(p).read()
+          if 'capacitorDidRegisterForRemoteNotifications' not in s:
+              add = "\n    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {\n        NotificationCenter.default.post(name: .capacitorDidRegisterForRemoteNotifications, object: deviceToken)\n    }\n    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {\n        NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)\n    }\n"
+              i = s.rindex('}'); s = s[:i] + add + s[i:]; open(p, 'w').write(s)
+          print("push hazir")
+          PY
+          grep -c capacitorDidRegisterForRemoteNotifications ios/App/App/AppDelegate.swift
       - name: Sadece iPhone (iPad ekran görüntüsü gerekmesin)
         script: sed -i '' 's/TARGETED_DEVICE_FAMILY = "1,2"/TARGETED_DEVICE_FAMILY = 1/g' ios/App/App.xcodeproj/project.pbxproj && grep -m2 TARGETED_DEVICE_FAMILY ios/App/App.xcodeproj/project.pbxproj
       - name: En az iOS 15 (Apple ITMS-90068)
@@ -114,6 +130,22 @@ workflows:
         script: |
           [ -d ios ] || npx cap add ios
           npx cap sync ios
+      - name: Anlık bildirim (push) izni
+        script: |
+          cat > ios/App/App/App.entitlements <<'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict><key>aps-environment</key><string>production</string></dict></plist>
+          EOF
+          ruby -e 'require "xcodeproj"; p=Xcodeproj::Project.open("ios/App/App.xcodeproj"); t=p.targets.find{|x| x.name=="App"}; t.build_configurations.each{|c| c.build_settings["CODE_SIGN_ENTITLEMENTS"]="App/App.entitlements"}; p.save'
+          python3 - <<'PY'
+          p='ios/App/App/AppDelegate.swift'; s=open(p).read()
+          if 'capacitorDidRegisterForRemoteNotifications' not in s:
+              add = "\n    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {\n        NotificationCenter.default.post(name: .capacitorDidRegisterForRemoteNotifications, object: deviceToken)\n    }\n    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {\n        NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)\n    }\n"
+              i = s.rindex('}'); s = s[:i] + add + s[i:]; open(p, 'w').write(s)
+          print("push hazir")
+          PY
+          grep -c capacitorDidRegisterForRemoteNotifications ios/App/App/AppDelegate.swift
       - name: Sadece iPhone (iPad ekran görüntüsü gerekmesin)
         script: sed -i '' 's/TARGETED_DEVICE_FAMILY = "1,2"/TARGETED_DEVICE_FAMILY = 1/g' ios/App/App.xcodeproj/project.pbxproj && grep -m2 TARGETED_DEVICE_FAMILY ios/App/App.xcodeproj/project.pbxproj
       - name: En az iOS 15 (Apple ITMS-90068)
