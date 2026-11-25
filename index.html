@@ -1790,7 +1790,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="105";
+const APP_VER="106";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2080,6 +2080,7 @@ async function initNet(){
   if(D.db && D.uid){
     await loadProfile();
     renderStats(); claimWeekly();
+    setTimeout(()=>{ fetchRank(null).then(d=>{ rankCache.all=d; try{ localStorage.setItem("bc_rankCache",JSON.stringify(rankCache)); }catch(e){} }).catch(()=>{}); },1200);
   }
 }
 D.cat="genel"; // düelloda kategori yok: karışık genel kültür
@@ -2217,27 +2218,33 @@ async function saveProfile(){
   if(!D.profLoaded && !(await loadProfile())) return; // profil okunamadıysa sunucudaki sonuçların üstüne yazma
   try{ await D.db.doc("profiles/"+D.uid).set(Object.assign({name:myName(),...(D.fix1?{fix1:1}:{}),...(D.fix2?{fix2:1}:{}),bd:myBd(),ph:myPh(),wins:D.stat.w,losses:D.stat.l,draws:D.stat.d,updated:Date.now(),[wkey()]:myWeekWins()}, ...DCATS.map(([c])=>({["w_"+c]:catStat(c).w,["l_"+c]:catStat(c).l})))); }catch(e){}
 }
+// sıralama: önce cihazdaki son liste anında gösterilir, sunucudan yenisi gelince güncellenir
+let rankCache={}; try{ rankCache=JSON.parse(localStorage.getItem("bc_rankCache")||"{}")||{}; }catch(e){}
+let cheatCache={t:0,v:null};
+async function cheatersCached(){ if(cheatCache.v&&Date.now()-cheatCache.t<300000) return new Set(cheatCache.v); const s=await cheaters(); cheatCache={t:Date.now(),v:[...s]}; return s; }
+async function fetchRank(rc){
+  const wk=wkey(), wf=rc?"w_"+rc:wk;
+  const [snap,ban]=await Promise.all([ D.db.collection("profiles").get(), cheatersCached().then(async s=>{ await loadBans(); Object.entries(D.bans||{}).forEach(([u,b])=>{ if(b&&b.out) s.add(u); }); return s; }) ]);
+  const all=snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>!ban.has(r.id));
+  let rows=all.map(r=>rc?{...r,sc:r["w_"+rc]||0,wins:r["w_"+rc]||0,losses:r["l_"+rc]||0,draws:0}:{...r,sc:r[wk]||0}).filter(r=>(r.sc||0)>0).sort((a,b)=>(b.sc||0)-(a.sc||0)).slice(0,50);
+  let wkEmpty=false;
+  // Hafta yeni başladıysa kimsede haftalık galibiyet olmaz; tablo boş kalmasın diye tüm zamanlar gösterilir
+  if(!rows.length && !rc){ wkEmpty=true; rows=all.map(r=>({...r,sc:r.wins||0})).filter(r=>(r.sc||0)>0).sort((a,b)=>(b.sc||0)-(a.sc||0)).slice(0,50); }
+  return {rows:rows.map(r=>({id:r.id,name:r.name,ph:r.ph,bd:r.bd,wins:r.wins,losses:r.losses,sc:r.sc})),wkEmpty,wk};
+}
 async function loadRank(){
-  const box=$("dRank");
-  if(!D.db){ box.innerHTML='<div class="dnote">Sıralama tablosu için online bağlantı gerekiyor.</div>'; return; }
-  box.innerHTML='<div class="dnote">Yükleniyor…</div>';
+  const box=$("dRank"); const rc=D.rcat&&D.rcat!=="all"?D.rcat:null, ck=rc||"all", my=(D.rankReq=(D.rankReq||0)+1);
+  const c=rankCache[ck];
+  if(c&&c.rows&&(rc||c.wk===wkey())) drawRank(box,c.rows,rc,c.wkEmpty); else box.innerHTML='<div class="dnote">Yükleniyor…</div>';
+  // bağlantı henüz kurulmadıysa kısa süre bekle (uygulama açılışında arka planda kuruluyor)
+  if(!D.db){ if(!D.inited&&!IN_ARTIFACT){ D.inited=true; initNet(); } for(let i=0;i<40&&!D.db;i++) await new Promise(r=>setTimeout(r,250)); }
+  if(my!==D.rankReq) return;
+  if(!D.db){ if(!c) box.innerHTML='<div class="dnote">Sıralama tablosu için online bağlantı gerekiyor.</div>'; return; }
+  try{ const d=await fetchRank(rc); if(my!==D.rankReq) return; rankCache[ck]=d; try{ localStorage.setItem("bc_rankCache",JSON.stringify(rankCache)); }catch(e){} drawRank(box,d.rows,rc,d.wkEmpty); }
+  catch(e){ if(!c) box.innerHTML='<div class="dnote">Sıralama şu an yüklenemedi.</div>'; }
+}
+function drawRank(box,rows,rc,wkEmpty){
   try{
-    const rc=D.rcat&&D.rcat!=="all"?D.rcat:null, wk=wkey(), wf=rc?"w_"+rc:wk;
-    // haftalık/kategori alanları için sunucuda dizin yok: tüm profilleri alıp cihazda sıralıyoruz
-    let snap; try{ snap=await D.db.collection("profiles").orderBy(wf,"desc").limit(50).get(); }catch(e){ snap=await D.db.collection("profiles").get(); }
-    let rows=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b[wf]||0)-(a[wf]||0)).slice(0,50);
-    rows=rows.map(r=>rc?{...r,sc:r["w_"+rc]||0,wins:r["w_"+rc]||0,losses:r["l_"+rc]||0,draws:0}:{...r,sc:r[wk]||0});
-    const ban=await cheaters(); await loadBans(); Object.entries(D.bans||{}).forEach(([u,b])=>{ if(b&&b.out) ban.add(u); }); rows=rows.filter(r=>!ban.has(r.id));
-    let wkEmpty=false;
-    rows=rows.filter(r=>(r.sc||0)>0).sort((a,b)=>(b.sc||0)-(a.sc||0));
-    // Hafta yeni başladıysa kimsede haftalık galibiyet olmaz; tablo boş kalmasın diye
-    // tüm zamanlar sıralamasını gösteririz.
-    if(!rows.length && !rc){
-      wkEmpty=true;
-      const s2=await D.db.collection("profiles").orderBy("wins","desc").limit(50).get();
-      rows=s2.docs.map(d=>({id:d.id,...d.data()})).map(r=>({...r,sc:r.wins||0}));
-      rows=rows.filter(r=>!ban.has(r.id)&&(r.sc||0)>0).sort((a,b)=>(b.sc||0)-(a.sc||0));
-    }
     if(!rows.length){ box.innerHTML=`<div class="dnote">${rc?dcatName(rc)+" kategorisinde henüz":"Henüz"} kimse düello kazanmadı. İlk sen ol! 🏆</div>`; return; }
     box.innerHTML = rc ? "" : `<div class="wkhead"><b>🏆 Haftanın Sıralaması</b><div>Pazartesi sıfırlanır · bitmesine <b>${wkLeft()}</b><br>1. ve 2. <b>15 💎</b> · 3-4-5. <b>500 🪙</b>${wkEmpty?"<br><span style='opacity:.8'>Bu hafta henüz galibiyet yok — tüm zamanlar sıralaması gösteriliyor</span>":""}</div></div>`;
     rows.forEach((r,i)=>{ const t=(r.wins||0)+(r.losses||0), ra=t?Math.round((r.wins||0)/t*100):0;
@@ -2246,7 +2253,7 @@ async function loadRank(){
       const main=rc?`<b>${r.wins||0}</b> G · ${r.losses||0} M<br>%${ra}`:`<b>${r.sc}</b> G<br><small>toplam ${r.wins||0}</small>`;
       el.innerHTML=`<div class="no">${["🥇","🥈","🥉"][i]||i+1}</div><div class="avatar sm"></div>${lvHTML(r.wins||0,"sm")}<div class="nm"></div>${prize}<div class="wl">${main}</div>`;
       const bn=banOf(r.id); setAv(el.querySelector(".avatar"),bn.isim?"Oyuncu":r.name,bn.foto?"":r.ph); el.querySelector(".nm").textContent=bn.isim?"Oyuncu":cleanName(r.name); if(r.id!==D.uid&&!isFriend(r.id)&&!frSent()[r.id]&&!(banOf(r.id).out)){ const fb=document.createElement("button"); fb.className="fadd"; fb.textContent="➕"; fb.title="Arkadaş ekle"; fb.onclick=e=>{ e.stopPropagation(); sendFrReq(r.id,r.name); fb.remove(); }; el.querySelector(".nm").after(fb); } if(isAdmin()&&r.id!==D.uid){ el.style.cursor="pointer"; el.onclick=()=>{ $("repName").textContent=cleanName(r.name); document.querySelectorAll("[data-rep]").forEach(b=>{ b.disabled=true; b.style.opacity=.4; }); $("repDone").classList.add("hidden"); openAdmin(r.id,r.name); $("ovReport").classList.remove("hidden"); }; } if(r.bd){ const sm=document.createElement("small"); sm.textContent=String(r.bd).split(",").filter(id=>BMAP[id]).slice(0,3).map(id=>BMAP[id][1]).join(""); el.querySelector(".nm").appendChild(sm); } box.appendChild(el); });
-  }catch(e){ box.innerHTML='<div class="dnote">Sıralama şu an yüklenemedi.</div>'; }
+  }catch(e){}
 }
 
 // ---------- oda ----------
@@ -2445,7 +2452,7 @@ $("frShare").onclick=()=>{ const c=myCode(); if(!c){ toast("Online bağlantı be
 function linkCode(u){ try{ const m=String(u||"").match(/(?:[?&]f=|bulmacacarki:\/\/f\/|bulmacacarki:\/\/\?f=)([A-Za-z0-9]{6})/); return m?m[1].toUpperCase():null; }catch(e){ return null; } }
 { const c=linkCode(location.href); if(c){ D.pendCode=c; try{ history.replaceState(null,"",location.pathname); }catch(e){} } }
 // davetler ve çevrimiçi durumu için bağlantı oyun açılınca kurulur
-setTimeout(()=>{ try{ if(!D.inited&&!IN_ARTIFACT&&navigator.onLine!==false){ D.inited=true; initNet(); } }catch(e){} },D.pendCode?300:3500);
+setTimeout(()=>{ try{ if(!D.inited&&!IN_ARTIFACT&&navigator.onLine!==false){ D.inited=true; initNet(); } }catch(e){} },D.pendCode?300:600);
 try{ const AppP=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.App; if(AppP){ AppP.addListener("appUrlOpen",e=>{ const c=linkCode(e&&e.url); if(c){ if(D.uid&&window.firebase) addByCode(c,true); else D.pendCode=c; } }); } }catch(e){}
 // ---------- ENGELLEME ----------
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
