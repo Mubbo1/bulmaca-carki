@@ -834,7 +834,7 @@
     <div id="blkBox" class="hidden" style="margin:4px 0 8px"><div id="blkList"></div></div>
     <div class="set"><span>📜 Kullanım Şartları</span><button class="mini" onclick="window.open('https://mubbo1.github.io/bulmaca-carki/kullanim.html','_blank')">Aç</button></div>
     <div class="set"><span>📄 Gizlilik Politikası</span><button class="mini" onclick="window.open('https://mubbo1.github.io/bulmaca-carki/gizlilik.html','_blank')">Aç</button></div>
-    <div class="set"><span>ℹ️ Sürüm</span><span style="color:#888;font-size:15px">1.0.3</span></div>
+    <div class="set"><span>ℹ️ Sürüm</span><span style="color:#888;font-size:15px">1.0.4</span></div>
     <div class="hidden"><button id="btnReset"></button></div>
     <div id="resetAsk" class="hidden" style="margin-top:8px;font-size:15px">Tüm bölümler, altın ve elmaslar sıfırlanacak. Emin misin?
       <div style="display:flex;gap:8px"><button class="danger" id="btnResetYes">Evet, sıfırla</button><button id="btnResetNo" style="background:#dee2e6">Vazgeç</button></div></div>
@@ -1790,7 +1790,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="107";
+const APP_VER="108";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
