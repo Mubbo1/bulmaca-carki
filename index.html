@@ -834,7 +834,7 @@
     <div id="blkBox" class="hidden" style="margin:4px 0 8px"><div id="blkList"></div></div>
     <div class="set"><span>📜 Kullanım Şartları</span><button class="mini" onclick="window.open('https://mubbo1.github.io/bulmaca-carki/kullanim.html','_blank')">Aç</button></div>
     <div class="set"><span>📄 Gizlilik Politikası</span><button class="mini" onclick="window.open('https://mubbo1.github.io/bulmaca-carki/gizlilik.html','_blank')">Aç</button></div>
-    <div class="set"><span>ℹ️ Sürüm</span><span style="color:#888;font-size:15px">1.0.4</span></div>
+    <div class="set"><span>ℹ️ Sürüm</span><span style="color:#888;font-size:15px">1.0.5</span></div>
     <div class="hidden"><button id="btnReset"></button></div>
     <div id="resetAsk" class="hidden" style="margin-top:8px;font-size:15px">Tüm bölümler, altın ve elmaslar sıfırlanacak. Emin misin?
       <div style="display:flex;gap:8px"><button class="danger" id="btnResetYes">Evet, sıfırla</button><button id="btnResetNo" style="background:#dee2e6">Vazgeç</button></div></div>
@@ -1790,7 +1790,7 @@ function applyScene(i){
 
 // ================= FIREBASE BAĞLANTISI (GitHub Pages / kendi sitemiz) =================
 // ---------- otomatik güncelleme: yeni sürüm yayınlanınca sayfa kendini yeniler ----------
-const APP_VER="108";
+const APP_VER="109";
 (function(){ if(!/github\.io$/.test(location.hostname)) return;
   const chk=()=>fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{ v=(v||"").trim();
     if(v && v!==APP_VER){ const u=new URL(location.href); if(u.searchParams.get("v")===v) return; u.searchParams.set("v",v); location.replace(u.toString()); } }).catch(()=>{});
@@ -2365,7 +2365,7 @@ async function renderFriends(){ const box=$("frList"); if(!box) return; const m=
     el.onclick=()=>inviteFriend(u); box.appendChild(el); });
   // çevrimiçi durumu ve güncel isim/fotoğraf
   if(D.db) ks.forEach(async u=>{ try{ const p=await D.db.doc("profiles/"+u).get(); if(p.exists){ const d=p.data(); const mm=frMap(); if(mm[u]){ mm[u].n=cleanName(d.name||mm[u].n); mm[u].ph=okPh(d.ph)&&!banOf(u).foto?d.ph:""; store.set("friends",mm); } }
-    const o=await firebase.database().ref("online/"+u).get(); const on=!!(o.val()&&Date.now()-(o.val().t||0)<6*3600e3); if(on!==!!D.frOn[u]||p.exists){ D.frOn[u]=on; clearTimeout(D.frRT); D.frRT=setTimeout(()=>renderFriendsLite(),150); } }catch(e){} }); }
+    const o=await firebase.database().ref("online/"+u).get(); const on=!!(o.val()&&Date.now()-(o.val().t||0)<10*60e3); if(on!==!!D.frOn[u]||p.exists){ D.frOn[u]=on; clearTimeout(D.frRT); D.frRT=setTimeout(()=>renderFriendsLite(),150); } }catch(e){} }); }
 function renderFriendsLite(){ const m=frMap(), box=$("frList"); if(!box) return; const ks=Object.keys(m).sort((a,b)=>(m[b].t||0)-(m[a].t||0));
   [...box.querySelectorAll(".frrow:not(.pend)")].forEach((el,i)=>{ const u=ks[i]; if(!u) return; const f=m[u]; setAv(el.querySelector(".avatar"),f.n,f.ph); el.querySelector("b").textContent=f.n; el.querySelector("small").innerHTML=`<i class="${D.frOn[u]?"on":"off"}"></i>${D.frOn[u]?"Çevrimiçi":"Çevrimdışı"}`; }); }
 let frDelAsk=0; function confirmDel(n){ const now=Date.now(); if(now-frDelAsk<2500){ frDelAsk=0; return true; } frDelAsk=now; toast(`${n} listeden çıkarılsın mı? Onaylamak için ✕'e tekrar bas`); return false; }
@@ -2391,8 +2391,9 @@ $("invYes").onclick=()=>{ const v=D.inv; $("ovInvite").classList.add("hidden"); 
 // ---------- ANLIK BİLDİRİMLER: arkadaş oyuna girdi / düello daveti ----------
 const PUSH_URL="https://bc-push.birhatkayaa36.workers.dev";
 async function pushSend(to,type,extra){ try{ const u=window.firebase&&firebase.auth().currentUser; if(!(D.uid&&u)) return; const t=await u.getIdToken();
-  await fetch(PUSH_URL,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify({t,from:D.uid,to,type,...(extra||{})})}); }catch(e){} }
-async function frIsOnline(u){ try{ const o=(await firebase.database().ref("online/"+u).get()).val(); return !!(o&&Date.now()-(o.t||0)<6*3600e3); }catch(e){ return false; } }
+  const r=await fetch(PUSH_URL,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify({t,from:D.uid,to,type,...(extra||{})})}); const res=(await r.text()).slice(0,300);
+  firebase.database().ref("pushLog/"+D.uid+"/_last").set({to,type,res,t:Date.now()}).catch(()=>{}); }catch(e){ try{ firebase.database().ref("pushLog/"+D.uid+"/_last").set({to,type,res:"ERR "+String(e&&e.message||e).slice(0,200),t:Date.now()}); }catch(_){} } }
+async function frIsOnline(u){ try{ const o=(await firebase.database().ref("online/"+u).get()).val(); return !!(o&&Date.now()-(o.t||0)<10*60e3); }catch(e){ return false; } }
 async function notifyFriendsOnline(){ try{ if(Date.now()-store.get("pushOnAt",0)<30*60e3) return; const ks=Object.keys(frMap()); if(!ks.length) return; store.set("pushOnAt",Date.now());
   for(const u of ks.slice(0,40)){ if(!(await frIsOnline(u))) pushSend(u,"online"); } }catch(e){} }
 async function pushInit(){ try{ const C=window.Capacitor; if(!(C&&C.isNativePlatform&&C.isNativePlatform())||D.pushInit) return; const PN=C.Plugins&&C.Plugins.PushNotifications; if(!PN) return; D.pushInit=true;
@@ -2402,7 +2403,10 @@ async function pushInit(){ try{ const C=window.Capacitor; if(!(C&&C.isNativePlat
     setTimeout(async()=>{ try{ if($("duel").classList.contains("hidden")){ try{ hideHome(); }catch(e){} await openDuel(); } if(d.k==="online"){ const b=$("dFriend"); if(b) b.classList.remove("hidden"); renderFriends(); } }catch(e){} },500); }catch(e){} });
   let p=await PN.checkPermissions(); if(p.receive==="prompt"||p.receive==="prompt-with-rationale") p=await PN.requestPermissions(); if(p.receive==="granted") await PN.register(); }catch(e){} }
 // çevrimiçi durumu
-function goOnline(){ try{ if(!(D.uid&&window.firebase)) return; const r=firebase.database().ref("online/"+D.uid); const put=()=>r.set({t:Date.now()}).catch(()=>{}); put(); r.onDisconnect().remove(); clearInterval(D.onlT); D.onlT=setInterval(put,5*60e3); }catch(e){} }
+function goOnline(){ try{ if(!(D.uid&&window.firebase)||D.onlOn) return; D.onlOn=1; const db=firebase.database(), r=db.ref("online/"+D.uid); const put=()=>{ if(document.visibilityState!=="hidden") r.set({t:Date.now()}).catch(()=>{}); };
+  db.ref(".info/connected").on("value",sn=>{ if(sn.val()===true){ r.onDisconnect().remove().then(put).catch(()=>{}); } });
+  document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden") r.remove().catch(()=>{}); else { put(); setTimeout(notifyFriendsOnline,3000); } });
+  put(); clearInterval(D.onlT); D.onlT=setInterval(put,4*60e3); }catch(e){} }
 
 // ---------- ARKADAŞLIK KODU ve WHATSAPP DAVET LİNKİ ----------
 function myCode(){ if(!D.uid) return ""; const A="ABCDEFGHJKLMNPRSTUVYZ23456789"; let h=2166136261; for(const c of D.uid){ h^=c.charCodeAt(0); h=Math.imul(h,16777619)>>>0; } let s=""; for(let i=0;i<6;i++){ s+=A[h%A.length]; h=Math.floor(h/A.length)^Math.imul(h,31)>>>0; h>>>=0; } return s; }
