@@ -2953,7 +2953,7 @@ const isStandalone=()=>window.matchMedia("(display-mode: standalone)").matches |
 let swReg=null;
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)){ navigator.serviceWorker.register("sw.js").then(r=>{ swReg=r; }).catch(()=>{}); }
 function nfPerm(){ if(NAT.native) return NAT.LN? store.get("nfPerm","default") : "unsupported"; return nfSupported()? Notification.permission : "unsupported"; }
-// telefonda: oyun kapanınca önümüzdeki 7 gün, oyuncunun her zamanki oynama saatinde günde 1 bildirim + canlar dolunca haber
+// telefonda: oyun kapanınca önümüzdeki 7 gün, her gün öğlen 13:00 ve akşam 20:30 birer hatırlatma + canlar dolunca haber
 let nfBusy=false;
 function nfNext(){ // tekrar etmeyen sırayla bildirim seç (hepsi bitince yeniden karıştır)
   let bag=store.get("nfBag",[]); if(!Array.isArray(bag)) bag=[]; const last=store.get("nfLast",-1);
@@ -2962,8 +2962,9 @@ function nfNext(){ // tekrar etmeyen sırayla bildirim seç (hepsi bitince yenid
 async function nativeSchedule(){ if(!NAT.LN||nfPerm()!=="granted"||nfBusy) return; nfBusy=true;
   try{ const pend=await NAT.LN.getPending(); if(pend&&pend.notifications&&pend.notifications.length) await NAT.LN.cancel({notifications:pend.notifications.map(n=>({id:n.id}))});
     const now=new Date(), list=[];
-    for(let d=1; d<=7; d++){ const at=new Date(now); at.setDate(at.getDate()+d); at.setHours(Math.min(Math.max(now.getHours(),10),21),now.getMinutes(),0,0);
-      const [t,b]=NOTIFS[nfNext()]; list.push({id:d,title:t,body:b,schedule:{at,allowWhileIdle:true}}); }
+    // her gün öğlen ve akşam birer hatırlatma (oyundan 3 saatten yakın olanlar atlanır), 7 gün boyunca
+    let id=1; for(let d=0; d<=7 && id<=14; d++){ for(const [h,m] of [[13,0],[20,30]]){ const at=new Date(now); at.setDate(at.getDate()+d); at.setHours(h,m,0,0);
+      if(at-now<3*3600e3) continue; const [t,b]=NOTIFS[nfNext()]; list.push({id:id++,title:t,body:b,schedule:{at,allowWhileIdle:true}}); if(id>14) break; } }
     const lt=store.get("lifeT",0); if(!unlimited&&lives<LIFE_MAX&&lt){ const ms=lt+LIFE_REGEN*(LIFE_MAX-lives)-Date.now(); if(ms>60e3) list.push({id:50,title:NOTIFS[1][0],body:NOTIFS[1][1],schedule:{at:new Date(Date.now()+ms),allowWhileIdle:true}}); }
     await NAT.LN.schedule({notifications:list}); }catch(e){} nfBusy=false; }
 if(NAT.native) document.addEventListener("visibilitychange",()=>{ if(document.hidden) nativeSchedule(); });
