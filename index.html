@@ -2374,7 +2374,7 @@ async function inviteFriend(uid){ if(banOut()) return; if(!D.room||!window.fireb
   needEula(async()=>{ const f=frMap()[uid]||{n:"Arkadaşın"}; D.quick=false; D.retries=0; const code=rcode();
     await joinRoom(code,true); $("dWaitTitle").textContent=`${f.n} bekleniyor…`; $("dWaitNote").textContent="Davet gönderildi. Arkadaşın kabul edince maç başlayacak."; $("dWaitCode").style.display="";
     try{ await firebase.database().ref(`invites/${uid}/${D.uid}`).set({n:myName(),ph:myPh()&&myPh().length<9000?myPh():"",code,t:Date.now()}); }catch(e){ toast("Davet gönderilemedi"); }
-    if(!(await frIsOnline(uid))){ pushSend(uid,"invite",{code}); $("dWaitNote").textContent="Arkadaşın şu an çevrimdışı; telefonuna bildirim gönderildi. Kabul edince maç başlayacak."; } }); }
+    pushSend(uid,"invite",{code}); if(!(await frIsOnline(uid))) $("dWaitNote").textContent="Arkadaşın şu an çevrimdışı; telefonuna bildirim gönderildi. Kabul edince maç başlayacak."; }); }
 // gelen davetleri dinle
 function listenInvites(){ if(D.invL||!(D.uid&&window.firebase)) return; D.invL=true; const ref=firebase.database().ref("invites/"+D.uid);
   ref.on("child_added",sn=>{ const v=sn.val()||{}, from=sn.key; sn.ref.remove().catch(()=>{});
@@ -2394,7 +2394,7 @@ async function pushSend(to,type,extra){ try{ const u=window.firebase&&firebase.a
   const r=await fetch(PUSH_URL,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify({t,from:D.uid,to,type,...(extra||{})})}); const res=(await r.text()).slice(0,300);
   firebase.database().ref("pushLog/"+D.uid+"/_last").set({to,type,res,t:Date.now()}).catch(()=>{}); }catch(e){ try{ firebase.database().ref("pushLog/"+D.uid+"/_last").set({to,type,res:"ERR "+String(e&&e.message||e).slice(0,200),t:Date.now()}); }catch(_){} } }
 async function frIsOnline(u){ try{ const o=(await firebase.database().ref("online/"+u).get()).val(); return !!(o&&Date.now()-(o.t||0)<10*60e3); }catch(e){ return false; } }
-async function notifyFriendsOnline(){ try{ if(Date.now()-store.get("pushOnAt",0)<30*60e3) return; const ks=Object.keys(frMap()); if(!ks.length) return; store.set("pushOnAt",Date.now());
+async function notifyFriendsOnline(){ try{ if(Date.now()-store.get("pushOnAt",0)<10*60e3) return; const ks=Object.keys(frMap()); if(!ks.length) return; store.set("pushOnAt",Date.now());
   for(const u of ks.slice(0,40)){ if(!(await frIsOnline(u))) pushSend(u,"online"); } }catch(e){} }
 async function pushInit(){ try{ const C=window.Capacitor; if(!(C&&C.isNativePlatform&&C.isNativePlatform())||D.pushInit) return; const PN=C.Plugins&&C.Plugins.PushNotifications; if(!PN) return; D.pushInit=true;
   PN.addListener("registration",async tk=>{ try{ const v=tk&&tk.value; if(!v||!D.uid) return; if(store.get("pushTk","")===v&&store.get("pushTkU","")===D.uid&&Date.now()-store.get("pushTkT",0)<7*864e5) return;
